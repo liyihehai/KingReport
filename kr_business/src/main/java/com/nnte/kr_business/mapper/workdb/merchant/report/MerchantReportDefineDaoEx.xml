@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefineDao">
+    <sql id="queryModelListWithPgSql">
+        select * from MERCHANT_REPORT_DEFINE t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="reportCode!= null"><![CDATA[and t.REPORT_CODE like '%${reportCode}%']]></if>
+            <if test="reportName!= null"><![CDATA[and t.REPORT_NAME like '%${reportName}%']]></if>
+            <if test="reportClass!= null"><![CDATA[and t.REPORT_CLASS = #{reportClass}]]></if>
+            <if test="reportBusiType!= null"><![CDATA[and t.REPORT_BUSI_TYPE = #{reportBusiType}]]></if>
+            <if test="reportPeriod!= null"><![CDATA[and t.REPORT_PERIOD = #{reportPeriod}]]></if>
+            <if test="startDate!= null"><![CDATA[and t.START_DATE = #{startDate}]]></if>
+            <if test="templateFile!= null"><![CDATA[and t.TEMPLATE_FILE = #{templateFile}]]></if>
+            <if test="reportState!= null"><![CDATA[and t.REPORT_STATE = #{reportState}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="timeStart!= null"><![CDATA[and t.CREATE_TIME >= #{timeStart}]]></if>
+            <if test="timeEnd!= null"><![CDATA[and t.CREATE_TIME <= #{timeEnd}]]></if>
+            <if test="createOperId!= null"><![CDATA[and t.CREATE_OPER_ID = #{createOperId}]]></if>
+            <if test="createOperName!= null"><![CDATA[and t.CREATE_OPER_NAME = #{createOperName}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+            <if test="opeTime!= null"><![CDATA[and t.OPE_TIME = #{opeTime}]]></if>
+        </where>
+    </sql>
+    <select id="queryModelListWithPgCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="queryModelListWithPgSql" />
+        ) m
+    </select>
+    <select id="queryModelListWithPg" parameterType="java.util.Map" resultMap="MerchantReportDefineResult">
+        <include refid="queryModelListWithPgSql" />
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

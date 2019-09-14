@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperatorDao">
+    <resultMap id="BaseMerchantOperatorResult" type="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator">
+        <result column="ID" property="id"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="OPE_CODE" property="opeCode"/>
+        <result column="OPE_NAME" property="opeName"/>
+        <result column="OPE_ACCOUNT" property="opeAccount"/>
+        <result column="OPE_PASSWORD" property="opePassword"/>
+        <result column="MOBILE_PHONE" property="mobilePhone"/>
+        <result column="OPE_STATE" property="opeState"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="OPERATOR_TYPE" property="operatorType"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator">
+        insert into BASE_MERCHANT_OPERATOR (PAR_MERCHANT_ID ,OPE_CODE ,OPE_NAME ,OPE_ACCOUNT ,OPE_PASSWORD ,MOBILE_PHONE ,OPE_STATE ,CREATE_TIME ,UPDATE_TIME ,OPERATOR_TYPE )
+        values (#{parMerchantId} ,#{opeCode} ,#{opeName} ,#{opeAccount} ,#{opePassword} ,#{mobilePhone} ,#{opeState} ,#{createTime} ,#{updateTime} ,#{operatorType} )
+    </insert>
+    <select id="findModelByKey" resultMap="BaseMerchantOperatorResult" parameterType="java.lang.Long">
+        select * from BASE_MERCHANT_OPERATOR where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from BASE_MERCHANT_OPERATOR where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator">
+        update BASE_MERCHANT_OPERATOR
+        <set>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="opeCode!= null"><![CDATA[OPE_CODE=#{opeCode},]]></if>
+        <if test="opeName!= null"><![CDATA[OPE_NAME=#{opeName},]]></if>
+        <if test="opeAccount!= null"><![CDATA[OPE_ACCOUNT=#{opeAccount},]]></if>
+        <if test="opePassword!= null"><![CDATA[OPE_PASSWORD=#{opePassword},]]></if>
+        <if test="mobilePhone!= null"><![CDATA[MOBILE_PHONE=#{mobilePhone},]]></if>
+        <if test="opeState!= null"><![CDATA[OPE_STATE=#{opeState},]]></if>
+        <if test="createTime!= null"><![CDATA[CREATE_TIME=#{createTime},]]></if>
+        <if test="updateTime!= null"><![CDATA[UPDATE_TIME=#{updateTime},]]></if>
+        <if test="operatorType!= null"><![CDATA[OPERATOR_TYPE=#{operatorType},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findBaseMerchantOperatorListSql">
+        select * from BASE_MERCHANT_OPERATOR t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="opeCode!= null"><![CDATA[and t.OPE_CODE = #{opeCode}]]></if>
+            <if test="opeName!= null"><![CDATA[and t.OPE_NAME = #{opeName}]]></if>
+            <if test="opeAccount!= null"><![CDATA[and t.OPE_ACCOUNT = #{opeAccount}]]></if>
+            <if test="opePassword!= null"><![CDATA[and t.OPE_PASSWORD = #{opePassword}]]></if>
+            <if test="mobilePhone!= null"><![CDATA[and t.MOBILE_PHONE = #{mobilePhone}]]></if>
+            <if test="opeState!= null"><![CDATA[and t.OPE_STATE = #{opeState}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+            <if test="operatorType!= null"><![CDATA[and t.OPERATOR_TYPE = #{operatorType}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator" resultMap="BaseMerchantOperatorResult">
+        <include refid="findBaseMerchantOperatorListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findBaseMerchantOperatorListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator" resultMap="BaseMerchantOperatorResult">
+        <include refid="findBaseMerchantOperatorListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQueryDao">
+    <sql id="queryReportQueryListSql">
+        select * from MERCHANT_REPORT_QUERY t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="reportId!= null"><![CDATA[and t.REPORT_ID = #{reportId}]]></if>
+            <if test="connId!= null"><![CDATA[and t.CONN_ID = #{connId}]]></if>
+            <if test="queryCode!= null"><![CDATA[and t.QUERY_CODE like '%${queryCode}%']]></if>
+            <if test="queryName!= null"><![CDATA[and t.QUERY_NAME like '%${queryName}%']]></if>
+            <if test="cutFlag!= null"><![CDATA[and t.CUT_FLAG=#{cutFlag}]]></if>
+            <if test="cutTypeName!= null"><![CDATA[and t.CUT_TYPE_NAME=#{cutTypeName}]]></if>
+            <if test="queryType!= null"><![CDATA[and t.QUERY_TYPE = #{queryType}]]></if>
+            <if test="maxRowCount!= null"><![CDATA[and t.MAX_ROW_COUNT = #{maxRowCount}]]></if>
+            <if test="querySql!= null"><![CDATA[and t.QUERY_SQL = #{querySql}]]></if>
+            <if test="querySqlCols!= null"><![CDATA[and t.QUERY_SQL_COLS = #{querySqlCols}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="createOperId!= null"><![CDATA[and t.CREATE_OPER_ID = #{createOperId}]]></if>
+            <if test="createOperName!= null"><![CDATA[and t.CREATE_OPER_NAME = #{createOperName}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="queryReportQueryListCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="queryReportQueryListSql" />
+        ) m
+    </select>
+    <select id="queryReportQueryList" parameterType="java.util.Map" resultMap="MerchantReportQueryResult">
+        <include refid="queryReportQueryListSql" />
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

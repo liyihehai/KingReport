@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefineDao">
+    <sql id="queryDbconnectListSql">
+        select * from MERCHANT_DBCONNECT_DEFINE t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="coddCode!= null"><![CDATA[and t.CODD_CODE like '%${coddCode}%']]></if>
+            <if test="connName!= null"><![CDATA[and t.CONN_NAME like '%${connName}%']]></if>
+            <if test="dbType!= null"><![CDATA[and t.DB_TYPE = #{dbType}]]></if>
+            <if test="dbIp!= null"><![CDATA[and t.DB_IP = #{dbIp}]]></if>
+            <if test="dbPort!= null"><![CDATA[and t.DB_PORT = #{dbPort}]]></if>
+            <if test="dbSchema!= null"><![CDATA[and t.DB_SCHEMA = #{dbSchema}]]></if>
+            <if test="dbUser!= null"><![CDATA[and t.DB_USER = #{dbUser}]]></if>
+            <if test="dbPassword!= null"><![CDATA[and t.DB_PASSWORD = #{dbPassword}]]></if>
+            <if test="connState!= null"><![CDATA[and t.CONN_STATE = #{connState}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="createOperId!= null"><![CDATA[and t.CREATE_OPER_ID = #{createOperId}]]></if>
+            <if test="createOperName!= null"><![CDATA[and t.CREATE_OPER_NAME = #{createOperName}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="queryDbconnectListCount"  parameterType="java.util.Map" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="queryDbconnectListSql" />
+        ) m
+    </select>
+    <select id="queryDbconnectList" parameterType="java.util.Map" resultMap="MerchantDbconnectDefineResult">
+        <include refid="queryDbconnectListSql" />
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

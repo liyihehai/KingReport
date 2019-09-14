@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParamDao">
+    <resultMap id="BaseSysParamResult" type="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam">
+        <result column="ID" property="id"/>
+        <result column="PARAM_TYPE" property="paramType"/>
+        <result column="PARAM_NAME" property="paramName"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="CLASS_ID" property="classId"/>
+        <result column="PKEY" property="pkey"/>
+        <result column="VALUE1" property="value1"/>
+        <result column="VALUE2" property="value2"/>
+        <result column="VALUE5" property="value5"/>
+        <result column="VALUE_TEXT" property="valueText"/>
+        <result column="PARAM_STATE" property="paramState"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="UPDATE_OPE_ID" property="updateOpeId"/>
+        <result column="UPDATE_OPE_NAME" property="updateOpeName"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam">
+        insert into BASE_SYS_PARAM (PARAM_TYPE ,PARAM_NAME ,PAR_MERCHANT_ID ,CLASS_ID ,PKEY ,VALUE1 ,VALUE2 ,VALUE5 ,VALUE_TEXT ,PARAM_STATE ,UPDATE_TIME ,UPDATE_OPE_ID ,UPDATE_OPE_NAME )
+        values (#{paramType} ,#{paramName} ,#{parMerchantId} ,#{classId} ,#{pkey} ,#{value1} ,#{value2} ,#{value5} ,#{valueText} ,#{paramState} ,#{updateTime} ,#{updateOpeId} ,#{updateOpeName} )
+    </insert>
+    <select id="findModelByKey" resultMap="BaseSysParamResult" parameterType="java.lang.Long">
+        select * from BASE_SYS_PARAM where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from BASE_SYS_PARAM where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam">
+        update BASE_SYS_PARAM
+        <set>
+        <if test="paramType!= null"><![CDATA[PARAM_TYPE=#{paramType},]]></if>
+        <if test="paramName!= null"><![CDATA[PARAM_NAME=#{paramName},]]></if>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="classId!= null"><![CDATA[CLASS_ID=#{classId},]]></if>
+        <if test="pkey!= null"><![CDATA[PKEY=#{pkey},]]></if>
+        <if test="value1!= null"><![CDATA[VALUE1=#{value1},]]></if>
+        <if test="value2!= null"><![CDATA[VALUE2=#{value2},]]></if>
+        <if test="value5!= null"><![CDATA[VALUE5=#{value5},]]></if>
+        <if test="valueText!= null"><![CDATA[VALUE_TEXT=#{valueText},]]></if>
+        <if test="paramState!= null"><![CDATA[PARAM_STATE=#{paramState},]]></if>
+        <if test="updateTime!= null"><![CDATA[UPDATE_TIME=#{updateTime},]]></if>
+        <if test="updateOpeId!= null"><![CDATA[UPDATE_OPE_ID=#{updateOpeId},]]></if>
+        <if test="updateOpeName!= null"><![CDATA[UPDATE_OPE_NAME=#{updateOpeName},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findBaseSysParamListSql">
+        select * from BASE_SYS_PARAM t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="paramType!= null"><![CDATA[and t.PARAM_TYPE = #{paramType}]]></if>
+            <if test="paramName!= null"><![CDATA[and t.PARAM_NAME = #{paramName}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="classId!= null"><![CDATA[and t.CLASS_ID = #{classId}]]></if>
+            <if test="pkey!= null"><![CDATA[and t.PKEY = #{pkey}]]></if>
+            <if test="value1!= null"><![CDATA[and t.VALUE1 = #{value1}]]></if>
+            <if test="value2!= null"><![CDATA[and t.VALUE2 = #{value2}]]></if>
+            <if test="value5!= null"><![CDATA[and t.VALUE5 = #{value5}]]></if>
+            <if test="valueText!= null"><![CDATA[and t.VALUE_TEXT = #{valueText}]]></if>
+            <if test="paramState!= null"><![CDATA[and t.PARAM_STATE = #{paramState}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+            <if test="updateOpeId!= null"><![CDATA[and t.UPDATE_OPE_ID = #{updateOpeId}]]></if>
+            <if test="updateOpeName!= null"><![CDATA[and t.UPDATE_OPE_NAME = #{updateOpeName}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam" resultMap="BaseSysParamResult">
+        <include refid="findBaseSysParamListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findBaseSysParamListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.base.sysparam.BaseSysParam" resultMap="BaseSysParamResult">
+        <include refid="findBaseSysParamListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

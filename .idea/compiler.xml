@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="ac_backend" />
+        <module name="ac_business" />
+        <module name="Framework" />
+        <module name="kr_backend" />
+        <module name="kr_business" />
+        <module name="kr_nusiness" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ac_backend" target="1.8" />
+      <module name="ac_backend (1)" target="1.8" />
+      <module name="ac_business" target="1.8" />
+      <module name="Framework" target="1.8" />
+      <module name="kr_backend" target="1.8" />
+      <module name="kr_business" target="1.8" />
+      <module name="kr_nusiness" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Framework" options="-parameters" />
+      <module name="ac_backend" options="-parameters" />
+      <module name="ac_backend (1)" options="-parameters" />
+      <module name="ac_business" options="-parameters" />
+      <module name="kr_backend" options="-parameters" />
+      <module name="kr_business" options="-parameters" />
+      <module name="kr_nusiness" options="-parameters -verbose -bootclasspath &quot;C:/Program Files/Java/jdk1.8.0_131/jre/lib/rt.jar;C:/Program Files/Java/jdk1.8.0_131/jre/lib/jce.jar&quot;" />
+    </option>
+  </component>
+</project>

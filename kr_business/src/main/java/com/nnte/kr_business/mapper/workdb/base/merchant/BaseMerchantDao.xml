@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchantDao">
+    <resultMap id="BaseMerchantResult" type="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant">
+        <result column="ID" property="id"/>
+        <result column="CODE" property="code"/>
+        <result column="MERCHANT_NAME" property="merchantName"/>
+        <result column="SUB_MERCHANT_NAME" property="subMerchantName"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="MERCHANT_TYPE" property="merchantType"/>
+        <result column="CITY_DOMAIN_ID" property="cityDomainId"/>
+        <result column="CITY_AREA" property="cityArea"/>
+        <result column="STORE_ADDRESS" property="storeAddress"/>
+        <result column="ZIPCODE" property="zipcode"/>
+        <result column="LOCATION_COORDINATE" property="locationCoordinate"/>
+        <result column="LONGITUDE" property="longitude"/>
+        <result column="LATITUDE" property="latitude"/>
+        <result column="LINK_NAME" property="linkName"/>
+        <result column="RELATION_PHONE" property="relationPhone"/>
+        <result column="CS_PHONE" property="csPhone"/>
+        <result column="EMAIL" property="email"/>
+        <result column="SHORT_INTRODUCTION" property="shortIntroduction"/>
+        <result column="HEAD_PIC" property="headPic"/>
+        <result column="PICTURE_URL" property="pictureUrl"/>
+        <result column="PICTURE_URL2" property="pictureUrl2"/>
+        <result column="PICTURE_URL3" property="pictureUrl3"/>
+        <result column="STORE_TYPE" property="storeType"/>
+        <result column="REMARK" property="remark"/>
+        <result column="LEGAL_NAME" property="legalName"/>
+        <result column="LEGAL_ID_NUM" property="legalIdNum"/>
+        <result column="IDCERT_PIC" property="idcertPic"/>
+        <result column="BS_LICENSE_PIC" property="bsLicensePic"/>
+        <result column="TAX_REG_PIC" property="taxRegPic"/>
+        <result column="OTHER_CERT_PIC" property="otherCertPic"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="LAST_UPDATE_TIME" property="lastUpdateTime"/>
+        <result column="STATE" property="state"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant">
+        insert into BASE_MERCHANT (CODE ,MERCHANT_NAME ,SUB_MERCHANT_NAME ,PAR_MERCHANT_ID ,MERCHANT_TYPE ,CITY_DOMAIN_ID ,CITY_AREA ,STORE_ADDRESS ,ZIPCODE ,LOCATION_COORDINATE ,LONGITUDE ,LATITUDE ,LINK_NAME ,RELATION_PHONE ,CS_PHONE ,EMAIL ,SHORT_INTRODUCTION ,HEAD_PIC ,PICTURE_URL ,PICTURE_URL2 ,PICTURE_URL3 ,STORE_TYPE ,REMARK ,LEGAL_NAME ,LEGAL_ID_NUM ,IDCERT_PIC ,BS_LICENSE_PIC ,TAX_REG_PIC ,OTHER_CERT_PIC ,CREATE_TIME ,LAST_UPDATE_TIME ,STATE )
+        values (#{code} ,#{merchantName} ,#{subMerchantName} ,#{parMerchantId} ,#{merchantType} ,#{cityDomainId} ,#{cityArea} ,#{storeAddress} ,#{zipcode} ,#{locationCoordinate} ,#{longitude} ,#{latitude} ,#{linkName} ,#{relationPhone} ,#{csPhone} ,#{email} ,#{shortIntroduction} ,#{headPic} ,#{pictureUrl} ,#{pictureUrl2} ,#{pictureUrl3} ,#{storeType} ,#{remark} ,#{legalName} ,#{legalIdNum} ,#{idcertPic} ,#{bsLicensePic} ,#{taxRegPic} ,#{otherCertPic} ,#{createTime} ,#{lastUpdateTime} ,#{state} )
+    </insert>
+    <select id="findModelByKey" resultMap="BaseMerchantResult" parameterType="java.lang.Long">
+        select * from BASE_MERCHANT where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from BASE_MERCHANT where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant">
+        update BASE_MERCHANT
+        <set>
+        <if test="code!= null"><![CDATA[CODE=#{code},]]></if>
+        <if test="merchantName!= null"><![CDATA[MERCHANT_NAME=#{merchantName},]]></if>
+        <if test="subMerchantName!= null"><![CDATA[SUB_MERCHANT_NAME=#{subMerchantName},]]></if>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="merchantType!= null"><![CDATA[MERCHANT_TYPE=#{merchantType},]]></if>
+        <if test="cityDomainId!= null"><![CDATA[CITY_DOMAIN_ID=#{cityDomainId},]]></if>
+        <if test="cityArea!= null"><![CDATA[CITY_AREA=#{cityArea},]]></if>
+        <if test="storeAddress!= null"><![CDATA[STORE_ADDRESS=#{storeAddress},]]></if>
+        <if test="zipcode!= null"><![CDATA[ZIPCODE=#{zipcode},]]></if>
+        <if test="locationCoordinate!= null"><![CDATA[LOCATION_COORDINATE=#{locationCoordinate},]]></if>
+        <if test="longitude!= null"><![CDATA[LONGITUDE=#{longitude},]]></if>
+        <if test="latitude!= null"><![CDATA[LATITUDE=#{latitude},]]></if>
+        <if test="linkName!= null"><![CDATA[LINK_NAME=#{linkName},]]></if>
+        <if test="relationPhone!= null"><![CDATA[RELATION_PHONE=#{relationPhone},]]></if>
+        <if test="csPhone!= null"><![CDATA[CS_PHONE=#{csPhone},]]></if>
+        <if test="email!= null"><![CDATA[EMAIL=#{email},]]></if>
+        <if test="shortIntroduction!= null"><![CDATA[SHORT_INTRODUCTION=#{shortIntroduction},]]></if>
+        <if test="headPic!= null"><![CDATA[HEAD_PIC=#{headPic},]]></if>
+        <if test="pictureUrl!= null"><![CDATA[PICTURE_URL=#{pictureUrl},]]></if>
+        <if test="pictureUrl2!= null"><![CDATA[PICTURE_URL2=#{pictureUrl2},]]></if>
+        <if test="pictureUrl3!= null"><![CDATA[PICTURE_URL3=#{pictureUrl3},]]></if>
+        <if test="storeType!= null"><![CDATA[STORE_TYPE=#{storeType},]]></if>
+        <if test="remark!= null"><![CDATA[REMARK=#{remark},]]></if>
+        <if test="legalName!= null"><![CDATA[LEGAL_NAME=#{legalName},]]></if>
+        <if test="legalIdNum!= null"><![CDATA[LEGAL_ID_NUM=#{legalIdNum},]]></if>
+        <if test="idcertPic!= null"><![CDATA[IDCERT_PIC=#{idcertPic},]]></if>
+        <if test="bsLicensePic!= null"><![CDATA[BS_LICENSE_PIC=#{bsLicensePic},]]></if>
+        <if test="taxRegPic!= null"><![CDATA[TAX_REG_PIC=#{taxRegPic},]]></if>
+        <if test="otherCertPic!= null"><![CDATA[OTHER_CERT_PIC=#{otherCertPic},]]></if>
+        <if test="createTime!= null"><![CDATA[CREATE_TIME=#{createTime},]]></if>
+        <if test="lastUpdateTime!= null"><![CDATA[LAST_UPDATE_TIME=#{lastUpdateTime},]]></if>
+        <if test="state!= null"><![CDATA[STATE=#{state},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findBaseMerchantListSql">
+        select * from BASE_MERCHANT t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="code!= null"><![CDATA[and t.CODE = #{code}]]></if>
+            <if test="merchantName!= null"><![CDATA[and t.MERCHANT_NAME = #{merchantName}]]></if>
+            <if test="subMerchantName!= null"><![CDATA[and t.SUB_MERCHANT_NAME = #{subMerchantName}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="merchantType!= null"><![CDATA[and t.MERCHANT_TYPE = #{merchantType}]]></if>
+            <if test="cityDomainId!= null"><![CDATA[and t.CITY_DOMAIN_ID = #{cityDomainId}]]></if>
+            <if test="cityArea!= null"><![CDATA[and t.CITY_AREA = #{cityArea}]]></if>
+            <if test="storeAddress!= null"><![CDATA[and t.STORE_ADDRESS = #{storeAddress}]]></if>
+            <if test="zipcode!= null"><![CDATA[and t.ZIPCODE = #{zipcode}]]></if>
+            <if test="locationCoordinate!= null"><![CDATA[and t.LOCATION_COORDINATE = #{locationCoordinate}]]></if>
+            <if test="longitude!= null"><![CDATA[and t.LONGITUDE = #{longitude}]]></if>
+            <if test="latitude!= null"><![CDATA[and t.LATITUDE = #{latitude}]]></if>
+            <if test="linkName!= null"><![CDATA[and t.LINK_NAME = #{linkName}]]></if>
+            <if test="relationPhone!= null"><![CDATA[and t.RELATION_PHONE = #{relationPhone}]]></if>
+            <if test="csPhone!= null"><![CDATA[and t.CS_PHONE = #{csPhone}]]></if>
+            <if test="email!= null"><![CDATA[and t.EMAIL = #{email}]]></if>
+            <if test="shortIntroduction!= null"><![CDATA[and t.SHORT_INTRODUCTION = #{shortIntroduction}]]></if>
+            <if test="headPic!= null"><![CDATA[and t.HEAD_PIC = #{headPic}]]></if>
+            <if test="pictureUrl!= null"><![CDATA[and t.PICTURE_URL = #{pictureUrl}]]></if>
+            <if test="pictureUrl2!= null"><![CDATA[and t.PICTURE_URL2 = #{pictureUrl2}]]></if>
+            <if test="pictureUrl3!= null"><![CDATA[and t.PICTURE_URL3 = #{pictureUrl3}]]></if>
+            <if test="storeType!= null"><![CDATA[and t.STORE_TYPE = #{storeType}]]></if>
+            <if test="remark!= null"><![CDATA[and t.REMARK = #{remark}]]></if>
+            <if test="legalName!= null"><![CDATA[and t.LEGAL_NAME = #{legalName}]]></if>
+            <if test="legalIdNum!= null"><![CDATA[and t.LEGAL_ID_NUM = #{legalIdNum}]]></if>
+            <if test="idcertPic!= null"><![CDATA[and t.IDCERT_PIC = #{idcertPic}]]></if>
+            <if test="bsLicensePic!= null"><![CDATA[and t.BS_LICENSE_PIC = #{bsLicensePic}]]></if>
+            <if test="taxRegPic!= null"><![CDATA[and t.TAX_REG_PIC = #{taxRegPic}]]></if>
+            <if test="otherCertPic!= null"><![CDATA[and t.OTHER_CERT_PIC = #{otherCertPic}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="lastUpdateTime!= null"><![CDATA[and t.LAST_UPDATE_TIME = #{lastUpdateTime}]]></if>
+            <if test="state!= null"><![CDATA[and t.STATE = #{state}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant" resultMap="BaseMerchantResult">
+        <include refid="findBaseMerchantListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findBaseMerchantListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant" resultMap="BaseMerchantResult">
+        <include refid="findBaseMerchantListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

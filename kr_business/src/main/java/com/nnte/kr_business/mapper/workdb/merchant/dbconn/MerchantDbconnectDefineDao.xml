@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefineDao">
+    <resultMap id="MerchantDbconnectDefineResult" type="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine">
+        <result column="ID" property="id"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="CONN_CODE" property="connCode"/>
+        <result column="CONN_NAME" property="connName"/>
+        <result column="DB_TYPE" property="dbType"/>
+        <result column="DB_IP" property="dbIp"/>
+        <result column="DB_PORT" property="dbPort"/>
+        <result column="DB_SCHEMA" property="dbSchema"/>
+        <result column="DB_USER" property="dbUser"/>
+        <result column="DB_PASSWORD" property="dbPassword"/>
+        <result column="CONN_STATE" property="connState"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="CREATE_OPER_ID" property="createOperId"/>
+        <result column="CREATE_OPER_NAME" property="createOperName"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine">
+        insert into MERCHANT_DBCONNECT_DEFINE (PAR_MERCHANT_ID ,CONN_CODE ,CONN_NAME ,DB_TYPE ,DB_IP ,DB_PORT ,DB_SCHEMA ,DB_USER ,DB_PASSWORD ,CONN_STATE ,CREATE_TIME ,CREATE_OPER_ID ,CREATE_OPER_NAME ,UPDATE_TIME )
+        values (#{parMerchantId} ,#{connCode} ,#{connName} ,#{dbType} ,#{dbIp} ,#{dbPort} ,#{dbSchema} ,#{dbUser} ,#{dbPassword} ,#{connState} ,#{createTime} ,#{createOperId} ,#{createOperName} ,#{updateTime} )
+    </insert>
+    <select id="findModelByKey" resultMap="MerchantDbconnectDefineResult" parameterType="java.lang.Long">
+        select * from MERCHANT_DBCONNECT_DEFINE where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from MERCHANT_DBCONNECT_DEFINE where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine">
+        update MERCHANT_DBCONNECT_DEFINE
+        <set>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="connCode!= null"><![CDATA[CONN_CODE=#{connCode},]]></if>
+        <if test="connName!= null"><![CDATA[CONN_NAME=#{connName},]]></if>
+        <if test="dbType!= null"><![CDATA[DB_TYPE=#{dbType},]]></if>
+        <if test="dbIp!= null"><![CDATA[DB_IP=#{dbIp},]]></if>
+        <if test="dbPort!= null"><![CDATA[DB_PORT=#{dbPort},]]></if>
+        <if test="dbSchema!= null"><![CDATA[DB_SCHEMA=#{dbSchema},]]></if>
+        <if test="dbUser!= null"><![CDATA[DB_USER=#{dbUser},]]></if>
+        <if test="dbPassword!= null"><![CDATA[DB_PASSWORD=#{dbPassword},]]></if>
+        <if test="connState!= null"><![CDATA[CONN_STATE=#{connState},]]></if>
+        <if test="createTime!= null"><![CDATA[CREATE_TIME=#{createTime},]]></if>
+        <if test="createOperId!= null"><![CDATA[CREATE_OPER_ID=#{createOperId},]]></if>
+        <if test="createOperName!= null"><![CDATA[CREATE_OPER_NAME=#{createOperName},]]></if>
+        <if test="updateTime!= null"><![CDATA[UPDATE_TIME=#{updateTime},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findMerchantDbconnectDefineListSql">
+        select * from MERCHANT_DBCONNECT_DEFINE t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="connCode!= null"><![CDATA[and t.CONN_CODE = #{connCode}]]></if>
+            <if test="connName!= null"><![CDATA[and t.CONN_NAME = #{connName}]]></if>
+            <if test="dbType!= null"><![CDATA[and t.DB_TYPE = #{dbType}]]></if>
+            <if test="dbIp!= null"><![CDATA[and t.DB_IP = #{dbIp}]]></if>
+            <if test="dbPort!= null"><![CDATA[and t.DB_PORT = #{dbPort}]]></if>
+            <if test="dbSchema!= null"><![CDATA[and t.DB_SCHEMA = #{dbSchema}]]></if>
+            <if test="dbUser!= null"><![CDATA[and t.DB_USER = #{dbUser}]]></if>
+            <if test="dbPassword!= null"><![CDATA[and t.DB_PASSWORD = #{dbPassword}]]></if>
+            <if test="connState!= null"><![CDATA[and t.CONN_STATE = #{connState}]]></if>
+            <if test="createTime!= null"><![CDATA[and t.CREATE_TIME = #{createTime}]]></if>
+            <if test="createOperId!= null"><![CDATA[and t.CREATE_OPER_ID = #{createOperId}]]></if>
+            <if test="createOperName!= null"><![CDATA[and t.CREATE_OPER_NAME = #{createOperName}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine" resultMap="MerchantDbconnectDefineResult">
+        <include refid="findMerchantDbconnectDefineListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findMerchantDbconnectDefineListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine" resultMap="MerchantDbconnectDefineResult">
+        <include refid="findMerchantDbconnectDefineListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>
