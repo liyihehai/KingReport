@@ -95,7 +95,7 @@
         <!--内部依赖-->
         <dependency>
             <groupId>com.nnte</groupId>
-            <artifactId>Framework</artifactId>
+            <artifactId>nnte_Framework</artifactId>
             <version>1.0.1</version>
         </dependency>
 		<dependency>

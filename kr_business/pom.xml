@@ -13,6 +13,16 @@
     <version>1.0.1</version>
     <name>kr_business</name>
     <description>nnte king report business model for Spring Boot</description>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://139.196.177.32:8999/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://139.196.177.32:8999/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <java.version>1.8</java.version>
@@ -119,7 +129,7 @@
         <!--内部依赖-->
         <dependency>
             <groupId>com.nnte</groupId>
-            <artifactId>Framework</artifactId>
+            <artifactId>nnte_Framework</artifactId>
             <version>1.0.1</version>
         </dependency>
     </dependencies>

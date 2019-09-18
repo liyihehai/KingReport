@@ -6,9 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="ac_backend" />
-        <module name="ac_business" />
-        <module name="Framework" />
         <module name="kr_backend" />
         <module name="kr_business" />
         <module name="kr_nusiness" />
