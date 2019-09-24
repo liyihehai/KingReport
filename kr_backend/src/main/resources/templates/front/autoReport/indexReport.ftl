@@ -111,31 +111,6 @@
                         </li>
                     </ul>
                 </li>
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-fw fa-home"></i>
-                        <span>自动代码</span>
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li>
-                            <a href="javascript:void(0);" data-link="/autoCode/defaultMethodIndex"
-                               data-menukey="defaultMethodIndex"><i class="fa fa-link"></i> <span>默认方法</span> </a>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0);" data-link="/autoCode/projectMgrIndex"
-                               data-menukey="projectMgrIndex"><i class="fa fa-link"></i> <span>项目管理</span> </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-fw fa-clone"></i>
-                        <span>设置</span>
-                        <i class="fa fa-angle-left pull-right"></i>
-                        <small class="label bg-pink badge" id="storedTips"></small>
-                    </a>
-                </li>
             </ul><!-- /.sidebar-menu -->
         </section>
         <!-- /.sidebar -->

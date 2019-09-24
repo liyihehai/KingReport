@@ -176,7 +176,7 @@
                     return dt.tableAppendMenuFunction('操作',[
                         {funcName:'modifyReport',funcText:'编辑报表',funcId:full.id},
                         {funcName:'setReportTemplate',funcText:'设置模板',funcId:full.id},
-                        {funcName:'setReportQuery',funcText:'设置查询',funcId:full.id}]);
+                        {funcName:'genNextPeriodReport',funcText:'产生下期报表',funcId:full.id}]);
                 }
             },{
                 "targets" : [3],
@@ -295,6 +295,17 @@
     }
     function setReportTemplate(id) {
         showReportDialg(id,$('#reportTemplateModify'));
+    }
+
+    function genNextPeriodReport(id){
+        var ajga=new AppJSGlobAjax(postman_token);
+        var url="/autoReport/genNextPeriodReport";
+        var data = JSON.stringify({id: id});
+        ajga.AjaxApplicationJson(url,data,function (content) {
+            if (content){
+                msgbox.showMsgBox(content.msg);
+            }
+        });
     }
 
     function updateReportState(id,newState) {

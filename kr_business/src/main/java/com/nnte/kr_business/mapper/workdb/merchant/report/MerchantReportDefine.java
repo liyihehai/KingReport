@@ -1,11 +1,10 @@
 package com.nnte.kr_business.mapper.workdb.merchant.report;
-
-import com.nnte.framework.annotation.DBPKColum;
 import com.nnte.framework.base.BaseModel;
+import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2019-08-10 10:36:22>
+ * 自动代码 请勿更改 <2019-09-23 11:22:15>
  */
 public class MerchantReportDefine extends BaseModel {
     @DBPKColum private Long id;
@@ -23,6 +22,11 @@ public class MerchantReportDefine extends BaseModel {
     private String createOperName;
     private Date updateTime;
     private Date opeTime;
+    private Integer opeNum;
+    private Integer reportPeriodNo;
+    private Date startTime;
+    private Date endTime;
+    private String opeMsg;
 
     public MerchantReportDefine(){}
 
@@ -56,4 +60,14 @@ public class MerchantReportDefine extends BaseModel {
     public void setUpdateTime(Date  updateTime){ this.updateTime = updateTime;}
     public Date  getOpeTime(){ return opeTime;}
     public void setOpeTime(Date  opeTime){ this.opeTime = opeTime;}
+    public Integer  getOpeNum(){ return opeNum;}
+    public void setOpeNum(Integer  opeNum){ this.opeNum = opeNum;}
+    public Integer  getReportPeriodNo(){ return reportPeriodNo;}
+    public void setReportPeriodNo(Integer  reportPeriodNo){ this.reportPeriodNo = reportPeriodNo;}
+    public Date  getStartTime(){ return startTime;}
+    public void setStartTime(Date  startTime){ this.startTime = startTime;}
+    public Date  getEndTime(){ return endTime;}
+    public void setEndTime(Date  endTime){ this.endTime = endTime;}
+    public String  getOpeMsg(){ return opeMsg;}
+    public void setOpeMsg(String  opeMsg){ this.opeMsg = opeMsg;}
 }

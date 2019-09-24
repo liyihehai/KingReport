@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetailDao">
+    <resultMap id="MerchantReportGendetailResult" type="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail">
+        <result column="ID" property="id"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="REPORT_CODE" property="reportCode"/>
+        <result column="REPORT_BUSI_TYPE" property="reportBusiType"/>
+        <result column="CUT_NAME" property="cutName"/>
+        <result column="CUT_VALUE" property="cutValue"/>
+        <result column="PERIOD_NO" property="periodNo"/>
+        <result column="REPORT_PERIOD" property="reportPeriod"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="END_TIME" property="endTime"/>
+        <result column="REPORT_NAME" property="reportName"/>
+        <result column="REPORT_FILE_NAME" property="reportFileName"/>
+        <result column="CREATE_START_TIME" property="createStartTime"/>
+        <result column="CREATE_OPER_ID" property="createOperId"/>
+        <result column="CREATE_END_TIME" property="createEndTime"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail">
+        insert into MERCHANT_REPORT_GENDETAIL (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_BUSI_TYPE ,CUT_NAME ,CUT_VALUE ,PERIOD_NO ,REPORT_PERIOD ,START_TIME ,END_TIME ,REPORT_NAME ,REPORT_FILE_NAME ,CREATE_START_TIME ,CREATE_OPER_ID ,CREATE_END_TIME )
+        values (#{parMerchantId} ,#{reportCode} ,#{reportBusiType} ,#{cutName} ,#{cutValue} ,#{periodNo} ,#{reportPeriod} ,#{startTime} ,#{endTime} ,#{reportName} ,#{reportFileName} ,#{createStartTime} ,#{createOperId} ,#{createEndTime} )
+    </insert>
+    <select id="findModelByKey" resultMap="MerchantReportGendetailResult" parameterType="java.lang.Long">
+        select * from MERCHANT_REPORT_GENDETAIL where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from MERCHANT_REPORT_GENDETAIL where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail">
+        update MERCHANT_REPORT_GENDETAIL
+        <set>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="reportCode!= null"><![CDATA[REPORT_CODE=#{reportCode},]]></if>
+        <if test="reportBusiType!= null"><![CDATA[REPORT_BUSI_TYPE=#{reportBusiType},]]></if>
+        <if test="cutName!= null"><![CDATA[CUT_NAME=#{cutName},]]></if>
+        <if test="cutValue!= null"><![CDATA[CUT_VALUE=#{cutValue},]]></if>
+        <if test="periodNo!= null"><![CDATA[PERIOD_NO=#{periodNo},]]></if>
+        <if test="reportPeriod!= null"><![CDATA[REPORT_PERIOD=#{reportPeriod},]]></if>
+        <if test="startTime!= null"><![CDATA[START_TIME=#{startTime},]]></if>
+        <if test="endTime!= null"><![CDATA[END_TIME=#{endTime},]]></if>
+        <if test="reportName!= null"><![CDATA[REPORT_NAME=#{reportName},]]></if>
+        <if test="reportFileName!= null"><![CDATA[REPORT_FILE_NAME=#{reportFileName},]]></if>
+        <if test="createStartTime!= null"><![CDATA[CREATE_START_TIME=#{createStartTime},]]></if>
+        <if test="createOperId!= null"><![CDATA[CREATE_OPER_ID=#{createOperId},]]></if>
+        <if test="createEndTime!= null"><![CDATA[CREATE_END_TIME=#{createEndTime},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findMerchantReportGendetailListSql">
+        select * from MERCHANT_REPORT_GENDETAIL t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="reportCode!= null"><![CDATA[and t.REPORT_CODE = #{reportCode}]]></if>
+            <if test="reportBusiType!= null"><![CDATA[and t.REPORT_BUSI_TYPE = #{reportBusiType}]]></if>
+            <if test="cutName!= null"><![CDATA[and t.CUT_NAME = #{cutName}]]></if>
+            <if test="cutValue!= null"><![CDATA[and t.CUT_VALUE = #{cutValue}]]></if>
+            <if test="periodNo!= null"><![CDATA[and t.PERIOD_NO = #{periodNo}]]></if>
+            <if test="reportPeriod!= null"><![CDATA[and t.REPORT_PERIOD = #{reportPeriod}]]></if>
+            <if test="startTime!= null"><![CDATA[and t.START_TIME = #{startTime}]]></if>
+            <if test="endTime!= null"><![CDATA[and t.END_TIME = #{endTime}]]></if>
+            <if test="reportName!= null"><![CDATA[and t.REPORT_NAME = #{reportName}]]></if>
+            <if test="reportFileName!= null"><![CDATA[and t.REPORT_FILE_NAME = #{reportFileName}]]></if>
+            <if test="createStartTime!= null"><![CDATA[and t.CREATE_START_TIME = #{createStartTime}]]></if>
+            <if test="createOperId!= null"><![CDATA[and t.CREATE_OPER_ID = #{createOperId}]]></if>
+            <if test="createEndTime!= null"><![CDATA[and t.CREATE_END_TIME = #{createEndTime}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail" resultMap="MerchantReportGendetailResult">
+        <include refid="findMerchantReportGendetailListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findMerchantReportGendetailListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail" resultMap="MerchantReportGendetailResult">
+        <include refid="findMerchantReportGendetailListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

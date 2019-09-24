@@ -18,10 +18,15 @@
         <result column="CREATE_OPER_NAME" property="createOperName"/>
         <result column="UPDATE_TIME" property="updateTime"/>
         <result column="OPE_TIME" property="opeTime"/>
+        <result column="OPE_NUM" property="opeNum"/>
+        <result column="REPORT_PERIOD_NO" property="reportPeriodNo"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="END_TIME" property="endTime"/>
+        <result column="OPE_MSG" property="opeMsg"/>
     </resultMap>
     <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine">
-        insert into MERCHANT_REPORT_DEFINE (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_NAME ,REPORT_CLASS ,REPORT_BUSI_TYPE ,REPORT_PERIOD ,START_DATE ,TEMPLATE_FILE ,REPORT_STATE ,CREATE_TIME ,CREATE_OPER_ID ,CREATE_OPER_NAME ,UPDATE_TIME ,OPE_TIME )
-        values (#{parMerchantId} ,#{reportCode} ,#{reportName} ,#{reportClass} ,#{reportBusiType} ,#{reportPeriod} ,#{startDate} ,#{templateFile} ,#{reportState} ,#{createTime} ,#{createOperId} ,#{createOperName} ,#{updateTime} ,#{opeTime} )
+        insert into MERCHANT_REPORT_DEFINE (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_NAME ,REPORT_CLASS ,REPORT_BUSI_TYPE ,REPORT_PERIOD ,START_DATE ,TEMPLATE_FILE ,REPORT_STATE ,CREATE_TIME ,CREATE_OPER_ID ,CREATE_OPER_NAME ,UPDATE_TIME ,OPE_TIME ,OPE_NUM ,REPORT_PERIOD_NO ,START_TIME ,END_TIME ,OPE_MSG )
+        values (#{parMerchantId} ,#{reportCode} ,#{reportName} ,#{reportClass} ,#{reportBusiType} ,#{reportPeriod} ,#{startDate} ,#{templateFile} ,#{reportState} ,#{createTime} ,#{createOperId} ,#{createOperName} ,#{updateTime} ,#{opeTime} ,#{opeNum} ,#{reportPeriodNo} ,#{startTime} ,#{endTime} ,#{opeMsg} )
     </insert>
     <select id="findModelByKey" resultMap="MerchantReportDefineResult" parameterType="java.lang.Long">
         select * from MERCHANT_REPORT_DEFINE where ID=#{id}
@@ -46,6 +51,11 @@
         <if test="createOperName!= null"><![CDATA[CREATE_OPER_NAME=#{createOperName},]]></if>
         <if test="updateTime!= null"><![CDATA[UPDATE_TIME=#{updateTime},]]></if>
         <if test="opeTime!= null"><![CDATA[OPE_TIME=#{opeTime},]]></if>
+        <if test="opeNum!= null"><![CDATA[OPE_NUM=#{opeNum},]]></if>
+        <if test="reportPeriodNo!= null"><![CDATA[REPORT_PERIOD_NO=#{reportPeriodNo},]]></if>
+        <if test="startTime!= null"><![CDATA[START_TIME=#{startTime},]]></if>
+        <if test="endTime!= null"><![CDATA[END_TIME=#{endTime},]]></if>
+        <if test="opeMsg!= null"><![CDATA[OPE_MSG=#{opeMsg},]]></if>
         </set>
         where ID=#{id}
     </update>
@@ -67,6 +77,11 @@
             <if test="createOperName!= null"><![CDATA[and t.CREATE_OPER_NAME = #{createOperName}]]></if>
             <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
             <if test="opeTime!= null"><![CDATA[and t.OPE_TIME = #{opeTime}]]></if>
+            <if test="opeNum!= null"><![CDATA[and t.OPE_NUM = #{opeNum}]]></if>
+            <if test="reportPeriodNo!= null"><![CDATA[and t.REPORT_PERIOD_NO = #{reportPeriodNo}]]></if>
+            <if test="startTime!= null"><![CDATA[and t.START_TIME = #{startTime}]]></if>
+            <if test="endTime!= null"><![CDATA[and t.END_TIME = #{endTime}]]></if>
+            <if test="opeMsg!= null"><![CDATA[and t.OPE_MSG = #{opeMsg}]]></if>
         </where>
         <if test="sort!=null">order by t.${sort} ${dir}</if>
     </sql>

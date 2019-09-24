@@ -39,7 +39,7 @@ public class ReportPeriodComponent {
         public static String Month_Report   ="M";
         public static String Quarter_Report ="Q";
         public static String HalfYear_Report="H";
-        public static String Year_Report    ="D";
+        public static String Year_Report    ="Y";
     }
     @DataLibItem("报表周期")
     public final static List<KeyValue> LibReportPeriod = new ArrayList<>();
@@ -168,6 +168,10 @@ public class ReportPeriodComponent {
         Integer n2= NumberUtil.getDefaultInteger(days[1]);
         if (n2<minDay || n2>maxDay)
             return null;
+        if (n1.equals(2) && n2>28) //如果是2月，日期不能大于28号
+            return null;
+        if ((n1.equals(4)||n1.equals(6)||n1.equals(9)||n1.equals(11)) && n2>30)
+            return null;    //非大月日期不能大于30
         return StringUtils.addZeroForNum(n1.toString(),2,1)+"-"+
                 StringUtils.addZeroForNum(n2.toString(),2,1);
     }

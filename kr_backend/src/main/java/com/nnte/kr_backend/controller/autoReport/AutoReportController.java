@@ -234,6 +234,24 @@ public class AutoReportController extends BaseController {
         return ret;
     }
 
+    @RequestMapping("/genNextPeriodReport")
+    @ResponseBody
+    public Map<String, Object> genNextPeriodReport(@RequestBody MerchantReportDefine MRD){
+        Map<String,Object> ret = BaseNnte.newMapRetObj();
+        if (MRD==null || MRD.getId()==null || MRD.getId()<=0){
+            BaseNnte.setRetFalse(ret,1002,"参数错误(报表编号错误)");
+            return ret;
+        }
+        MerchantReportDefine merchantReportDefine=autoReportComponent.getReportRecordById(MRD.getId());
+        if (merchantReportDefine==null){
+            BaseNnte.setRetFalse(ret,1002,"未查询到指定的报表");
+            return ret;
+        }
+        Map<String,Object> pMap=new HashMap<>();
+        ret=autoReportComponent.generatorReportFile(pMap,merchantReportDefine);
+        return ret;
+    }
+
     @RequestMapping("/saveReportTemplate")
     @ResponseBody
     public Map<String, Object> saveReportTemplate(HttpServletRequest request,
