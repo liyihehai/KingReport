@@ -288,9 +288,14 @@
                 && modReport.cutColNameList.length>0){
                 var optHtml="";
                 for(var i=0;i<modReport.cutColNameList.length;i++){
-                    optHtml+="<option >"+modReport.cutColNameList[i]+"</option>";
+                    optHtml+="<option value='"+modReport.cutColNameList[i]+"'>"+modReport.cutColNameList[i]+"</option>";
                 }
-
+                $('#reportDefineCutSetting_cutKeyField').html(optHtml);
+                if (modReport.cutKeyField && modReport.cutKeyField!=null)
+                    $('#reportDefineCutSetting_cutKeyField').val(modReport.cutKeyField);
+                $('#reportDefineCutSetting_cutNameField').html(optHtml);
+                if (modReport.cutNameField && modReport.cutNameField!=null)
+                    $('#reportDefineCutSetting_cutNameField').val(modReport.cutNameField);
             }
         }
         $('.fileinput-remove-button').click();

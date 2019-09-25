@@ -276,7 +276,9 @@ public class AutoReportController extends BaseController {
         ret=autoReportComponent.generatorReportFile(pMap,merchantReportDefine);
         return ret;
     }
-
+    /*
+    * 保存报表模板文件设置
+    * */
     @RequestMapping("/saveReportTemplate")
     @ResponseBody
     public Map<String, Object> saveReportTemplate(HttpServletRequest request,
@@ -293,6 +295,28 @@ public class AutoReportController extends BaseController {
         Map<String,Object> pMap=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,pMap);
         ret=autoReportComponent.saveReportTemplate(pMap,MRD.getReportCode(),MRD.getTemplateFile());
+        return ret;
+    }
+    /*
+    * 保存报表分割字段设置
+    */
+
+    @RequestMapping("/saveReportDefineCutSetting")
+    @ResponseBody
+    public Map<String, Object> saveReportDefineCutSetting(HttpServletRequest request,
+                                                  @RequestBody MerchantReportDefine MRD){
+        Map<String,Object> ret = BaseNnte.newMapRetObj();
+        if (MRD==null || MRD.getReportCode()==null || StringUtils.isEmpty(MRD.getReportCode())){
+            BaseNnte.setRetFalse(ret,1002,"参数错误(报表代码错误)");
+            return ret;
+        }
+        if (StringUtils.isEmpty(MRD.getCutKeyField())||StringUtils.isEmpty(MRD.getCutNameField())){
+            BaseNnte.setRetFalse(ret,1002,"参数错误(分割字段未指定)");
+            return ret;
+        }
+        Map<String,Object> pMap=new HashMap<>();
+        BaseNnte.setParamMapDataEnv(request,pMap);
+        ret=autoReportComponent.saveReportDefineCutSetting(pMap,MRD);
         return ret;
     }
     @RequestMapping("/updateReportState")

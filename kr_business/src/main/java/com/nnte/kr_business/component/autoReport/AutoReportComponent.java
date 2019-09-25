@@ -205,6 +205,30 @@ public class AutoReportComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"更改报表模板设置成功");
         return ret;
     }
+    @DBSrcTranc
+    public Map<String, Object> saveReportDefineCutSetting(Map<String, Object> paramMap,MerchantReportDefine MRD){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant=KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        //--------------------------------
+        MerchantReportDefine srcMRD = getReportRecordByCode(cssf,loginMerchant.getParMerchantId(), MRD.getReportCode());
+        if (srcMRD==null){
+            BaseNnte.setRetFalse(ret, 1002,"未取得报表定义");
+            return ret;
+        }
+        MerchantReportDefine dto = new MerchantReportDefine();
+        dto.setId(srcMRD.getId());
+        dto.setParMerchantId(loginMerchant.getParMerchantId());
+        dto.setCutKeyField(MRD.getCutKeyField());
+        dto.setCutNameField(MRD.getCutNameField());
+        if (!merchantReportDefineService.updateModel(cssf,dto).equals(1)){
+            BaseNnte.setRetFalse(ret, 1002,"设置报表分割字段失败");
+            return ret;
+        }
+        BaseNnte.setRetTrue(ret,"设置报表分割字段成功");
+        return ret;
+    }
+
     //根据条件查询商户报表定义列表
     @DBSrcTranc
     public Map<String, Object> loadMerchantReportDef(Map<String, Object> paramMap){
