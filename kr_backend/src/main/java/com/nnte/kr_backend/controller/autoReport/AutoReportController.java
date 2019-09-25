@@ -14,7 +14,9 @@ import com.nnte.kr_business.component.autoReport.AutoReportComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
+import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -231,6 +233,29 @@ public class AutoReportController extends BaseController {
                 merchantReportDefine.getReportCode());
         if (templateFiles!=null)
             ret.put("templateFiles",templateFiles);
+        //查询分割选项
+        if (StringUtils.isNotEmpty(merchantReportDefine.getReportClass())) {
+            List<KeyValue> LibReportClass = autoReportQueryComponent.getMerchantCutFlagQuerys(merchantReportDefine.getParMerchantId(), null);
+            for(KeyValue kv:LibReportClass){
+                if (kv.getKey().equals(merchantReportDefine.getReportClass())){
+                    MerchantReportQuery mrq=autoReportQueryComponent.getReportQueryByCode(null,
+                            merchantReportDefine.getParMerchantId(),kv.getKey());
+                    if (mrq!=null) {
+                        ret.put("cutTypeName", mrq.getCutTypeName());
+                        JSONArray jarray=JsonUtil.getJsonArray4Json(mrq.getQuerySqlCols());
+                        if (jarray!=null){
+                            List<String> colNameList=new ArrayList<>();
+                            for (int i=0;i<jarray.size();i++){
+                                JSONObject jobj=jarray.getJSONObject(i);
+                                colNameList.add(jobj.get("colName").toString());
+                            }
+                            ret.put("cutColNameList", colNameList);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
         return ret;
     }
 

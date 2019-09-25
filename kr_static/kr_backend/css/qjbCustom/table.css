@@ -1,0 +1,107 @@
+table {
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+  border-spacing: 1;
+  border-spacing: 0;
+}
+table td {
+  word-break: break-all;
+  word-wrap: break-word;
+  font-size: 12px;
+}
+input {
+  outline: none;
+}
+.gray-bg {
+  background: #E1E1E1 !important;
+  height: 36px;
+}
+.tr-cont {
+  height: 72px;
+}
+table {
+  color: #363333;
+}
+table tr:nth-child(even) {
+  background: #FFFFFF;
+}
+table tr:nth-child(odd) {
+  background: #F6FCFC;
+}
+table tr th {
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+}
+table tr td {
+  font-size: 13px;
+}
+table tr td .goods-img {
+  width: 50px;
+  height: 50px;
+}
+table tr td input {
+  border: none;
+  text-align: left;
+  width: 64px;
+}
+table tr td .editable {
+  vertical-align: middle;
+  color: #4990e2;
+}
+table tr td .operation-btn {
+  width: 60px;
+  height: 20px;
+  line-height: 20px;
+  color: #4990e2;
+  font-size: 14px;
+  margin-right: 10px;
+}
+table tr td .operation-icon {
+  width: 12px;
+  height: 12px;
+  visibility: hidden;
+}
+table tr td .operation-icon img {
+  width: 12px;
+  height: 12px;
+  vertical-align: middle;
+}
+.red-btn {
+  border: 1px solid #FF8C94;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #F1505A;
+  letter-spacing: 0;
+  margin-right: 15px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
+}
+.red-btn:hover {
+  background: #FFF9F9;
+  color: #F1505A;
+}
+.blue-btn {
+  background: #4990E2;
+  border-radius: 4px;
+  width: 80px;
+  color: #FFFFFF;
+}
+.blue-btn:hover {
+  background: #2F79D0;
+  color: #FFFFFF;
+}
+.white-btn {
+  opacity: 0.9;
+  border: 1px solid #4990E2;
+  border-radius: 4px;
+  color: #4990E2;
+  background: #FFFFFF;
+  width: 80px;
+}
+.white-btn:hover {
+  background: #F5F7F9;
+  color: #4990E2;
+}

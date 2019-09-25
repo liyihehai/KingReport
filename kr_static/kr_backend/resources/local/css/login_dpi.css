@@ -1,0 +1,145 @@
+/* DPI login CSS by lydia */
+body,html{height: 100%;}   
+body{
+	font-family: tahoma,Arial,����,sans-serif;
+	font-size: 12px;
+	color:#666;
+	background-color:#fff;
+}
+*{margin:0;padding:0;}
+img{border:none;}
+
+#outer {
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+	width: 100%;
+	display:table;
+}   
+#outer[id] {   
+    display: table;   
+    position: static;   
+    *position:relative;   
+    _position: static;   
+} 
+  
+#middle {   
+    position: absolute;   
+    top: 50%;   
+    left: 0;   
+    vertical-align:middle;   
+    display:table-cell;   
+    width:100%;   
+      
+      
+    *vertical-align:middle;   
+    *display:table-cell;   
+    *width:100%;   
+      
+      
+    _vertical-align:;   
+    _display:;   
+    _width:;   
+}   
+#middle[id] {   
+    display: table-cell;   
+    vertical-align: middle;   
+    position: static;   
+    top:50%;   
+    left:0;   
+    width:100%;   
+      
+      
+    *position:absolute;   
+      
+      
+    _position: ;   
+}   
+  
+#inner {   
+    position: relative;   
+    top: -50%;   
+    margin: 0 auto;   
+    text-align:center;   
+}   
+  
+#content{
+	width:1019px;
+	min-height: 450px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top: 50px;
+	text-align:left;
+	background-image: url(../../images/loginbg.png);
+	background-repeat: no-repeat;
+} 
+
+#divform{
+	width:310px;
+	height:216px;
+	margin:0 auto;
+	padding-top:180px;
+	margin-left:550px;
+}
+#divform ul{list-style:none;} 
+
+#divform ul li{
+	height:30px;
+	line-height:30px;
+	vertical-align:middle;
+	font-size:12px;
+	font-family:΢���ź�;
+	margin-bottom:10px;
+	color:#666;
+	font-weight: bold;
+}
+
+.textfield_login{
+	width:200px;
+	height:28px;
+	line-height:28px;
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	text-indent: 10px;
+	vertical-align:middle;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+.textfield_login_s{
+	width:110px;
+	height:28px;
+	line-height:28px;
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	text-indent: 10px;
+	vertical-align:middle;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+#divform ul li img{
+	vertical-align:middle;
+}
+
+#divform ul li.button{
+	margin-left:45px;
+	display:inline;
+}
+
+.footer{
+	color:#B6CBEB;
+	text-align:center;
+	margin-top:150px;
+	font-size:9px;
+}
+
+
+.bottom{
+	border:none;
+	border-radius:4px;
+	background-image: url(../../images/button.gif);
+	background-repeat: no-repeat;
+	width:80px; height:24px; 
+	}
+
+
+

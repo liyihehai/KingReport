@@ -1,12 +1,10 @@
 package com.nnte.kr_business.mapper.workdb.merchant.query;
-
-
-import com.nnte.framework.annotation.DBPKColum;
 import com.nnte.framework.base.BaseModel;
+import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2019-08-17 08:29:01>
+ * 自动代码 请勿更改 <2019-09-25 08:38:02>
  */
 public class MerchantReportQuery extends BaseModel {
     @DBPKColum private Long id;

@@ -1,0 +1,157 @@
+body, ul, li, h1, h2, h3, h4, h5, h6, p, form, dl, dt, dd { margin: 0px; padding: 0px; 
+font-size: 12px; font-weight: normal; }
+ul { list-style: none; }
+img { border-style: none; }
+.container{
+	width: 100%;
+	background: #ffffff;
+	zoom: 1;
+}
+.content-PC{
+	float: left;
+	width: 84%;
+	position: absolute;
+	overflow: auto;
+	padding:80px 60px;
+}
+.btnback-PC{
+	position: fixed;
+	bottom: 0px;
+	left:0;
+	width: 100%;
+	height: 60px;
+	background: #ffffff;
+	z-index: 999;
+}
+.btn-PC{
+	margin-top: 8px;
+	margin-left: 50%;
+	width: 420px;
+	height: 46px;
+	zoom: 1;
+	text-align: center;
+	font-size: 18px;
+	line-height: 44px;
+	text-align: center;
+	
+}
+.btn-PC .btn-red-PC{
+	float: right;
+	width: 180px;
+	height: 44px;
+	background-color: red;
+	color: #FFFFFF;
+	cursor: pointer;
+	border: 1px solid#FF0000;
+}
+.btn-PC .btn-gray-PC{
+	float: left;
+	margin-left: 10px;
+	width: 100px;
+	height: 44px;
+	background-color: #efeeee;
+	color: #000000;
+	border: 1px solid#000000;
+	cursor: pointer;
+}
+.tool-PC{
+	float: right;
+	width: 16%;
+	background-color: #e1e1e1;
+}
+.tool-PC ul{
+	padding-left: 10px;
+	
+}
+.tool-PC ul li{
+	width: 150px;
+	height: 60px;
+	list-style: none;
+	cursor: pointer;
+	zoom: 1;
+	text-align: center;
+	border-left: 1px solid#000000;
+	border-right: 1px solid#000000;
+	border-bottom: 1px solid#000000;
+	background-color: #FFFFFF;
+}
+.tool-PC ul li:first-child{
+	border-top: 1px solid#000000;
+}
+.icon-PC{
+	float: left;
+}
+.icon-PC img{
+	width: 50px;
+	height: 50px;
+	padding-top: 5px;
+	padding-left: 5px;
+}
+.btn-title-PC{
+	line-height: 60px;
+	font-size: 18px;
+	color: #727070;
+}
+.title-PC{
+	font-size: 18px;
+	color: #727070;
+	padding: 10px;
+}
+.mt-6{
+	margin-top: 6px;
+}
+.shadow{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background-color: rgba(0,0,0,0.8);
+	z-index: 10000;
+	text-align: center;
+}
+.phone{
+	position: absolute;
+	left: 40%;
+	top: -80px;
+	width: 410px;
+	height: 800px;
+	zoom: 1;
+	/*z-index: 10100;*/
+	background: url(../images/store/wx_phone1.png) 0 0 no-repeat;
+	background-size: 410px 800px;
+}
+iframe{
+
+	position: absolute;
+
+	left: 40%;
+	top: 10px;
+	margin-left: 21px;
+	/*z-index: 10010;*/
+
+}
+.close-PC{
+	width: 40px;
+	height: 40px;
+	float: right;
+	margin-right: 50px;
+	margin-top: 20px;
+}
+.close-PC img{
+	width: 100%;
+	height: 100%;
+}
+.save-PC{
+	display: none;
+	position: fixed;
+	left:0;
+	bottom: 60px;
+	width: 100%;
+	height: 40px;
+	background-color: #40e240;
+	color: #FFFFFF;
+	line-height: 40px;
+	text-align: center;
+	font-size: 16px;
+	z-index:999;
+}

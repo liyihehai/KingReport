@@ -61,7 +61,11 @@ public class AutoReportQueryComponent extends BaseComponent {
         MerchantReportQuery dto = new MerchantReportQuery();
         dto.setParMerchantId(merchantId);
         dto.setQueryCode(code);
-        List<MerchantReportQuery> list = merchantReportQueryService.findModelList(cssf, dto);
+        List<MerchantReportQuery> list;
+        if (cssf!=null)
+            list=merchantReportQueryService.findModelList(cssf, dto);
+        else
+            list=merchantReportQueryService.findModelList(dto);
         if (list != null && list.size() > 0)
             return list.get(0);
         return null;

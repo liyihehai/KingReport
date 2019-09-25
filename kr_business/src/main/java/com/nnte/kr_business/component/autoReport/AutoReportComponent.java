@@ -484,67 +484,73 @@ public class AutoReportComponent extends BaseComponent {
     public static Map<String, Object> setControlDate(MerchantReportDefine mrd,MerchantReportGendetail mrg,
                                                      ReportPeriodSetting RPS){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
-        if (NumberUtil.getDefaultInteger(mrd.getReportPeriodNo())>0){
-            //如果已经有历史日期了,上期结束时间为本期开始时间
-            mrg.setPeriodNo(mrd.getReportPeriodNo()+1);//表示是下一期报表
-            mrg.setStartTime(mrd.getEndTime());        //报表上上期结束时间为本期开始时间
-            if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Day_Report)){
-                String sReportPriDate=DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD);
-                String sReportDate=DateUtils.nDaysAfterOneDateString(sReportPriDate,1);
-                mrg.setEndTime(DateUtils.stringToDate(sReportDate +" "+ RPS.getEndTimeDay(),DateUtils.DF_YMD_HMSSSS));
-            }else if(mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Week_Report)){
-                setWeekReportEndTime(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD),
-                        mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Month_Report)){
-                setMonthReportEndTime(mrg.getStartTime(),mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Quarter_Report)){
-                setQuarterReportEndTime(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD),
-                        mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.HalfYear_Report)){
-                setHalfYearReportEndTime(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD),
-                        mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Year_Report)){
-                setYearReportEndTime(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD),
-                        mrg,RPS,mrg.getPeriodNo());
+        try {
+            if (NumberUtil.getDefaultInteger(mrd.getReportPeriodNo()) > 0) {
+                //如果已经有历史日期了,上期结束时间为本期开始时间
+                mrg.setPeriodNo(mrd.getReportPeriodNo() + 1);//表示是下一期报表
+                mrg.setStartTime(mrd.getEndTime());        //报表上上期结束时间为本期开始时间
+                if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Day_Report)) {
+                    String sReportPriDate = DateUtils.dateToString(mrg.getStartTime(), DateUtils.DF_YMD);
+                    String sReportDate = DateUtils.nDaysAfterOneDateString(sReportPriDate, 1);
+                    mrg.setEndTime(DateUtils.stringToDate(sReportDate + " " + RPS.getEndTimeDay(), DateUtils.DF_YMD_HMSSSS));
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Week_Report)) {
+                    setWeekReportEndTime(DateUtils.dateToString(mrg.getStartTime(), DateUtils.DF_YMD),
+                            mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Month_Report)) {
+                    setMonthReportEndTime(mrg.getStartTime(), mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Quarter_Report)) {
+                    setQuarterReportEndTime(DateUtils.dateToString(mrg.getStartTime(), DateUtils.DF_YMD),
+                            mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.HalfYear_Report)) {
+                    setHalfYearReportEndTime(DateUtils.dateToString(mrg.getStartTime(), DateUtils.DF_YMD),
+                            mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Year_Report)) {
+                    setYearReportEndTime(DateUtils.dateToString(mrg.getStartTime(), DateUtils.DF_YMD),
+                            mrg, RPS, mrg.getPeriodNo());
+                }
+            } else {
+                //如果没有历史日期，要从报表的起始日期开始计算
+                if (mrd.getStartDate() == null) {
+                    BaseNnte.setRetFalse(ret, 1002, "报表起始日期不合法");
+                    return ret;
+                }
+                mrg.setPeriodNo(1);//表示是第一期报表
+                if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Day_Report)) {
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    String sReportPriDate = DateUtils.nDaysAfterOneDateString(sReportDate, -1);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportPriDate + " " + RPS.getEndTimeDay(), DateUtils.DF_YMD_HMSSSS));
+                    mrg.setEndTime(DateUtils.stringToDate(sReportDate + " " + RPS.getEndTimeDay(), DateUtils.DF_YMD_HMSSSS));
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Week_Report)) {
+                    //如果是周报表,报表起始时间为第一期的第一天
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportDate + " 00:00:00.000", DateUtils.DF_YMD_HMSSSS));
+                    setWeekReportEndTime(sReportDate, mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Month_Report)) {
+                    //如果是月报,报表起始时间为第一期报表的第一天，计算报表的最后一天
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportDate + " 00:00:00.000", DateUtils.DF_YMD_HMSSSS));
+                    setMonthReportEndTime(mrg.getStartTime(), mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Quarter_Report)) {
+                    //如果是季报，报表起始时间为第一期报表的第一天，计算报表的最后一天（3个月后）
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportDate + " 00:00:00.000", DateUtils.DF_YMD_HMSSSS));
+                    setQuarterReportEndTime(sReportDate, mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.HalfYear_Report)) {
+                    //如果是半年报，报表起始时间为第一期报表的第一天，计算报表的最后一天（半年后）
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportDate + " 00:00:00.000", DateUtils.DF_YMD_HMSSSS));
+                    setHalfYearReportEndTime(sReportDate, mrg, RPS, mrg.getPeriodNo());
+                } else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Year_Report)) {
+                    //如果是年报，报表起始时间为第一期报表的第一天，计算报表的最后一天（一年后）
+                    String sReportDate = DateUtils.dateToString(mrd.getStartDate(), DateUtils.DF_YMD);
+                    mrg.setStartTime(DateUtils.stringToDate(sReportDate + " 00:00:00.000", DateUtils.DF_YMD_HMSSSS));
+                    setYearReportEndTime(sReportDate, mrg, RPS, mrg.getPeriodNo());
+                }
             }
-        }else{
-            //如果没有历史日期，要从报表的起始日期开始计算
-            if (mrd.getStartDate()==null){
-                BaseNnte.setRetFalse(ret, 1002,"报表起始日期不合法");
-                return ret;
-            }
-            mrg.setPeriodNo(1);//表示是第一期报表
-            if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Day_Report)){
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                String sReportPriDate=DateUtils.nDaysAfterOneDateString(sReportDate,-1);
-                mrg.setStartTime(DateUtils.stringToDate(sReportPriDate +" "+ RPS.getEndTimeDay(),DateUtils.DF_YMD_HMSSSS));
-                mrg.setEndTime(DateUtils.stringToDate(sReportDate +" "+ RPS.getEndTimeDay(),DateUtils.DF_YMD_HMSSSS));
-            }else if(mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Week_Report)){
-                //如果是周报表,报表起始时间为第一期的第一天
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                mrg.setStartTime(DateUtils.stringToDate(sReportDate +" 00:00:00.000",DateUtils.DF_YMD_HMSSSS));
-                setWeekReportEndTime(sReportDate,mrg,RPS,mrg.getPeriodNo());
-            }else if(mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Month_Report)){
-                //如果是月报,报表起始时间为第一期报表的第一天，计算报表的最后一天
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                mrg.setStartTime(DateUtils.stringToDate(sReportDate +" 00:00:00.000",DateUtils.DF_YMD_HMSSSS));
-                setMonthReportEndTime(mrg.getStartTime(),mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Quarter_Report)){
-                //如果是季报，报表起始时间为第一期报表的第一天，计算报表的最后一天（3个月后）
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                mrg.setStartTime(DateUtils.stringToDate(sReportDate +" 00:00:00.000",DateUtils.DF_YMD_HMSSSS));
-                setQuarterReportEndTime(sReportDate,mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.HalfYear_Report)){
-                //如果是半年报，报表起始时间为第一期报表的第一天，计算报表的最后一天（半年后）
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                mrg.setStartTime(DateUtils.stringToDate(sReportDate +" 00:00:00.000",DateUtils.DF_YMD_HMSSSS));
-                setHalfYearReportEndTime(sReportDate,mrg,RPS,mrg.getPeriodNo());
-            }else if (mrd.getReportPeriod().equals(ReportPeriodComponent.Period.Year_Report)){
-                //如果是年报，报表起始时间为第一期报表的第一天，计算报表的最后一天（一年后）
-                String sReportDate=DateUtils.dateToString(mrd.getStartDate(),DateUtils.DF_YMD);
-                mrg.setStartTime(DateUtils.stringToDate(sReportDate +" 00:00:00.000",DateUtils.DF_YMD_HMSSSS));
-                setYearReportEndTime(sReportDate,mrg,RPS,mrg.getPeriodNo());
-            }
+        }catch (Exception e){
+            e.printStackTrace();
+            BaseNnte.setRetFalse(ret, 9999, "获取报表起始日期异常");
+            return ret;
         }
         BaseNnte.setRetTrue(ret,"设置报表日期成功");
         return ret;
@@ -566,19 +572,30 @@ public class AutoReportComponent extends BaseComponent {
         Map<String, Object> controlDateRet = setControlDate(mrd,mrg,RPS);
         if (!BaseNnte.getRetSuc(controlDateRet))
             return controlDateRet;
+        if (mrg.getEndTime().after(new Date())){
+            //如果结束时间还没达到
+            BaseNnte.setRetFalse(ret, 1002,"报表尚未达到可以生成的时间");
+            return ret;
+        }
+        //如果报表生成时间满足了，查看报表是否有分割查询
         return ret;
     }
 
+    //查询报表的分割KEY-NAME选项
+    public Map<String, Object> queryReportCutOption(MerchantReportDefine mrd){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        return ret;
+    }
     public static void main(String[] args){
         MerchantReportDefine mrd=new MerchantReportDefine();
         mrd.setReportPeriodNo(1);
-        mrd.setReportPeriod(ReportPeriodComponent.Period.Year_Report);
-        mrd.setStartDate(DateUtils.stringToDate("2018-12-26",DateUtils.DF_YMD));
-        mrd.setEndTime(DateUtils.stringToDate("2020-02-29 23:50:50.000",DateUtils.DF_YMD_HMSSSS));
+        mrd.setReportPeriod(ReportPeriodComponent.Period.Day_Report);
+        mrd.setStartDate(DateUtils.stringToDate("2019-06-07",DateUtils.DF_YMD));
+        mrd.setEndTime(DateUtils.stringToDate("2019-06-07 23:59:59.999",DateUtils.DF_YMD_HMSSSS));
 
         MerchantReportGendetail mrg=new MerchantReportGendetail();
         ReportPeriodSetting RPS=new ReportPeriodSetting();
-        RPS.setEndTimeDay("23:50:50.000");
+        RPS.setEndTimeDay("23:59:59.999");
         RPS.setEndTimeWeek("5");
         RPS.setEndTimeMonth("25");
         RPS.setEndTimeQuarter("03-30");

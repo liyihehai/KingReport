@@ -4,7 +4,7 @@ import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2019-09-23 11:22:15>
+ * 自动代码 请勿更改 <2019-09-24 21:39:54>
  */
 public class MerchantReportDefine extends BaseModel {
     @DBPKColum private Long id;
@@ -27,6 +27,8 @@ public class MerchantReportDefine extends BaseModel {
     private Date startTime;
     private Date endTime;
     private String opeMsg;
+    private String cutKeyField;
+    private String cutNameField;
 
     public MerchantReportDefine(){}
 
@@ -70,4 +72,8 @@ public class MerchantReportDefine extends BaseModel {
     public void setEndTime(Date  endTime){ this.endTime = endTime;}
     public String  getOpeMsg(){ return opeMsg;}
     public void setOpeMsg(String  opeMsg){ this.opeMsg = opeMsg;}
+    public String  getCutKeyField(){ return cutKeyField;}
+    public void setCutKeyField(String  cutKeyField){ this.cutKeyField = cutKeyField;}
+    public String  getCutNameField(){ return cutNameField;}
+    public void setCutNameField(String  cutNameField){ this.cutNameField = cutNameField;}
 }

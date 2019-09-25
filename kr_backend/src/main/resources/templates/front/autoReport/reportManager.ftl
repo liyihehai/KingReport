@@ -105,6 +105,7 @@
 <!-- 弹出窗 项目新增，更改-->
 <#include "./merchantReportDefineModify.ftl">
 <#include "./reportTemplateModify.ftl">
+<#include "./reportDefineCutSetting.ftl">
 <!-- 弹出窗结束 -->
 <script>
     var drp=new AppJSGlobDatePicker();
@@ -174,8 +175,9 @@
                 "targets": [0],
                 "render": function(data, type, full) {
                     return dt.tableAppendMenuFunction('操作',[
-                        {funcName:'modifyReport',funcText:'编辑报表',funcId:full.id},
-                        {funcName:'setReportTemplate',funcText:'设置模板',funcId:full.id},
+                        {funcName:'modifyReport',funcText:'编辑报表信息',funcId:full.id},
+                        {funcName:'setReportCut',funcText:'设置报表分割',funcId:full.id},
+                        {funcName:'setReportTemplate',funcText:'设置报表模板',funcId:full.id},
                         {funcName:'genNextPeriodReport',funcText:'产生下期报表',funcId:full.id}]);
                 }
             },{
@@ -270,6 +272,30 @@
         $('.fileinput-remove-button').click();
     })
 
+    $("#reportDefineCutSetting").on('show.bs.modal',function(){
+        if (modReport!=undefined && modReport!=null)
+        {
+            $('#reportDefineCutSetting_reportCode').attr('disabled','disabled');
+            $('#reportDefineCutSetting_reportCode').val(modReport.reportCode);
+            $('#reportDefineCutSetting_reportName').attr('disabled','disabled');
+            $('#reportDefineCutSetting_reportName').val(modReport.reportName);
+            $('#reportDefineCutSetting_reportClass').attr('disabled','disabled');
+            var cutTypeName="";
+            if (modReport.cutTypeName)
+                cutTypeName="["+modReport.cutTypeName+"]";
+            $('#reportDefineCutSetting_reportClass').val(modReport.reportClass+cutTypeName);
+            if (modReport.cutColNameList && modReport.cutColNameList!=null
+                && modReport.cutColNameList.length>0){
+                var optHtml="";
+                for(var i=0;i<modReport.cutColNameList.length;i++){
+                    optHtml+="<option >"+modReport.cutColNameList[i]+"</option>";
+                }
+
+            }
+        }
+        $('.fileinput-remove-button').click();
+    })
+
     function showReportDialg(id,dialog) {
         modReport = null;
         if (id==undefined  || id==null || id<=0)
@@ -283,6 +309,10 @@
                 {
                     modReport = content.merchantReportDefine;
                     modReport.templateFiles = content.templateFiles;
+                    if (content.cutTypeName)
+                        modReport.cutTypeName=content.cutTypeName;
+                    if (content.cutColNameList)
+                        modReport.cutColNameList=content.cutColNameList;
                     dialog.modal({backdrop: 'static', keyboard: false});
                 }
                 else
@@ -295,6 +325,9 @@
     }
     function setReportTemplate(id) {
         showReportDialg(id,$('#reportTemplateModify'));
+    }
+    function setReportCut(id) {
+        showReportDialg(id,$('#reportDefineCutSetting'));
     }
 
     function genNextPeriodReport(id){

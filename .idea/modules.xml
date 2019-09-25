@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/kr_backend/kr_backend.iml" filepath="$PROJECT_DIR$/kr_backend/kr_backend.iml" />
       <module fileurl="file://$PROJECT_DIR$/kr_business/kr_business.iml" filepath="$PROJECT_DIR$/kr_business/kr_business.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kr_static/kr_static.iml" filepath="$PROJECT_DIR$/kr_static/kr_static.iml" />
     </modules>
   </component>
 </project>
