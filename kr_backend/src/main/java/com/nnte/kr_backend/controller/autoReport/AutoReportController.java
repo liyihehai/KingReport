@@ -12,6 +12,7 @@ import com.nnte.kr_business.base.BaseController;
 import com.nnte.kr_business.base.ExcelUtil;
 import com.nnte.kr_business.component.autoReport.AutoReportComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
+import com.nnte.kr_business.component.autoReport.AutoReportServerComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
@@ -41,6 +42,8 @@ public class AutoReportController extends BaseController {
     private AutoReportComponent autoReportComponent;
     @Autowired
     private AutoReportQueryComponent autoReportQueryComponent;
+    @Autowired
+    private AutoReportServerComponent autoReportServerComponent;
 
     @RequestMapping(value = "indexReport")
     public ModelAndView index(ModelAndView modelAndView){
@@ -235,24 +238,18 @@ public class AutoReportController extends BaseController {
             ret.put("templateFiles",templateFiles);
         //查询分割选项
         if (StringUtils.isNotEmpty(merchantReportDefine.getReportClass())) {
-            List<KeyValue> LibReportClass = autoReportQueryComponent.getMerchantCutFlagQuerys(merchantReportDefine.getParMerchantId(), null);
-            for(KeyValue kv:LibReportClass){
-                if (kv.getKey().equals(merchantReportDefine.getReportClass())){
-                    MerchantReportQuery mrq=autoReportQueryComponent.getReportQueryByCode(null,
-                            merchantReportDefine.getParMerchantId(),kv.getKey());
-                    if (mrq!=null) {
-                        ret.put("cutTypeName", mrq.getCutTypeName());
-                        JSONArray jarray=JsonUtil.getJsonArray4Json(mrq.getQuerySqlCols());
-                        if (jarray!=null){
-                            List<String> colNameList=new ArrayList<>();
-                            for (int i=0;i<jarray.size();i++){
-                                JSONObject jobj=jarray.getJSONObject(i);
-                                colNameList.add(jobj.get("colName").toString());
-                            }
-                            ret.put("cutColNameList", colNameList);
-                        }
+            MerchantReportQuery mrq=autoReportQueryComponent.getReportQueryByCode(null,
+                    merchantReportDefine.getParMerchantId(),merchantReportDefine.getReportClass());
+            if (mrq!=null) {
+                ret.put("cutTypeName", mrq.getCutTypeName());
+                JSONArray jarray=JsonUtil.getJsonArray4Json(mrq.getQuerySqlCols());
+                if (jarray!=null){
+                    List<String> colNameList=new ArrayList<>();
+                    for (int i=0;i<jarray.size();i++){
+                        JSONObject jobj=jarray.getJSONObject(i);
+                        colNameList.add(jobj.get("colName").toString());
                     }
-                    break;
+                    ret.put("cutColNameList", colNameList);
                 }
             }
         }
@@ -273,7 +270,7 @@ public class AutoReportController extends BaseController {
             return ret;
         }
         Map<String,Object> pMap=new HashMap<>();
-        ret=autoReportComponent.generatorReportFile(pMap,merchantReportDefine);
+        ret=autoReportServerComponent.generatorReportFile(pMap,merchantReportDefine);
         return ret;
     }
     /*
@@ -316,7 +313,7 @@ public class AutoReportController extends BaseController {
         }
         Map<String,Object> pMap=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,pMap);
-        ret=autoReportComponent.saveReportDefineCutSetting(pMap,MRD);
+        ret=autoReportQueryComponent.saveReportDefineCutSetting(pMap,MRD);
         return ret;
     }
     @RequestMapping("/updateReportState")

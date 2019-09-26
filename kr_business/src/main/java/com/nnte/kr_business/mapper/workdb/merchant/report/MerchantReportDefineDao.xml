@@ -25,10 +25,12 @@
         <result column="OPE_MSG" property="opeMsg"/>
         <result column="CUT_KEY_FIELD" property="cutKeyField"/>
         <result column="CUT_NAME_FIELD" property="cutNameField"/>
+        <result column="CUT_KEY_TYPE" property="cutKeyType"/>
+        <result column="CUT_NAME_TYPE" property="cutNameType"/>
     </resultMap>
     <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine">
-        insert into MERCHANT_REPORT_DEFINE (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_NAME ,REPORT_CLASS ,REPORT_BUSI_TYPE ,REPORT_PERIOD ,START_DATE ,TEMPLATE_FILE ,REPORT_STATE ,CREATE_TIME ,CREATE_OPER_ID ,CREATE_OPER_NAME ,UPDATE_TIME ,OPE_TIME ,OPE_NUM ,REPORT_PERIOD_NO ,START_TIME ,END_TIME ,OPE_MSG ,CUT_KEY_FIELD ,CUT_NAME_FIELD )
-        values (#{parMerchantId} ,#{reportCode} ,#{reportName} ,#{reportClass} ,#{reportBusiType} ,#{reportPeriod} ,#{startDate} ,#{templateFile} ,#{reportState} ,#{createTime} ,#{createOperId} ,#{createOperName} ,#{updateTime} ,#{opeTime} ,#{opeNum} ,#{reportPeriodNo} ,#{startTime} ,#{endTime} ,#{opeMsg} ,#{cutKeyField} ,#{cutNameField} )
+        insert into MERCHANT_REPORT_DEFINE (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_NAME ,REPORT_CLASS ,REPORT_BUSI_TYPE ,REPORT_PERIOD ,START_DATE ,TEMPLATE_FILE ,REPORT_STATE ,CREATE_TIME ,CREATE_OPER_ID ,CREATE_OPER_NAME ,UPDATE_TIME ,OPE_TIME ,OPE_NUM ,REPORT_PERIOD_NO ,START_TIME ,END_TIME ,OPE_MSG ,CUT_KEY_FIELD ,CUT_NAME_FIELD ,CUT_KEY_TYPE ,CUT_NAME_TYPE )
+        values (#{parMerchantId} ,#{reportCode} ,#{reportName} ,#{reportClass} ,#{reportBusiType} ,#{reportPeriod} ,#{startDate} ,#{templateFile} ,#{reportState} ,#{createTime} ,#{createOperId} ,#{createOperName} ,#{updateTime} ,#{opeTime} ,#{opeNum} ,#{reportPeriodNo} ,#{startTime} ,#{endTime} ,#{opeMsg} ,#{cutKeyField} ,#{cutNameField} ,#{cutKeyType} ,#{cutNameType} )
     </insert>
     <select id="findModelByKey" resultMap="MerchantReportDefineResult" parameterType="java.lang.Long">
         select * from MERCHANT_REPORT_DEFINE where ID=#{id}
@@ -60,6 +62,8 @@
         <if test="opeMsg!= null"><![CDATA[OPE_MSG=#{opeMsg},]]></if>
         <if test="cutKeyField!= null"><![CDATA[CUT_KEY_FIELD=#{cutKeyField},]]></if>
         <if test="cutNameField!= null"><![CDATA[CUT_NAME_FIELD=#{cutNameField},]]></if>
+        <if test="cutKeyType!= null"><![CDATA[CUT_KEY_TYPE=#{cutKeyType},]]></if>
+        <if test="cutNameType!= null"><![CDATA[CUT_NAME_TYPE=#{cutNameType},]]></if>
         </set>
         where ID=#{id}
     </update>
@@ -88,6 +92,8 @@
             <if test="opeMsg!= null"><![CDATA[and t.OPE_MSG = #{opeMsg}]]></if>
             <if test="cutKeyField!= null"><![CDATA[and t.CUT_KEY_FIELD = #{cutKeyField}]]></if>
             <if test="cutNameField!= null"><![CDATA[and t.CUT_NAME_FIELD = #{cutNameField}]]></if>
+            <if test="cutKeyType!= null"><![CDATA[and t.CUT_KEY_TYPE = #{cutKeyType}]]></if>
+            <if test="cutNameType!= null"><![CDATA[and t.CUT_NAME_TYPE = #{cutNameType}]]></if>
         </where>
         <if test="sort!=null">order by t.${sort} ${dir}</if>
     </sql>

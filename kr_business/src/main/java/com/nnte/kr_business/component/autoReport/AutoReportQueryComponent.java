@@ -6,8 +6,10 @@ import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.base.DBSchemaColum;
+import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
+import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
@@ -19,6 +21,10 @@ import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQueryService;
+import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
+import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefineService;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @WorkDBAspect
@@ -33,6 +41,8 @@ import java.util.Map;
 public class AutoReportQueryComponent extends BaseComponent {
     @Autowired
     private AutoReportComponent autoReportComponent;
+    @Autowired
+    private MerchantReportDefineService merchantReportDefineService;
     @Autowired
     private AutoReportDBConnComponent autoReportDBConnComponent;
     @Autowired
@@ -50,6 +60,22 @@ public class AutoReportQueryComponent extends BaseComponent {
     static {//S:单行查询，M：多行查询
         LibReportQueryCutFlag.add(new KeyValue("0","否"));
         LibReportQueryCutFlag.add(new KeyValue("1","是"));
+    }
+    public static class ResKeyWord{
+        public static final String START_TIME="_startTime";
+        public static final String END_TIME="_endTime";
+        public static final String PERIOD_NO="_periodNo";
+        public static final String CUT_KEY="_cutKey";
+        public static final String CUT_NAME="_cutName";
+    }
+    @DataLibItem("查询保留关键字(Reserved keywords)")
+    public final static List<KeyValue> LibQueryResKeyWord = new ArrayList<>();
+    static {//S:单行查询，M：多行查询
+        LibQueryResKeyWord.add(new KeyValue(ResKeyWord.START_TIME,"报表开始时间"));
+        LibQueryResKeyWord.add(new KeyValue(ResKeyWord.END_TIME,"报表结束时间"));
+        LibQueryResKeyWord.add(new KeyValue(ResKeyWord.PERIOD_NO,"报表期数"));
+        LibQueryResKeyWord.add(new KeyValue(ResKeyWord.CUT_KEY,"报表分割字段值"));
+        LibQueryResKeyWord.add(new KeyValue(ResKeyWord.CUT_NAME,"报表分割字段名"));
     }
     //------------------------------------------
     public MerchantReportQuery getReportQueryDefineById(Long queryId){
@@ -70,8 +96,7 @@ public class AutoReportQueryComponent extends BaseComponent {
             return list.get(0);
         return null;
     }
-    //查询商户的分割查询列表，以KEY-VALUE形式返回
-    public List<KeyValue> getMerchantCutFlagQuerys(Long parMerchantId,ConnSqlSessionFactory cssf){
+    public List<MerchantReportQuery> queryMerchantCutQuerys(Long parMerchantId,ConnSqlSessionFactory cssf){
         MerchantReportQuery dto = new MerchantReportQuery();
         dto.setParMerchantId(parMerchantId);
         dto.setCutFlag("1");
@@ -80,6 +105,12 @@ public class AutoReportQueryComponent extends BaseComponent {
             list=merchantReportQueryService.findModelList(dto);
         else
             list=merchantReportQueryService.findModelList(cssf, dto);
+        return list;
+    }
+
+    //查询商户的分割查询列表，以KEY-VALUE形式返回
+    public List<KeyValue> getMerchantCutFlagQuerys(Long parMerchantId,ConnSqlSessionFactory cssf){
+        List<MerchantReportQuery> list = queryMerchantCutQuerys(parMerchantId,cssf);
         List<KeyValue> ret = new ArrayList<>();
         ret.add(new KeyValue("","不分割"));
         if (list != null && list.size() > 0)
@@ -183,6 +214,52 @@ public class AutoReportQueryComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"报表查询保存成功");
         return ret;
     }
+    //取得分割查询字段的类型：Integer,Long,String,Date,Float,Double(?)
+    public String getCutFieldType(MerchantReportQuery cutQuery,String fieldName){
+        JSONArray jarray=JsonUtil.getJsonArray4Json(cutQuery.getQuerySqlCols());
+        if (jarray!=null){
+            for(int i=0;i<jarray.size();i++){
+                JSONObject jobj=jarray.getJSONObject(i);
+                if (jobj!=null && jobj.get("colName").equals(fieldName)){
+                    Object dataType=jobj.get("dataType");
+                    if (dataType!=null)
+                        return dataType.toString();
+                    break;
+                }
+            }
+        }
+        return null;
+    }
+    //返回取得查询结构时分割字段内容替换
+    //fieldType:Integer,Long,Float,Double,String,Date
+    private String getSchemaCutReplaceContent(String repFormat,String cutFieldType){
+        if ("Integer".equals(cutFieldType)||"Long".equals(cutFieldType))
+            return getReplaceContentByFormat(repFormat,new Integer(0));
+        else if ("Date".equals(cutFieldType))
+            return getReplaceContentByFormat(repFormat,new Date());
+        else if ("Float".equals(cutFieldType)||"Double".equals(cutFieldType))
+            return getReplaceContentByFormat(repFormat,new Double(0.0));
+        return getReplaceContentByFormat(null,"");
+    }
+
+    private String replaceSchemaSql(String srcSql,MerchantReportQuery query,
+                                    ConnSqlSessionFactory cssf){
+        String srcString = srcSql;
+        String regex = "\\$\\{(.*?)\\}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher m = pattern.matcher(srcString);
+        List<String> matchedList = new ArrayList<>();
+        while (m.find()) {
+            int i = 1;
+            matchedList.add(m.group(i));
+            i++;
+        }
+        for(String matchedStr:matchedList){
+            String replaceStr="\\$\\{"+matchedStr+"\\}";
+            srcString=srcString.replaceFirst(replaceStr,getSchemaReplaceContent(matchedStr,query,cssf));
+        }
+        return srcString;
+    }
 
     @DBSrcTranc
     public Map<String, Object> saveQueryBodySet(Map<String, Object> paramMap){
@@ -200,8 +277,11 @@ public class AutoReportQueryComponent extends BaseComponent {
             BaseNnte.setRetFalse(ret, 1002,"查询未指定数据连接");
             return ret;
         }
+        //需要对查询的内容进行替换------
         String sSql=StringUtils.defaultString(paramMap.get("querySql"));
-        List<DBSchemaColum> listCol=autoReportDBConnComponent.execSqlForSchema(mdd,sSql);
+        String schemaSql=replaceSchemaSql(sSql,dto,cssf);
+        //-----------------------------
+        List<DBSchemaColum> listCol=autoReportDBConnComponent.execSqlForSchema(mdd,schemaSql);
         if (listCol==null || listCol.size()<=0){
             BaseNnte.setRetFalse(ret, 1002,"查询未能取得数据结构");
             return ret;
@@ -219,5 +299,101 @@ public class AutoReportQueryComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"查询取得数据结构成功");
         ret.put("cols",listCol);
         return ret;
+    }
+
+    @DBSrcTranc
+    public Map<String, Object> saveReportDefineCutSetting(Map<String, Object> paramMap,MerchantReportDefine MRD){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant=KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        //--------------------------------
+        MerchantReportDefine srcMRD = autoReportComponent.getReportRecordByCode(cssf,loginMerchant.getParMerchantId(), MRD.getReportCode());
+        if (srcMRD==null){
+            BaseNnte.setRetFalse(ret, 1002,"未取得报表定义");
+            return ret;
+        }
+        MerchantReportDefine dto = new MerchantReportDefine();
+        dto.setId(srcMRD.getId());
+        dto.setParMerchantId(loginMerchant.getParMerchantId());
+        if (StringUtils.isEmpty(srcMRD.getReportClass())){
+            BaseNnte.setRetFalse(ret, 1002,"未取得报表分割查询定义");
+            return ret;
+        }
+        MerchantReportQuery cutQuery=getReportQueryByCode(cssf,loginMerchant.getParMerchantId(),srcMRD.getReportClass());
+        if (cutQuery==null){
+            BaseNnte.setRetFalse(ret, 1002,"未查询到报表分割查询定义");
+            return ret;
+        }
+        dto.setCutKeyField(MRD.getCutKeyField());
+        dto.setCutNameField(MRD.getCutNameField());
+        dto.setCutKeyType(getCutFieldType(cutQuery,MRD.getCutKeyField()));
+        dto.setCutNameType(getCutFieldType(cutQuery,MRD.getCutNameField()));
+        if (!merchantReportDefineService.updateModel(cssf,dto).equals(1)){
+            BaseNnte.setRetFalse(ret, 1002,"设置报表分割字段失败");
+            return ret;
+        }
+        BaseNnte.setRetTrue(ret,"设置报表分割字段成功");
+        return ret;
+    }
+    //时间内容格式转换
+    public static String getReplaceDateContentByFormat(String format,Object valObj){
+        Date dateObj = (Date) valObj;
+        if (StringUtils.isNotEmpty(format))
+            return DateUtils.dateToString(dateObj,format);
+        return DateUtils.dateToString(dateObj,"yyyy-MM-dd");
+    }
+    //Integer内容格式转换
+    public static String getReplaceIntegerContentByFormat(String format,Object valObj){
+        Integer val=NumberUtil.getDefaultInteger(valObj);
+        if (StringUtils.isNotEmpty(format))
+            return String.format(format,val);
+        return val.toString();
+    }
+    //Float内容格式转换
+    public static String getReplaceFloatContentByFormat(String format,Object valObj){
+        Double val=NumberUtil.getDefaultDouble(valObj);
+        if (StringUtils.isNotEmpty(format))
+            return String.format(format,val);
+        return Double.valueOf(NumberUtil.getScaleValue4Money(val)).toString();
+    }
+    //获取替换的内容,按格式替换
+    public static String getReplaceContentByFormat(String format,Object valObj){
+        if (DataColDef.getDataType(valObj.getClass().getTypeName()).equals(DataColDef.DataType.DATA_DATE))
+            return getReplaceDateContentByFormat(format,valObj);
+        else if (DataColDef.getDataType(valObj.getClass().getTypeName()).equals(DataColDef.DataType.DATA_INT))
+            return getReplaceIntegerContentByFormat(format,valObj);
+        else if (DataColDef.getDataType(valObj.getClass().getTypeName()).equals(DataColDef.DataType.DATA_FLOT))
+            return getReplaceFloatContentByFormat(format,valObj);
+        else
+            return valObj.toString();
+    }
+    //获取用于取得查询结果集结构的环境变量替换的内容
+    public String getSchemaReplaceContent(String matchedStr,MerchantReportQuery query,
+                                                 ConnSqlSessionFactory cssf){
+        String mstr=matchedStr;
+        mstr=mstr.trim();
+        String repType=mstr;
+        String repFormat=null;
+        if (mstr.indexOf(",")>0){
+            String[] splitStrs=mstr.split(",");
+            if (splitStrs!=null && splitStrs.length==2){
+                repType=splitStrs[0].trim();
+                repFormat=splitStrs[1].trim();
+            }
+        }
+        MerchantReportDefine mrd=autoReportComponent.getReportRecordById(query.getReportId());
+        if (ResKeyWord.START_TIME.equals(repType)||ResKeyWord.END_TIME.equals(repType))
+            return getReplaceContentByFormat(repFormat,new Date());
+        else if (ResKeyWord.PERIOD_NO.equals(repType))
+            return getReplaceContentByFormat(repFormat,new Integer(0));
+        else if (ResKeyWord.CUT_KEY.equals(repType)){
+            return getSchemaCutReplaceContent(repFormat,mrd.getCutKeyType());
+        }else if (ResKeyWord.CUT_NAME.equals(repType)){
+            return getSchemaCutReplaceContent(repFormat,mrd.getCutNameType());
+        }
+        return null;
+    }
+    public static void main(String[] args){
+
     }
 }
