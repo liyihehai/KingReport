@@ -134,18 +134,16 @@ public class AutoReportComponent extends BaseComponent {
         return ret;
     }
     //保存报表模板文件
-    private void saveReportTemplateFile(Long merchantId,String reportCode,String fileName, byte[] content){
-        String fpath=StringUtils.pathAppend(StringUtils.pathAppend(appConfig.getReportRoot(),
-                merchantId.toString()),reportCode);
+    private void saveReportTemplateFile(MerchantReportDefine mrd,String fileName, byte[] content){
+        String fpath=getReportTemplateAbPath(mrd);
         if (!FileUtil.isPathExists(fpath))
             FileUtil.makeDirectory(fpath);
         String pfn=StringUtils.pathAppend(fpath,fileName);
         FileUtil.writeFile(pfn,content);
     }
     //查询报表模板文件名列表
-    public List<String> getReportTemplateFileNames(Long merchantId,String reportCode) {
-        String fpath = StringUtils.pathAppend(StringUtils.pathAppend(appConfig.getReportRoot(),
-                merchantId.toString()), reportCode);
+    public List<String> getReportTemplateFileNames(MerchantReportDefine mrd) {
+        String fpath = getReportTemplateAbPath(mrd);
         File[] files=FileUtil.listAll(new File(fpath),new ReportTemplateFileFilter());
         if (files!=null && files.length>0){
             List<String> list = new ArrayList<>();
@@ -177,9 +175,9 @@ public class AutoReportComponent extends BaseComponent {
             BaseNnte.setRetFalse(ret, 1002,"未取得报表定义");
             return ret;
         }
-        saveReportTemplateFile(merchantId,reportCode,fileName,content);
+        saveReportTemplateFile(dto,fileName,content);
         BaseNnte.setRetTrue(ret,"保存模板文件成功");
-        List<String> templateFiles=getReportTemplateFileNames(merchantId,reportCode);
+        List<String> templateFiles=getReportTemplateFileNames(dto);
         ret.put("templateFiles",templateFiles);
         ret.put("templateFile",fileName);
         return ret;
@@ -273,5 +271,19 @@ public class AutoReportComponent extends BaseComponent {
         ret=DataExport(loginMerchant.getParMerchantId(),list,colDefList,
                 sysParamComponent.getMerchantExportSheetCount(loginMerchant.getParMerchantId()));
         return ret;
+    }
+    //获取报表模板文件的绝对路径
+    public String getReportTemplateAbPath(MerchantReportDefine mrd){
+        String abReportRoot=StringUtils.pathAppend(appConfig.getAbStaticRoot(),appConfig.getReportRoot());
+        String abTemplateRoot=StringUtils.pathAppend(abReportRoot,appConfig.getReportTemplateRoot());
+        String pmerchant=StringUtils.pathAppend(abTemplateRoot,mrd.getParMerchantId().toString());
+        return StringUtils.pathAppend(pmerchant,mrd.getReportCode());
+    }
+    //获取报表输出文件的绝对路径
+    public String getReportOutFileAbPath(MerchantReportDefine mrd){
+        String abReportRoot=StringUtils.pathAppend(appConfig.getAbStaticRoot(),appConfig.getReportRoot());
+        String abReprtFileRoot=StringUtils.pathAppend(abReportRoot,appConfig.getReportFileRoot());
+        String pmerchant=StringUtils.pathAppend(abReprtFileRoot,mrd.getParMerchantId().toString());
+        return StringUtils.pathAppend(pmerchant,mrd.getReportCode());
     }
 }

@@ -4,19 +4,17 @@ import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.utils.DateUtils;
-import com.nnte.framework.utils.Excel.ExcelConfig;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -24,61 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ExcelUtil {
-    public static class XSSFWorkbookAndOPC{
-        private OPCPackage pkg;
-        private XSSFWorkbook wb;
-        private ExcelConfig ec;
 
-        public OPCPackage getPkg() { return pkg; }
-        public void setPkg(OPCPackage pkg) { this.pkg = pkg; }
-        public XSSFWorkbook getWb() { return wb; }
-        public void setWb(XSSFWorkbook wb) { this.wb = wb; }
-        public ExcelConfig getEc() { return ec; }
-        public void setEc(ExcelConfig ec) { this.ec = ec; }
-    }
-    //打开一个模板文件,文件类型为“.xltx”
-    public static XSSFWorkbookAndOPC openExcelTemplate(ExcelConfig ec,String templateFile) {
-        try {
-            XSSFWorkbookAndOPC WbAndOpc= new XSSFWorkbookAndOPC();
-            String templatePathFile=ec.getTemplatePathFile(templateFile);
-            WbAndOpc.setEc(ec);
-            WbAndOpc.setPkg(OPCPackage.open(templatePathFile));//取得文件的读写权限
-            WbAndOpc.setWb(new XSSFWorkbook(WbAndOpc.getPkg()));
-            return WbAndOpc;
-        } catch (IOException | InvalidFormatException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    //将打开的文件进行保存
-    public static boolean saveExcelFile(XSSFWorkbookAndOPC wao,String excelFile){
-        try {
-            String excelPathFile=wao.getEc().getReportExcelPathFile(excelFile);
-            FileOutputStream fos = new FileOutputStream(new File(excelPathFile));
-            if (fos!=null){
-                wao.getWb().write(fos);
-                fos.close();
-                return true;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    //关闭Excel文件
-    public static void closeExcelTemplate(XSSFWorkbookAndOPC WbAndOpc){
-        if (WbAndOpc!=null){
-            if (WbAndOpc.getPkg()!=null && WbAndOpc.getWb()!=null){
-                try {
-                    WbAndOpc.getPkg().close();
-                    WbAndOpc.setWb(null);
-                    WbAndOpc.setPkg(null);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
     //创建一个用于数据导出的sheet
     public static HSSFSheet createExportExcelSheet(HSSFWorkbook workbook,String sheetName, List<ExpotColDef> colList){
         // 生成一个表格

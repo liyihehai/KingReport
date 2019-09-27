@@ -4,12 +4,10 @@ import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.DateUtils;
-import com.nnte.framework.utils.Excel.ExcelConfig;
 import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.base.BaseController;
-import com.nnte.kr_business.base.ExcelUtil;
 import com.nnte.kr_business.component.autoReport.AutoReportComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportServerComponent;
@@ -86,13 +84,6 @@ public class AutoReportController extends BaseController {
         String trPath="excel/";
         String refPath="excel/";
         String rdfPath="excel/";
-        ExcelConfig ec = new ExcelConfig(reportRoot,trPath,refPath,rdfPath);
-        ExcelUtil.XSSFWorkbookAndOPC wao=ExcelUtil.openExcelTemplate(ec,templateFile);
-        if (wao!=null)
-        {
-            ExcelUtil.saveExcelFile(wao,"template_ins");
-            ExcelUtil.closeExcelTemplate(wao);
-        }
         return retHtml;
     }
 
@@ -232,8 +223,7 @@ public class AutoReportController extends BaseController {
         BaseNnte.setRetTrue(ret,"查询指定报表成功");
         ret.put("merchantReportDefine",merchantReportDefine);
         //查询模板文件列表
-        List<String> templateFiles=autoReportComponent.getReportTemplateFileNames(merchantReportDefine.getParMerchantId(),
-                merchantReportDefine.getReportCode());
+        List<String> templateFiles=autoReportComponent.getReportTemplateFileNames(merchantReportDefine);
         if (templateFiles!=null)
             ret.put("templateFiles",templateFiles);
         //查询分割选项

@@ -4,7 +4,7 @@ import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2019-09-25 08:38:02>
+ * 自动代码 请勿更改 <2019-09-26 20:16:59>
  */
 public class MerchantReportQuery extends BaseModel {
     @DBPKColum private Long id;
@@ -16,7 +16,7 @@ public class MerchantReportQuery extends BaseModel {
     private String cutFlag;
     private String cutTypeName;
     private String queryType;
-    private Long maxRowCount;
+    private Integer maxRowCount;
     private String querySql;
     private String querySqlCols;
     private Date createTime;
@@ -44,8 +44,8 @@ public class MerchantReportQuery extends BaseModel {
     public void setCutTypeName(String  cutTypeName){ this.cutTypeName = cutTypeName;}
     public String  getQueryType(){ return queryType;}
     public void setQueryType(String  queryType){ this.queryType = queryType;}
-    public Long  getMaxRowCount(){ return maxRowCount;}
-    public void setMaxRowCount(Long  maxRowCount){ this.maxRowCount = maxRowCount;}
+    public Integer  getMaxRowCount(){ return maxRowCount;}
+    public void setMaxRowCount(Integer  maxRowCount){ this.maxRowCount = maxRowCount;}
     public String  getQuerySql(){ return querySql;}
     public void setQuerySql(String  querySql){ this.querySql = querySql;}
     public String  getQuerySqlCols(){ return querySqlCols;}

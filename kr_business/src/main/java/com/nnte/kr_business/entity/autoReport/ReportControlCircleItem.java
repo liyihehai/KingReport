@@ -9,6 +9,13 @@ public class ReportControlCircleItem {
     //如果为整数或浮点数据，采用String.Format()函数格式化
     //如果为日期数据，采用DateUtil支持的格式化
     private String format;                      //输出格式
+    public ReportControlCircleItem(DataColDef.DataType dataType,String outText,
+                                   String cellPoint,String format){
+        setDataType(dataType);
+        setOutText(outText);
+        setCellPoint(cellPoint);
+        setFormat(format);
+    }
     //--------------------------------------------------
     public String getCellPoint() {
         return cellPoint;

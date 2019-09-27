@@ -16,6 +16,7 @@ import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
+import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
@@ -107,6 +108,20 @@ public class AutoReportQueryComponent extends BaseComponent {
             list=merchantReportQueryService.findModelList(cssf, dto);
         return list;
     }
+    //获取报表的数据查询定义（不包含分割查询）
+    public List<MerchantReportQuery> queryReportDataQuerys(Long parMerchantId,MerchantReportDefine mrd,
+                                                           ConnSqlSessionFactory cssf){
+        MerchantReportQuery dto = new MerchantReportQuery();
+        dto.setParMerchantId(parMerchantId);
+        dto.setReportId(mrd.getId());
+        dto.setCutFlag("0");
+        List<MerchantReportQuery> list = null;
+        if (cssf==null)
+            list=merchantReportQueryService.findModelList(dto);
+        else
+            list=merchantReportQueryService.findModelList(cssf, dto);
+        return list;
+    }
 
     //查询商户的分割查询列表，以KEY-VALUE形式返回
     public List<KeyValue> getMerchantCutFlagQuerys(Long parMerchantId,ConnSqlSessionFactory cssf){
@@ -187,7 +202,7 @@ public class AutoReportQueryComponent extends BaseComponent {
             dto.setQueryType(StringUtils.defaultString(paramMap.get("queryType")));
             dto.setReportId(NumberUtil.getDefaultLong(paramMap.get("reportId")));
             dto.setConnId(NumberUtil.getDefaultLong(paramMap.get("connId")));
-            dto.setMaxRowCount(NumberUtil.getDefaultLong(paramMap.get("maxRowCount")));
+            dto.setMaxRowCount(NumberUtil.getDefaultInteger(paramMap.get("maxRowCount")));
             dto.setCutFlag(StringUtils.defaultString(paramMap.get("cutFlag")));
             dto.setCutTypeName(StringUtils.defaultString(paramMap.get("cutTypeName")));
             //-----------------------------------------------------------------------
@@ -201,7 +216,7 @@ public class AutoReportQueryComponent extends BaseComponent {
             dto.setQueryType(StringUtils.defaultString(paramMap.get("queryType")));
             dto.setReportId(NumberUtil.getDefaultLong(paramMap.get("reportId")));
             dto.setConnId(NumberUtil.getDefaultLong(paramMap.get("connId")));
-            dto.setMaxRowCount(NumberUtil.getDefaultLong(paramMap.get("maxRowCount")));
+            dto.setMaxRowCount(NumberUtil.getDefaultInteger(paramMap.get("maxRowCount")));
             dto.setCutFlag(StringUtils.defaultString(paramMap.get("cutFlag")));
             dto.setCutTypeName(StringUtils.defaultString(paramMap.get("cutTypeName")));
             dto.setUpdateTime(new Date());
@@ -242,7 +257,12 @@ public class AutoReportQueryComponent extends BaseComponent {
         return getReplaceContentByFormat(null,"");
     }
 
-    private String replaceSchemaSql(String srcSql,MerchantReportQuery query,
+    /*
+    * 对查询语句的内容进行替换，以rc为主要区分标志，当rc不为null时，表示是为获取数据而进行
+    * sql语句替换，此时query和cssf无效；如果rc==null,表示是为获取查询结果的结构而进行替换，
+    * 此时query和cssf有效
+    * */
+    public String replaceQuerySql(String srcSql,ReportControl rc,MerchantReportQuery query,
                                     ConnSqlSessionFactory cssf){
         String srcString = srcSql;
         String regex = "\\$\\{(.*?)\\}";
@@ -256,7 +276,10 @@ public class AutoReportQueryComponent extends BaseComponent {
         }
         for(String matchedStr:matchedList){
             String replaceStr="\\$\\{"+matchedStr+"\\}";
-            srcString=srcString.replaceFirst(replaceStr,getSchemaReplaceContent(matchedStr,query,cssf));
+            if (rc==null)
+                srcString=srcString.replaceFirst(replaceStr,getSchemaReplaceContent(matchedStr,query,cssf));
+            else
+                srcString=srcString.replaceFirst(replaceStr,getQueryDataReplaceMatche(matchedStr,rc));
         }
         return srcString;
     }
@@ -279,7 +302,7 @@ public class AutoReportQueryComponent extends BaseComponent {
         }
         //需要对查询的内容进行替换------
         String sSql=StringUtils.defaultString(paramMap.get("querySql"));
-        String schemaSql=replaceSchemaSql(sSql,dto,cssf);
+        String schemaSql=replaceQuerySql(sSql,null,dto,cssf);
         //-----------------------------
         List<DBSchemaColum> listCol=autoReportDBConnComponent.execSqlForSchema(mdd,schemaSql);
         if (listCol==null || listCol.size()<=0){
@@ -367,9 +390,8 @@ public class AutoReportQueryComponent extends BaseComponent {
         else
             return valObj.toString();
     }
-    //获取用于取得查询结果集结构的环境变量替换的内容
-    public String getSchemaReplaceContent(String matchedStr,MerchantReportQuery query,
-                                                 ConnSqlSessionFactory cssf){
+
+    private String[] getMatcheStrings(String matchedStr){
         String mstr=matchedStr;
         mstr=mstr.trim();
         String repType=mstr;
@@ -381,6 +403,17 @@ public class AutoReportQueryComponent extends BaseComponent {
                 repFormat=splitStrs[1].trim();
             }
         }
+        String[] ret=new String[2];
+        ret[0]=repType;
+        ret[1]=repFormat;
+        return ret;
+    }
+    //获取用于取得查询结果集结构的环境变量替换的内容
+    public String getSchemaReplaceContent(String matchedStr,MerchantReportQuery query,
+                                                 ConnSqlSessionFactory cssf){
+        String[] mStrs=getMatcheStrings(matchedStr);
+        String repType=mStrs[0];
+        String repFormat=mStrs[1];
         MerchantReportDefine mrd=autoReportComponent.getReportRecordById(query.getReportId());
         if (ResKeyWord.START_TIME.equals(repType)||ResKeyWord.END_TIME.equals(repType))
             return getReplaceContentByFormat(repFormat,new Date());
@@ -393,6 +426,15 @@ public class AutoReportQueryComponent extends BaseComponent {
         }
         return null;
     }
+
+    //获取用于取得查询结果集结构的环境变量替换的内容
+    public String getQueryDataReplaceMatche(String matchedStr, ReportControl rc){
+        String[] mStrs=getMatcheStrings(matchedStr);
+        String repType=mStrs[0];
+        String repFormat=mStrs[1];
+        return getReplaceContentByFormat(repFormat,rc.getReportDataEnv().get(repType));
+    }
+
     public static void main(String[] args){
 
     }

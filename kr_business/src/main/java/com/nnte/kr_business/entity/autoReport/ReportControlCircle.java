@@ -8,6 +8,7 @@ import java.util.List;
 * */
 public class ReportControlCircle {
     private CircleItemType circleItemType;  //输出项类型
+    private String sheetName="sheet1";      //页面名称，默认sheet1
     private String queryCode;               //查询代码 circleItemType=CIT_QueryFeild有效
     private List<ReportControlCircleItem> circleItemList=new ArrayList<>();
     //------------------------------------------------------
@@ -33,5 +34,11 @@ public class ReportControlCircle {
     }
     public List<ReportControlCircleItem> getCircleItemList() {
         return circleItemList;
+    }
+    public String getSheetName() {
+        return sheetName;
+    }
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
     }
 }

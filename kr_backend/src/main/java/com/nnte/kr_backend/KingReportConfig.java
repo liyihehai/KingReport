@@ -19,6 +19,8 @@ public class KingReportConfig implements KRConfigInterface {
     private String RedisServer;             //redis服务器IP
     private String RedisPws;                //redis服务器密码
     private String ReportRoot;              //报表根目录
+    private String reportTemplateRoot;      //报表模板文件根目录
+    private String reportFileRoot;          //报表EXCEL文件根目录
     private String ExpotExcelTmpRoot;       //数据导出Excel文件的tmp根目录
 
     @Override
@@ -109,5 +111,25 @@ public class KingReportConfig implements KRConfigInterface {
     @Override
     public void setAbStaticRoot(String abStaticRoot) {
         this.abStaticRoot=abStaticRoot;
+    }
+
+    @Override
+    public String getReportTemplateRoot() {
+        return reportTemplateRoot;
+    }
+
+    @Override
+    public void setReportTemplateRoot(String reportTemplateRoot) {
+        this.reportTemplateRoot=reportTemplateRoot;
+    }
+
+    @Override
+    public String getReportFileRoot() {
+        return reportFileRoot;
+    }
+
+    @Override
+    public void setReportFileRoot(String reportFileRoot) {
+        this.reportFileRoot=reportFileRoot;
     }
 }

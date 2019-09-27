@@ -9,16 +9,18 @@ import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
+import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
-import com.nnte.kr_business.entity.autoReport.ReportControl;
-import com.nnte.kr_business.entity.autoReport.ReportControlCircle;
-import com.nnte.kr_business.entity.autoReport.ReportControlCircleItem;
-import com.nnte.kr_business.entity.autoReport.ReportPeriodSetting;
+import com.nnte.kr_business.entity.autoReport.*;
 import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONObject;
+import org.apache.poi.ss.usermodel.CellCopyPolicy;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,19 +29,25 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
 * 报表服务组件
 * */
 @Component
 @WorkDBAspect
-public class AutoReportServerComponent {
+public class AutoReportServerComponent extends BaseComponent {
     @Autowired
     private AutoReportQueryComponent autoReportQueryComponent;
     @Autowired
     private ReportPeriodComponent reportPeriodComponent;
     @Autowired
     private AutoReportDBConnComponent autoReportDBConnComponent;
+    @Autowired
+    private AutoReportExcelComponent autoReportExcelComponent;
+    @Autowired
+    private AutoReportComponent autoReportComponent;
 
     //monthCount>=1 ,表示指定日期向后推算的月数
     public static String getNextMonth(Date date,int monthCount){
@@ -309,7 +317,7 @@ public class AutoReportServerComponent {
         BaseNnte.setRetTrue(ret,"设置报表日期成功");
         return ret;
     }
-    //产生一个报表控制
+    //产生一个报表的报表控制列表
     public Map<String, Object> genReportControl(MerchantReportDefine mrd,ConnSqlSessionFactory cssf){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
         if (StringUtils.isEmpty(mrd.getReportPeriod())){
@@ -382,35 +390,35 @@ public class AutoReportServerComponent {
         ReportControlCircle cc=new ReportControlCircle();
         cc.setCircleItemType(ReportControlCircle.CircleItemType.CIT_EnvData);//数据环境循环
         //---------------------------------------------------------------
-        ReportControlCircleItem cci=new ReportControlCircleItem();
-        cci.setOutText(AutoReportQueryComponent.ResKeyWord.CUT_KEY);
-        cci.setDataType(DataColDef.DataType.DATA_INT);
-        cci.setCellPoint("C2");
-        cci.setFormat("");
-        cc.getCircleItemList().add(cci);
-        ReportControlCircleItem cci1=new ReportControlCircleItem();
-        cci1.setOutText(AutoReportQueryComponent.ResKeyWord.CUT_NAME);
-        cci1.setDataType(DataColDef.DataType.DATA_STRING);
-        cci1.setCellPoint("E2");
-        cci1.setFormat("");
-        cc.getCircleItemList().add(cci1);
-        ReportControlCircleItem cci2=new ReportControlCircleItem();
-        cci2.setOutText(AutoReportQueryComponent.ResKeyWord.START_TIME);
-        cci2.setDataType(DataColDef.DataType.DATA_DATE);
-        cci2.setCellPoint("G2");
-        cci2.setFormat("yyyy-MM-dd");
-        cc.getCircleItemList().add(cci2);
-        ReportControlCircleItem cci3=new ReportControlCircleItem();
-        cci3.setOutText(AutoReportQueryComponent.ResKeyWord.END_TIME);
-        cci3.setDataType(DataColDef.DataType.DATA_DATE);
-        cci3.setCellPoint("I2");
-        cci3.setFormat("yyyy-MM-dd");
-        cc.getCircleItemList().add(cci3);
+        cc.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_INT,
+                AutoReportQueryComponent.ResKeyWord.CUT_KEY,"C2",""));
+        cc.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_STRING,
+                AutoReportQueryComponent.ResKeyWord.CUT_NAME,"E2",""));
+        cc.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_DATE,
+                AutoReportQueryComponent.ResKeyWord.START_TIME,"G2","yyyy-MM-dd"));
+        cc.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_DATE,
+                AutoReportQueryComponent.ResKeyWord.END_TIME,"I2","yyyy-MM-dd"));
         rc.getCircleList().add(cc);
         //---------------------------------------------------------------
         ReportControlCircle cc1=new ReportControlCircle();
-        cc1.setCircleItemType(ReportControlCircle.CircleItemType.CIT_QueryFeild);//数据环境循环
+        cc1.setCircleItemType(ReportControlCircle.CircleItemType.CIT_QueryFeild);//多行查询数据循环
+        cc1.setQueryCode("MDXSM");
         //---------------------------------------------------------------
+        cc1.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_INT,
+                "USER_ID","B4",""));
+        cc1.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_STRING,
+                "USER_NAME","D4",""));
+        cc1.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_FLOT,
+                "SUM_AMOUNT","G4","%.2f"));
+        rc.getCircleList().add(cc1);
+        //---------------------------------------------------------------
+        ReportControlCircle cc2=new ReportControlCircle();
+        cc2.setCircleItemType(ReportControlCircle.CircleItemType.CIT_QueryFeild);//单行查询数据循环
+        cc2.setQueryCode("MDXSMHZ");
+        //---------------------------------------------------------------
+        cc2.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_FLOT,
+                "SUMAMOUNT","G5","%.2f"));
+        rc.getCircleList().add(cc2);
     }
     //产生报表文件
     @DBSrcTranc
@@ -422,7 +430,171 @@ public class AutoReportServerComponent {
             BaseNnte.setRetFalse(ret, 1002,"没有找到指定的报表定义");
             return ret;
         }
-        return genReportControl(mrd,cssf);
+        //取得报表控制列表
+        Map<String, Object> retRC = genReportControl(mrd,cssf);
+        if (!BaseNnte.getRetSuc(retRC)){
+            return retRC;
+        }
+        List<ReportControl> reportControlList=(List<ReportControl>)retRC.get("reportControlList");
+        //如果报表控制列表取得成功，需要依据报表控制产生报表文件
+        return genReportFiles(mrd,cssf,reportControlList);
+    }
+    //依据报表控制列表产生多张报表
+    public Map<String, Object> genReportFiles(MerchantReportDefine mrd,ConnSqlSessionFactory cssf,
+                                             List<ReportControl> reportControlList){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        //取得数据查询定义
+        List<MerchantReportQuery> queryList=autoReportQueryComponent.queryReportDataQuerys(mrd.getParMerchantId(),mrd,cssf);
+        for (ReportControl rc:reportControlList){
+            genReportFile(cssf,queryList,rc);
+        }
+        return ret;
+    }
+    //产生报表生成文件的文件名
+    public String genReportOutFileName(ReportControl rc){
+        StringBuilder builder=new StringBuilder();
+        builder.append("KingReport_").append(rc.getReportCode()).append("_")
+        .append(rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.PERIOD_NO));
+        Object cutKey=rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.CUT_KEY);
+        if (cutKey!=null)
+            builder.append("_").append(cutKey);
+        builder.append(".xls");//保存为excel文件
+        return builder.toString();
+    }
+    //产生一张具体的报表
+    public void genReportFile(ConnSqlSessionFactory cssf,List<MerchantReportQuery> queryList,ReportControl rc){
+        //先生成查询数据
+        for(MerchantReportQuery query:queryList){
+            //先对查询的SQL语句进行替换-----------------
+            query.setQuerySql(autoReportQueryComponent.replaceQuerySql(query.getQuerySql(),rc,null,null));
+            //执行查询取得数据--------------------------
+            Map<String, Object> retQuery = execQuerySqlForContent(query);
+            if (!BaseNnte.getRetSuc(retQuery)){
+                return;//如果没有取得查询数据，返回错误
+            }
+            rc.getReportDataEnv().put(query.getQueryCode(),retQuery.get("rows"));
+        }
+        //数据生成后按报表控制进行数据输出
+        if (StringUtils.isEmpty(rc.getReportDefine().getTemplateFile())){
+            return;//没有输出的模板文件
+        }
+        String tempPath=this.autoReportComponent.getReportTemplateAbPath(rc.getReportDefine());
+        String fn=StringUtils.pathAppend(tempPath,rc.getReportDefine().getTemplateFile());
+        XSSFWorkbookAndOPC wao=autoReportExcelComponent.openExcelTemplate(fn);
+        if (wao==null){
+            return;//不能按模板文件生成报表文件
+        }
+        //--文件已打开，进行数据输出-----------
+        outputDataToReportFile(wao,rc);
+        //--数据输出结束，保存文件-------------
+        String reportPath=autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
+        String outfn=genReportOutFileName(rc);
+        autoReportExcelComponent.saveExcelFile(wao,reportPath,outfn);
+        autoReportExcelComponent.closeExcelTemplate(wao);
+        //文件保存结束，记录报表生成明细-------
+    }
+    public static int[] getCellRowCol(String cellPoint){
+        String c=cellPoint;
+        Pattern p = Pattern.compile("[^0-9]");
+        Matcher m = p.matcher(c);
+        String rows = m.replaceAll("");
+        String cols = c.replaceAll(rows,"");
+        cols=cols.toUpperCase();
+        int row=NumberUtil.getDefaultInteger(rows);
+        if (row>0)
+            row--;
+        if (cols==null||cols.length()<=0||cols.length()>2)
+            return null;
+        int col=0;
+        if (cols.length()==1)
+            col=(byte)cols.getBytes()[0]-(byte)'A';
+        else{
+            int c1=(byte)cols.getBytes()[0]-(byte)'A'+ 1;
+            int c2=(byte)cols.getBytes()[1]-(byte)'A';
+            col = c1 * ((byte)'Z' - (byte)'A' + 1) + c2;
+        }
+        int[] ret = new int[2];
+        ret[0]=row;
+        ret[1]=col;
+        return ret;
+    }
+    private void outputDataToCell(XSSFSheet sheet,String cell,String format,Object outObj){
+        String sVal=AutoReportQueryComponent.getReplaceContentByFormat(format,outObj);
+        int[] cellRowCol=getCellRowCol(cell);
+        if (cellRowCol==null || cellRowCol.length!=2)
+            return;//没有取得合适的输出位置
+        XSSFRow row=sheet.getRow(cellRowCol[0]);
+        if (row==null)
+            return;
+        XSSFCell sheet_cell=row.getCell(cellRowCol[1]);
+        if (sheet_cell==null)
+            return;
+        sheet_cell.setCellValue(sVal);
+    }
+    //向报表文件输出数据
+    public void outputDataToReportFile( XSSFWorkbookAndOPC wao,ReportControl rc){
+        //对输出控制进行重新排序，环境输出和单行输出先执行-----
+        List<ReportControlCircle> resortCCList=new ArrayList<>();
+        for(ReportControlCircle controlCircle:rc.getCircleList()){
+            if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData))
+                resortCCList.add(0,controlCircle);
+            else{
+                List<JSONObject> rows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
+                if (rows.size()>1)
+                    resortCCList.add(controlCircle);
+                else
+                    resortCCList.add(0,controlCircle);
+            }
+        }
+        //--------------------------------------------------
+        for(ReportControlCircle controlCircle:resortCCList){
+            XSSFSheet sheet=wao.getWb().getSheet(controlCircle.getSheetName());//先确定页面
+            if (sheet==null)
+                continue; //取不到页面，不能输出数据
+            if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData)){
+                //如果是环境数据输出
+                for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
+                    Object outObj=rc.getReportDataEnv().get(circleItem.getOutText());
+                    outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
+                }
+            }else if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_QueryFeild)){
+                if (controlCircle.getCircleItemList().size()<=0)
+                    continue;//没有行定义，不能输出数据
+                //取得开始的行号
+                int[] rcPoint=getCellRowCol(controlCircle.getCircleItemList().get(0).getCellPoint());
+                if (rcPoint==null)
+                    continue;//没找到行，不能输出数据
+                int startRow=rcPoint[0];
+                //如果是查询结果集输出，每一行要控制循环执行一次
+                List<JSONObject> dataRows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
+                int rowCount=dataRows.size();
+                CellCopyPolicy policy=null;
+                if (rowCount>1){
+                    //需要增加rowCount-1行
+                    policy=new CellCopyPolicy();
+                    policy.setCopyCellValue(false);//不拷贝数据
+                    int lastrow=sheet.getLastRowNum();
+                    int movecount=lastrow-startRow;//计算有多少行需要向下移动
+                    sheet.createRow(rowCount-1);
+                    int startshit=startRow+1;
+                    if (movecount>0)
+                        sheet.shiftRows(startshit,startshit+rowCount-1,movecount);
+                }else if (rowCount<=0)
+                    continue;//没有数据，本控制不输出
+                int rowOff=0;
+                for(JSONObject jData:dataRows){
+                    if (rowOff>0)
+                    {
+                        sheet.copyRows(startRow,startRow,startRow+rowOff,policy);
+                    }
+                    for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
+                        Object outObj=jData.get(circleItem.getOutText()); //从查询结果中取数据
+                        outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
+                    }
+                    rowOff++;
+                }
+            }
+        }
     }
 
     public Map<String,Object> execQuerySqlForContent(MerchantReportQuery query){
@@ -453,7 +625,8 @@ public class AutoReportServerComponent {
                 BaseNnte.setRetFalse(ret, 1002,"不能正常连接查询的数据库");
                 return ret;
             }
-            return DBSI.execSqlForContent(conn,query.getQuerySql());
+            String execSql=DBSI.getSqlIncludeLimit(query.getQuerySql(),0,query.getMaxRowCount());
+            return DBSI.execSqlForContent(conn,execSql);
         }catch (Exception e){
             BaseNnte.setRetFalse(ret, 9999,"执行查询的SQL语句异常");
             return ret;
@@ -463,6 +636,7 @@ public class AutoReportServerComponent {
     }
 
     public static void main(String[] args){
+        /*
         MerchantReportDefine mrd=new MerchantReportDefine();
         mrd.setReportPeriodNo(1);
         mrd.setReportPeriod(ReportPeriodComponent.Period.Day_Report);
@@ -483,6 +657,10 @@ public class AutoReportServerComponent {
             System.out.println(mrg.getPeriodNo());
             System.out.println(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD_HMSSSS));
             System.out.println(DateUtils.dateToString(mrg.getEndTime(),DateUtils.DF_YMD_HMSSSS));
-        }
+        }*/
+
+        String cell="BB21";
+        int[] rc=getCellRowCol(cell);
+        System.out.println(String.format("CELL="+cell+" row=%d,col=%d",rc[0],rc[1]));
     }
 }

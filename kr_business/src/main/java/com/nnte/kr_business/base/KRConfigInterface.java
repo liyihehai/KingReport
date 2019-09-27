@@ -19,4 +19,9 @@ public interface KRConfigInterface {
     public void setExpotExcelTmpRoot(String expotExcelTmpRoot);
     public String getAbStaticRoot();
     public void setAbStaticRoot(String abStaticRoot);
+    //------------------------------------------
+    public String getReportTemplateRoot();         //报表模板文件根目录
+    public void setReportTemplateRoot(String reportTemplateRoot);
+    public String getReportFileRoot();             //报表EXCEL文件根目录
+    public void setReportFileRoot(String reportFileRoot);
 }
