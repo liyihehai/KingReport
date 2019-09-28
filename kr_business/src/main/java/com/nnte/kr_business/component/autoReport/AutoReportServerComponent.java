@@ -17,7 +17,10 @@ import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGende
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONObject;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -451,14 +454,14 @@ public class AutoReportServerComponent extends BaseComponent {
         return ret;
     }
     //产生报表生成文件的文件名
-    public String genReportOutFileName(ReportControl rc){
+    public String genReportOutFileName(ReportControl rc, XSSFWorkbookAndOPC wao){
         StringBuilder builder=new StringBuilder();
         builder.append("KingReport_").append(rc.getReportCode()).append("_")
         .append(rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.PERIOD_NO));
         Object cutKey=rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.CUT_KEY);
         if (cutKey!=null)
             builder.append("_").append(cutKey);
-        builder.append(".xls");//保存为excel文件
+        builder.append(".").append(wao.getFileType());//保存为excel文件
         return builder.toString();
     }
     //产生一张具体的报表
@@ -488,7 +491,7 @@ public class AutoReportServerComponent extends BaseComponent {
         outputDataToReportFile(wao,rc);
         //--数据输出结束，保存文件-------------
         String reportPath=autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
-        String outfn=genReportOutFileName(rc);
+        String outfn=genReportOutFileName(rc,wao);
         autoReportExcelComponent.saveExcelFile(wao,reportPath,outfn);
         autoReportExcelComponent.closeExcelTemplate(wao);
         //文件保存结束，记录报表生成明细-------
@@ -518,15 +521,15 @@ public class AutoReportServerComponent extends BaseComponent {
         ret[1]=col;
         return ret;
     }
-    private void outputDataToCell(XSSFSheet sheet,String cell,String format,Object outObj){
+    private void outputDataToCell(Sheet sheet,String cell,String format,Object outObj){
         String sVal=AutoReportQueryComponent.getReplaceContentByFormat(format,outObj);
         int[] cellRowCol=getCellRowCol(cell);
         if (cellRowCol==null || cellRowCol.length!=2)
             return;//没有取得合适的输出位置
-        XSSFRow row=sheet.getRow(cellRowCol[0]);
+        Row row=sheet.getRow(cellRowCol[0]);
         if (row==null)
             return;
-        XSSFCell sheet_cell=row.getCell(cellRowCol[1]);
+        Cell sheet_cell=row.getCell(cellRowCol[1]);
         if (sheet_cell==null)
             return;
         sheet_cell.setCellValue(sVal);
@@ -548,7 +551,7 @@ public class AutoReportServerComponent extends BaseComponent {
         }
         //--------------------------------------------------
         for(ReportControlCircle controlCircle:resortCCList){
-            XSSFSheet sheet=wao.getWb().getSheet(controlCircle.getSheetName());//先确定页面
+            Sheet sheet=wao.getWb().getSheet(controlCircle.getSheetName());//先确定页面
             if (sheet==null)
                 continue; //取不到页面，不能输出数据
             if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData)){
@@ -587,11 +590,11 @@ public class AutoReportServerComponent extends BaseComponent {
                     if (rowOff>0)
                     {
                         sheet.copyRows(startRow,startRow,startRow+rowOff,policy);
-                    }*/
+                    }
                     for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
                         Object outObj=jData.get(circleItem.getOutText()); //从查询结果中取数据
                         outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
-                    }
+                    }*/
                     rowOff++;
                 }
             }

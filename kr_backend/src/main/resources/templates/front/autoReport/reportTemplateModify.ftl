@@ -62,7 +62,7 @@
         uploadExtraData: function () {
             return {reportCode:$('#reportTemplateModify_reportCode').val()};
         },
-        allowedFileExtensions: ['xlxt', 'xltx']
+        allowedFileExtensions: ['xls','xlsx']
     });
 
     $('#reportTemplateModify_upReportTemplateFile').on('fileuploaded',function (event, data, previewId, index) {

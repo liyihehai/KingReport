@@ -11,7 +11,7 @@ public class ReportTemplateFileFilter implements FileFilter {
         else
         {
             String name = pathname.getName();
-            if(name.endsWith(".xlt") || name.endsWith(".xltx"))
+            if(name.endsWith(".xls") || name.endsWith(".xlsx"))
                 return true;
             else
                 return false;
