@@ -13,6 +13,19 @@
     <version>1.0.1</version>
     <name>kr_business</name>
     <description>nnte king report business model for Spring Boot</description>
+    <repositories>
+        <repository>
+            <id>maven-releases</id>
+            <name>maven-releases</name>
+            <url>http://139.196.177.32:8999/repository/maven-releases</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>releases</id>

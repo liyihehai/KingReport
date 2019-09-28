@@ -634,9 +634,9 @@ public class AutoReportServerComponent extends BaseComponent {
             DynamicDatabaseSourceHolder.CloseDBConnection(conn);
         }
     }
-
+/*
     public static void main(String[] args){
-        /*
+
         MerchantReportDefine mrd=new MerchantReportDefine();
         mrd.setReportPeriodNo(1);
         mrd.setReportPeriod(ReportPeriodComponent.Period.Day_Report);
@@ -657,10 +657,10 @@ public class AutoReportServerComponent extends BaseComponent {
             System.out.println(mrg.getPeriodNo());
             System.out.println(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD_HMSSSS));
             System.out.println(DateUtils.dateToString(mrg.getEndTime(),DateUtils.DF_YMD_HMSSSS));
-        }*/
+        }
 
         String cell="BB21";
         int[] rc=getCellRowCol(cell);
         System.out.println(String.format("CELL="+cell+" row=%d,col=%d",rc[0],rc[1]));
-    }
+    }*/
 }

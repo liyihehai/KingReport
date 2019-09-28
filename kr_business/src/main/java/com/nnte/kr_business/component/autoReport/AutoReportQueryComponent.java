@@ -434,8 +434,8 @@ public class AutoReportQueryComponent extends BaseComponent {
         String repFormat=mStrs[1];
         return getReplaceContentByFormat(repFormat,rc.getReportDataEnv().get(repType));
     }
-
+/*
     public static void main(String[] args){
 
-    }
+    }*/
 }
