@@ -577,16 +577,17 @@ public class AutoReportServerComponent extends BaseComponent {
                     int movecount=lastrow-startRow;//计算有多少行需要向下移动
                     sheet.createRow(rowCount-1);
                     int startshit=startRow+1;
-                    if (movecount>0)
-                        sheet.shiftRows(startshit,startshit+rowCount-1,movecount);
+                /*    if (movecount>0)
+                        sheet.shiftRows(startshit,startshit+rowCount-1,movecount);*/
                 }else if (rowCount<=0)
                     continue;//没有数据，本控制不输出
                 int rowOff=0;
                 for(JSONObject jData:dataRows){
+                    /*
                     if (rowOff>0)
                     {
                         sheet.copyRows(startRow,startRow,startRow+rowOff,policy);
-                    }
+                    }*/
                     for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
                         Object outObj=jData.get(circleItem.getOutText()); //从查询结果中取数据
                         outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
@@ -634,7 +635,7 @@ public class AutoReportServerComponent extends BaseComponent {
             DynamicDatabaseSourceHolder.CloseDBConnection(conn);
         }
     }
-/*
+
     public static void main(String[] args){
 
         MerchantReportDefine mrd=new MerchantReportDefine();
@@ -662,5 +663,5 @@ public class AutoReportServerComponent extends BaseComponent {
         String cell="BB21";
         int[] rc=getCellRowCol(cell);
         System.out.println(String.format("CELL="+cell+" row=%d,col=%d",rc[0],rc[1]));
-    }*/
+    }
 }
