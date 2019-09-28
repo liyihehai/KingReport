@@ -17,11 +17,11 @@ import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGende
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONObject;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellCopyPolicy;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -469,9 +469,11 @@ public class AutoReportServerComponent extends BaseComponent {
         //先生成查询数据
         for(MerchantReportQuery query:queryList){
             //先对查询的SQL语句进行替换-----------------
+            String srcQuery=query.getQuerySql();
             query.setQuerySql(autoReportQueryComponent.replaceQuerySql(query.getQuerySql(),rc,null,null));
             //执行查询取得数据--------------------------
             Map<String, Object> retQuery = execQuerySqlForContent(query);
+            query.setQuerySql(srcQuery);
             if (!BaseNnte.getRetSuc(retQuery)){
                 return;//如果没有取得查询数据，返回错误
             }
@@ -488,117 +490,13 @@ public class AutoReportServerComponent extends BaseComponent {
             return;//不能按模板文件生成报表文件
         }
         //--文件已打开，进行数据输出-----------
-        outputDataToReportFile(wao,rc);
+        autoReportExcelComponent.outputDataToReportFile(wao,rc);
         //--数据输出结束，保存文件-------------
         String reportPath=autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
         String outfn=genReportOutFileName(rc,wao);
         autoReportExcelComponent.saveExcelFile(wao,reportPath,outfn);
         autoReportExcelComponent.closeExcelTemplate(wao);
         //文件保存结束，记录报表生成明细-------
-    }
-    public static int[] getCellRowCol(String cellPoint){
-        String c=cellPoint;
-        Pattern p = Pattern.compile("[^0-9]");
-        Matcher m = p.matcher(c);
-        String rows = m.replaceAll("");
-        String cols = c.replaceAll(rows,"");
-        cols=cols.toUpperCase();
-        int row=NumberUtil.getDefaultInteger(rows);
-        if (row>0)
-            row--;
-        if (cols==null||cols.length()<=0||cols.length()>2)
-            return null;
-        int col=0;
-        if (cols.length()==1)
-            col=(byte)cols.getBytes()[0]-(byte)'A';
-        else{
-            int c1=(byte)cols.getBytes()[0]-(byte)'A'+ 1;
-            int c2=(byte)cols.getBytes()[1]-(byte)'A';
-            col = c1 * ((byte)'Z' - (byte)'A' + 1) + c2;
-        }
-        int[] ret = new int[2];
-        ret[0]=row;
-        ret[1]=col;
-        return ret;
-    }
-    private void outputDataToCell(Sheet sheet,String cell,String format,Object outObj){
-        String sVal=AutoReportQueryComponent.getReplaceContentByFormat(format,outObj);
-        int[] cellRowCol=getCellRowCol(cell);
-        if (cellRowCol==null || cellRowCol.length!=2)
-            return;//没有取得合适的输出位置
-        Row row=sheet.getRow(cellRowCol[0]);
-        if (row==null)
-            return;
-        Cell sheet_cell=row.getCell(cellRowCol[1]);
-        if (sheet_cell==null)
-            return;
-        sheet_cell.setCellValue(sVal);
-    }
-    //向报表文件输出数据
-    public void outputDataToReportFile( XSSFWorkbookAndOPC wao,ReportControl rc){
-        //对输出控制进行重新排序，环境输出和单行输出先执行-----
-        List<ReportControlCircle> resortCCList=new ArrayList<>();
-        for(ReportControlCircle controlCircle:rc.getCircleList()){
-            if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData))
-                resortCCList.add(0,controlCircle);
-            else{
-                List<JSONObject> rows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
-                if (rows.size()>1)
-                    resortCCList.add(controlCircle);
-                else
-                    resortCCList.add(0,controlCircle);
-            }
-        }
-        //--------------------------------------------------
-        for(ReportControlCircle controlCircle:resortCCList){
-            Sheet sheet=wao.getWb().getSheet(controlCircle.getSheetName());//先确定页面
-            if (sheet==null)
-                continue; //取不到页面，不能输出数据
-            if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData)){
-                //如果是环境数据输出
-                for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
-                    Object outObj=rc.getReportDataEnv().get(circleItem.getOutText());
-                    outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
-                }
-            }else if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_QueryFeild)){
-                if (controlCircle.getCircleItemList().size()<=0)
-                    continue;//没有行定义，不能输出数据
-                //取得开始的行号
-                int[] rcPoint=getCellRowCol(controlCircle.getCircleItemList().get(0).getCellPoint());
-                if (rcPoint==null)
-                    continue;//没找到行，不能输出数据
-                int startRow=rcPoint[0];
-                //如果是查询结果集输出，每一行要控制循环执行一次
-                List<JSONObject> dataRows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
-                int rowCount=dataRows.size();
-                CellCopyPolicy policy=null;
-                if (rowCount>1){
-                    //需要增加rowCount-1行
-                    policy=new CellCopyPolicy();
-                    policy.setCopyCellValue(false);//不拷贝数据
-                    int lastrow=sheet.getLastRowNum();
-                    int movecount=lastrow-startRow;//计算有多少行需要向下移动
-                    sheet.createRow(rowCount-1);
-                    int startshit=startRow+1;
-                /*    if (movecount>0)
-                        sheet.shiftRows(startshit,startshit+rowCount-1,movecount);*/
-                }else if (rowCount<=0)
-                    continue;//没有数据，本控制不输出
-                int rowOff=0;
-                for(JSONObject jData:dataRows){
-                    /*
-                    if (rowOff>0)
-                    {
-                        sheet.copyRows(startRow,startRow,startRow+rowOff,policy);
-                    }
-                    for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
-                        Object outObj=jData.get(circleItem.getOutText()); //从查询结果中取数据
-                        outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj);
-                    }*/
-                    rowOff++;
-                }
-            }
-        }
     }
 
     public Map<String,Object> execQuerySqlForContent(MerchantReportQuery query){
@@ -664,7 +562,7 @@ public class AutoReportServerComponent extends BaseComponent {
         }
 
         String cell="BB21";
-        int[] rc=getCellRowCol(cell);
+        int[] rc=AutoReportExcelComponent.getCellRowCol(cell);
         System.out.println(String.format("CELL="+cell+" row=%d,col=%d",rc[0],rc[1]));
     }
 }
