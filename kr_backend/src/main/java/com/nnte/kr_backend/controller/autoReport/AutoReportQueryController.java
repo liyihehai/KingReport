@@ -66,6 +66,7 @@ public class AutoReportQueryController extends BaseController {
         //------------------------------------------------
         modelAndView.addObject("merchant", merchant);
         //------------------------------------------------
+        map.put("LibQueryResKeyWord",autoReportQueryComponent.LibQueryResKeyWord);
         modelAndView.addObject("map", map);
         return modelAndView;
     }

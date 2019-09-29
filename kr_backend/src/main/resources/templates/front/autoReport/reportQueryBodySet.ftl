@@ -2,6 +2,9 @@
     .form-control {
         width: 230px;
     }
+    .table th, .table td {
+        vertical-align: middle!important;
+    }
     <#--
 .modal-content{
 	height: 570px;
@@ -52,14 +55,16 @@
                 <tr>
                     <td>查询语句</td>
                     <td colspan="3">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','_cutKey')" value="_cutKey">
-                            <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','_cutName')" value="_cutName">
-                            <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','_periodNo')" value="_periodNo">
-                            <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','_startTime')" value="_startTime">
-                            <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','_endTime')" value="_endTime">
+                        <div class="col-sm-12">
+                            <#if (map.LibQueryResKeyWord??)>
+                            <#list map.LibQueryResKeyWord as rsk>
+                                <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','${rsk.key}')" value="${rsk.value}">
+                            </#list>
+                            </#if>
                         </div>
-                        <textarea class="form-control" id="reportQueryBodySet_querySql" name="querySql" rows="16" style="min-width: 95%"></textarea>
+                        <div class="col-sm-12">
+                        <textarea class="form-control" id="reportQueryBodySet_querySql" name="querySql" rows="16" style="min-width: 100%"></textarea>
+                        </div>
                     </td>
                     <td>查询结果列</td>
                     <td>

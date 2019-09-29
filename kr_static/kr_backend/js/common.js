@@ -1,4 +1,4 @@
-var glob_JS_Static_Host = "";
+//var glob_JS_Static_Host = "";
 String.prototype.trim = function () {
     var t = this.replace(/(^\s*)|(\s*$)/g, "");
     return t.replace(/(^\u3000*)|(\u3000*$)/g, "");
