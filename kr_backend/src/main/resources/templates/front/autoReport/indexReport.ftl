@@ -72,16 +72,34 @@
                 <li class="treeview">
                     <a href="#">
                         <i class="fa fa-fw fa-clone"></i>
-                        <span>集团报表</span>
+                        <span>分类报表</span>
                         <i class="fa fa-angle-left pull-right"></i>
                         <small class="label bg-pink badge" id="storedTips"></small>
                     </a>
                     <ul class="treeview-menu">
+                        <#if (map.BTReportList?? && map.BTReportList?size>0)>
+                        <#list map.BTReportList as RBR>
                         <li class="treeview">
-                            <a href="javascript:void(0);" data-menukey="GROUP_BONUS_POINTS"
-                               data-link="/w/groupBonusPoints.action"><i class="fa fa-link"></i> <span>积分奖励交易数据查询</span>
+                            <a href="#">
+                                <i class="fa fa-fw fa-calculator"></i>
+                                <span>${RBR.ReportBusiType.busiTypeName!''}</span>
+                                <i class="fa fa-angle-left pull-right"></i>
+                                <small class="label bg-pink badge" id="storedTips"></small>
                             </a>
+                            <ul class="treeview-menu">
+                            <#if (RBR.ReportList?? && RBR.ReportList?size>0)>
+                            <#list RBR.ReportList as report>
+                                <li class="treeview">
+                                <a href="javascript:void(0);" data-menukey="GROUP_BONUS_POINTS"
+                                data-link="/autoReport/openBusiTypeReport?reportCode=${report.reportCode!''}"><i class="fa fa-link"></i> <span>${report.reportName!''}</span>
+                                </a>
+                                </li>
+                            </#list>
+                            </#if>
+                            </ul>
                         </li>
+                        </#list>
+                        </#if>
                     </ul>
                 </li>
                 <li class="treeview">

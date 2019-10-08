@@ -15,6 +15,7 @@ import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.ReportTemplateFileFilter;
 import com.nnte.kr_business.component.base.KingReportComponent;
+import com.nnte.kr_business.entity.autoReport.ReportBusiType;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
@@ -23,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 * 报表定义组件
@@ -44,6 +42,8 @@ public class AutoReportComponent extends BaseComponent {
     }
     @Autowired
     private MerchantReportDefineService merchantReportDefineService;
+    @Autowired
+    private AutoReportParamsComponent autoReportParamsComponent;
     //组件数据字典区域
     //------------------------------------------
     @DataLibItem("报表启用状态")
@@ -76,6 +76,46 @@ public class AutoReportComponent extends BaseComponent {
         return ret;
     }
 
+    public MerchantReportDefineService getMerchantReportDefineService(){
+        return merchantReportDefineService;
+    }
+
+    /*
+    * 取得商户有效的报表业务分类及其下查询定义
+    * isOnlyUsed=true,表示只有有效的报表分类和有效的报表才显示
+    * */
+    @DBSrcTranc
+    public Map<String,Object> getMerchantBTReportList(Map<String, Object> paramMap,boolean isOnlyUsed){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        Map<String,Object> busiMap=autoReportParamsComponent.loadReportParamBusiTypes(paramMap,isOnlyUsed);
+        if (!BaseNnte.getRetSuc(busiMap))
+            return busiMap;
+        List<Map<String,Object>> retlist=new ArrayList<>();
+        List<ReportBusiType> list=(List<ReportBusiType>)busiMap.get("list");
+        for(ReportBusiType rbt:list){
+            Map<String,Object> BTRepListMap=new HashMap<>();
+            BTRepListMap.put("ReportBusiType",rbt);
+            BTRepListMap.put("ReportList",getReportRecordByBusiType(cssf,loginMerchant.getId(),rbt.getBusiTypeCode(),isOnlyUsed));
+            retlist.add(BTRepListMap);
+        }
+        ret.put("BTReportList",retlist);
+        BaseNnte.setRetTrue(ret,"报表保存成功");
+        return ret;
+    }
+    //通过BusiType查找报表记录
+    public List<MerchantReportDefine> getReportRecordByBusiType(ConnSqlSessionFactory cssf, Long merchantId,
+                                                                String busiType,boolean isOnlyUsed) {
+        MerchantReportDefine dto = new MerchantReportDefine();
+        dto.setParMerchantId(merchantId);
+        dto.setReportBusiType(busiType);
+        if (isOnlyUsed)
+            dto.setReportState(ReportState.USED);
+        List<MerchantReportDefine> list = merchantReportDefineService.findModelList(cssf, dto);
+        return list;
+    }
+
     //通过CODE查找报表记录
     public MerchantReportDefine getReportRecordByCode(ConnSqlSessionFactory cssf, Long merchantId, String code) {
         MerchantReportDefine dto = new MerchantReportDefine();
@@ -91,6 +131,7 @@ public class AutoReportComponent extends BaseComponent {
     public MerchantReportDefine getReportRecordById(Long reportId) {
         return merchantReportDefineService.findModelByKey(reportId);
     }
+
     //保存报表定义
     @DBSrcTranc
     public Map<String, Object> saveMerchantReportDefine(Map<String, Object> paramMap){

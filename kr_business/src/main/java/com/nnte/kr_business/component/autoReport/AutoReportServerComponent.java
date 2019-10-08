@@ -5,35 +5,30 @@ import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.DataColDef;
+import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
+import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.*;
+import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
+import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONObject;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellCopyPolicy;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 /*
 * 报表服务组件
@@ -51,6 +46,10 @@ public class AutoReportServerComponent extends BaseComponent {
     private AutoReportExcelComponent autoReportExcelComponent;
     @Autowired
     private AutoReportComponent autoReportComponent;
+    @Autowired
+    private AutoReportGenDetailComponent autoReportGenDetailComponent;
+    @Autowired
+    private AutoReportRecComponent autoReportRecComponent;
 
     //monthCount>=1 ,表示指定日期向后推算的月数
     public static String getNextMonth(Date date,int monthCount){
@@ -348,26 +347,32 @@ public class AutoReportServerComponent extends BaseComponent {
         //---------------------------------------------
         //如果报表生成时间满足了，查看报表是否有分割查询
         if (StringUtils.isNotEmpty(mrd.getReportClass())){
+            Map<String,Object> queryRet=autoReportQueryComponent.getReportCutQueryContent(cssf,mrd);
+            /*
             MerchantReportQuery cutQuery=autoReportQueryComponent.getReportQueryByCode(cssf,mrd.getParMerchantId(),mrd.getReportClass());
             if (cutQuery==null){
                 BaseNnte.setRetFalse(ret, 1002,"报表未找到有效的分割查询");
                 return ret;
             }
             //执行查询，按KEY-NAME取得查询结果
-            Map<String,Object> queryRet=execQuerySqlForContent(cutQuery);
+            Map<String,Object> queryRet=autoReportQueryComponent.execQuerySqlForContent(cutQuery);
             if (!BaseNnte.getRetSuc(queryRet))
                 return queryRet;
             if (NumberUtil.getDefaultInteger(queryRet.get("count"))<=0){
                 BaseNnte.setRetFalse(ret, 1002,"报表分割查询没有数据，不能生成报表");
                 return ret;
             }
-            List<JSONObject> cutList=(List<JSONObject>)queryRet.get("rows");
-            for(JSONObject jobj:cutList){
+            List<JSONObject> cutList=(List<JSONObject>)queryRet.get("rows");*/
+            if (!BaseNnte.getRetSuc(queryRet))
+                return queryRet;
+        //    for(JSONObject jobj:cutList){
+            List<ObjKeyValue> cutList=(List<ObjKeyValue>)queryRet.get("cutContentList");
+            for(ObjKeyValue jobj:cutList){
                 ReportControl RC=new ReportControl();
                 RC.setReportCode(mrd.getReportCode());
                 RC.setReportDefine(mrd);
-                RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.CUT_KEY,jobj.get(mrd.getCutKeyField()));
-                RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.CUT_NAME,jobj.get(mrd.getCutNameField()));
+                RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.CUT_KEY,jobj.getKey());
+                RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.CUT_NAME, jobj.getValue());
                 RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.START_TIME,mrg.getStartTime());
                 RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.END_TIME,mrg.getEndTime());
                 RC.getReportDataEnv().put(AutoReportQueryComponent.ResKeyWord.PERIOD_NO,mrg.getPeriodNo());
@@ -428,6 +433,7 @@ public class AutoReportServerComponent extends BaseComponent {
     public Map<String, Object> generatorReportFile(Map<String, Object> paramMap, MerchantReportDefine mrd) {
         Map<String, Object> ret = BaseNnte.newMapRetObj();
         ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        BaseMerchantOperator loginMerchantOperator= KingReportComponent.getBaseMerchantOperatorFromParamMap(paramMap);
         //--------------------------------
         if (mrd==null){
             BaseNnte.setRetFalse(ret, 1002,"没有找到指定的报表定义");
@@ -440,17 +446,37 @@ public class AutoReportServerComponent extends BaseComponent {
         }
         List<ReportControl> reportControlList=(List<ReportControl>)retRC.get("reportControlList");
         //如果报表控制列表取得成功，需要依据报表控制产生报表文件
-        return genReportFiles(mrd,cssf,reportControlList);
+        return genReportFiles(loginMerchantOperator,mrd,cssf,reportControlList);
     }
     //依据报表控制列表产生多张报表
-    public Map<String, Object> genReportFiles(MerchantReportDefine mrd,ConnSqlSessionFactory cssf,
+    public Map<String, Object> genReportFiles(BaseMerchantOperator operator,MerchantReportDefine mrd,ConnSqlSessionFactory cssf,
                                              List<ReportControl> reportControlList){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
         //取得数据查询定义
         List<MerchantReportQuery> queryList=autoReportQueryComponent.queryReportDataQuerys(mrd.getParMerchantId(),mrd,cssf);
+        Date startTime=null,endTime=null;
+        Integer periodno=null,succount=0;
         for (ReportControl rc:reportControlList){
-            genReportFile(cssf,queryList,rc);
+            Map<String, Object> genRet=genReportFile(operator,cssf,queryList,rc);
+            if (!BaseNnte.getRetSuc(genRet))
+                return genRet;
+            startTime=AutoReportGenDetailComponent.getReportStartTimeFromReportControl(rc);
+            endTime=AutoReportGenDetailComponent.getReportEndTimeFromReportControl(rc);
+            periodno=AutoReportGenDetailComponent.getReportPeriodNoFromReportControl(rc);
+            succount++;
         }
+        MerchantReportDefine updateDto=new MerchantReportDefine();
+        updateDto.setId(mrd.getId());
+        updateDto.setOpeTime(new Date());
+        updateDto.setOpeNum(succount);
+        updateDto.setReportPeriodNo(periodno);
+        updateDto.setStartTime(startTime);
+        updateDto.setEndTime(endTime);
+        if (autoReportComponent.getMerchantReportDefineService().updateModel(cssf,updateDto)!=1){
+            BaseNnte.setRetFalse(ret, 1002,"保存报表产生信息时失败");
+            return ret;//如果没有取得查询数据，返回错误
+        }
+        BaseNnte.setRetTrue(ret,"产生报表文件成功");
         return ret;
     }
     //产生报表生成文件的文件名
@@ -464,77 +490,76 @@ public class AutoReportServerComponent extends BaseComponent {
         builder.append(".").append(wao.getFileType());//保存为excel文件
         return builder.toString();
     }
+
     //产生一张具体的报表
-    public void genReportFile(ConnSqlSessionFactory cssf,List<MerchantReportQuery> queryList,ReportControl rc){
+    public Map<String, Object> genReportFile(BaseMerchantOperator operator,ConnSqlSessionFactory cssf,List<MerchantReportQuery> queryList,ReportControl rc){
+        Date createStartTime=new Date();
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
         //先生成查询数据
         for(MerchantReportQuery query:queryList){
             //先对查询的SQL语句进行替换-----------------
             String srcQuery=query.getQuerySql();
             query.setQuerySql(autoReportQueryComponent.replaceQuerySql(query.getQuerySql(),rc,null,null));
             //执行查询取得数据--------------------------
-            Map<String, Object> retQuery = execQuerySqlForContent(query);
+            Map<String, Object> retQuery = autoReportQueryComponent.execQuerySqlForContent(query);
             query.setQuerySql(srcQuery);
             if (!BaseNnte.getRetSuc(retQuery)){
-                return;//如果没有取得查询数据，返回错误
+                BaseNnte.setRetFalse(ret, 1002,"没有取得查询数据");
+                return ret;//如果没有取得查询数据，返回错误
             }
             rc.getReportDataEnv().put(query.getQueryCode(),retQuery.get("rows"));
         }
         //数据生成后按报表控制进行数据输出
         if (StringUtils.isEmpty(rc.getReportDefine().getTemplateFile())){
-            return;//没有输出的模板文件
+            BaseNnte.setRetFalse(ret, 1002,"没有输出的模板文件");
+            return ret;//没有输出的模板文件
         }
         String tempPath=this.autoReportComponent.getReportTemplateAbPath(rc.getReportDefine());
         String fn=StringUtils.pathAppend(tempPath,rc.getReportDefine().getTemplateFile());
         XSSFWorkbookAndOPC wao=autoReportExcelComponent.openExcelTemplate(fn);
         if (wao==null){
-            return;//不能按模板文件生成报表文件
+            BaseNnte.setRetFalse(ret, 1002,"不能按模板文件生成报表文件");
+            return ret;//不能按模板文件生成报表文件
         }
-        //--文件已打开，进行数据输出-----------
-        autoReportExcelComponent.outputDataToReportFile(wao,rc);
-        //--数据输出结束，保存文件-------------
-        String reportPath=autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
-        String outfn=genReportOutFileName(rc,wao);
-        autoReportExcelComponent.saveExcelFile(wao,reportPath,outfn);
+        String outfn=null;
+        String outpfn=null;
+        try {
+            //--文件已打开，进行数据输出-----------
+            autoReportExcelComponent.outputDataToReportFile(wao, rc);
+            //--数据输出结束，保存文件-------------
+            String reportPath = autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
+            outfn = genReportOutFileName(rc, wao);
+            outpfn = autoReportExcelComponent.saveExcelFile(wao, reportPath, outfn); //返回报表文件的绝对路径
+        }catch (Exception e){
+            e.printStackTrace();
+            BaseNnte.setRetFalse(ret, 9999,"向Excel文件输出数据时异常");
+            autoReportExcelComponent.closeExcelTemplate(wao);
+            return ret;
+        }
         autoReportExcelComponent.closeExcelTemplate(wao);
         //文件保存结束，记录报表生成明细-------
+        Map<String,Object> genMap=autoReportGenDetailComponent.saveReportGenDetail(cssf,operator,rc,outfn,outpfn,createStartTime);
+        if (!BaseNnte.getRetSuc(genMap))
+            return genMap;
+        MerchantReportGendetail gendetail=(MerchantReportGendetail)genMap.get("gendetail");
+        //保存报表记录
+        Map<String,Object> recMap=autoReportRecComponent.saveReportRecFromGen(cssf,gendetail,rc.getReportDefine());
+        if (!BaseNnte.getRetSuc(recMap))
+            return recMap;
+        BaseNnte.setRetTrue(ret,"生成报表成功");
+        //-----------------------------------
+        return ret;
     }
 
-    public Map<String,Object> execQuerySqlForContent(MerchantReportQuery query){
+    @DBSrcTranc
+    public Map<String,Object> onOpenBusiTypeReport(Map<String, Object> paramMap){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
-        if (query==null || query.getId()==null) {
-            BaseNnte.setRetFalse(ret, 1002,"查询定义不合法");
-            return ret;
-        }
-        if (query.getConnId()==null|| query.getConnId()<=0){
-            BaseNnte.setRetFalse(ret, 1002,"查询的数据连接不合法");
-            return ret;
-        }
-        MerchantDbconnectDefine mdbd=autoReportDBConnComponent.getReportDBConnDefineById(query.getConnId());
-        if (mdbd==null){
-            BaseNnte.setRetFalse(ret, 1002,"未找到查询的数据连接");
-            return ret;
-        }
-        DBSchemaInterface DBSI= DynamicDatabaseSourceHolder.getSchemaInterfaceByDBType(mdbd.getDbType());
-        if (DBSI==null)
-        {
-            BaseNnte.setRetFalse(ret, 1002,"查询的数据连接类型不合法");
-            return ret;
-        }
-        Connection conn=DBSI.connectNoPoolDataSource(mdbd.getDbIp(),mdbd.getDbPort(),mdbd.getDbSchema(),
-                mdbd.getDbUser(),mdbd.getDbPassword());
-        try {
-            if (conn == null || conn.isClosed() == true) {
-                BaseNnte.setRetFalse(ret, 1002,"不能正常连接查询的数据库");
-                return ret;
-            }
-            String execSql=DBSI.getSqlIncludeLimit(query.getQuerySql(),0,query.getMaxRowCount());
-            return DBSI.execSqlForContent(conn,execSql);
-        }catch (Exception e){
-            BaseNnte.setRetFalse(ret, 9999,"执行查询的SQL语句异常");
-            return ret;
-        }finally {
-            DynamicDatabaseSourceHolder.CloseDBConnection(conn);
-        }
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        MerchantReportDefine reportDefine=autoReportComponent.getReportRecordByCode(cssf,loginMerchant.getId(),StringUtils.defaultString(paramMap.get("reportCode")));
+        ret.put("reportDefine",reportDefine);
+        BaseNnte.setRetTrue(ret,"获取数据成功");
+        return ret;
     }
 
     public static void main(String[] args){

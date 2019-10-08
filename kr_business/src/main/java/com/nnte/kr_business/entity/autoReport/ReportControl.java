@@ -2,10 +2,7 @@ package com.nnte.kr_business.entity.autoReport;
 
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 * 报表控制类，可输出为报表控制文件

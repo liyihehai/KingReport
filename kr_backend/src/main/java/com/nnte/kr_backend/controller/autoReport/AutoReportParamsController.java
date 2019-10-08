@@ -61,7 +61,7 @@ public class AutoReportParamsController extends BaseController {
         pMap.put("start", NumberUtil.getDefaultInteger(request.getParameter("iDisplayStart")));
         pMap.put("limit", NumberUtil.getDefaultInteger(request.getParameter("iDisplayLength")));
         setLoadCondition(request,null,pMap);
-        Map<String,Object> loadMap=autoReportParamsComponent.loadReportParamBusiTypes(pMap);
+        Map<String,Object> loadMap=autoReportParamsComponent.loadReportParamBusiTypes(pMap,false);
         Integer count = NumberUtil.getDefaultInteger(loadMap.get("count"));
         List<ReportBusiType> lists = (List<ReportBusiType>)loadMap.get("list");
         if (lists!=null)

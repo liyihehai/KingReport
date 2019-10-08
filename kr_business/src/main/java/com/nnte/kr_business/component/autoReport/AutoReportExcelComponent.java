@@ -46,7 +46,7 @@ public class AutoReportExcelComponent extends BaseComponent {
         return null;
     }
     //将打开的文件进行保存
-    public boolean saveExcelFile(XSSFWorkbookAndOPC wao,String fpath,String excelFile){
+    public String saveExcelFile(XSSFWorkbookAndOPC wao,String fpath,String excelFile){
         try {
             if (!FileUtil.isPathExists(fpath))
                 FileUtil.makeDirectory(fpath);
@@ -56,12 +56,12 @@ public class AutoReportExcelComponent extends BaseComponent {
                 wao.getWb().write(fos);
                 fos.flush();
                 fos.close();
-                return true;
+                return pathFile;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
     //关闭Excel文件
     public void closeExcelTemplate(XSSFWorkbookAndOPC WbAndOpc){

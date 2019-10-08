@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRecDao">
+    <resultMap id="MerchantReportRecResult" type="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec">
+        <result column="ID" property="id"/>
+        <result column="PAR_MERCHANT_ID" property="parMerchantId"/>
+        <result column="REPORT_CODE" property="reportCode"/>
+        <result column="REPORT_TITLE" property="reportTitle"/>
+        <result column="REPORT_BUSI_TYPE" property="reportBusiType"/>
+        <result column="REPORT_CLASS" property="reportClass"/>
+        <result column="CUT_NAME" property="cutName"/>
+        <result column="CUT_VALUE" property="cutValue"/>
+        <result column="PERIOD_NO" property="periodNo"/>
+        <result column="REPORT_PERIOD" property="reportPeriod"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="END_TIME" property="endTime"/>
+        <result column="REPORT_NAME" property="reportName"/>
+        <result column="REPORT_FILE_NAME" property="reportFileName"/>
+        <result column="REPORT_STATE" property="reportState"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="UPDATE_OPER_ID" property="updateOperId"/>
+    </resultMap>
+    <insert id="addModel" keyProperty="id" useGeneratedKeys="true" parameterType="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec">
+        insert into MERCHANT_REPORT_REC (PAR_MERCHANT_ID ,REPORT_CODE ,REPORT_TITLE ,REPORT_BUSI_TYPE ,REPORT_CLASS ,CUT_NAME ,CUT_VALUE ,PERIOD_NO ,REPORT_PERIOD ,START_TIME ,END_TIME ,REPORT_NAME ,REPORT_FILE_NAME ,REPORT_STATE ,UPDATE_TIME ,UPDATE_OPER_ID )
+        values (#{parMerchantId} ,#{reportCode} ,#{reportTitle} ,#{reportBusiType} ,#{reportClass} ,#{cutName} ,#{cutValue} ,#{periodNo} ,#{reportPeriod} ,#{startTime} ,#{endTime} ,#{reportName} ,#{reportFileName} ,#{reportState} ,#{updateTime} ,#{updateOperId} )
+    </insert>
+    <select id="findModelByKey" resultMap="MerchantReportRecResult" parameterType="java.lang.Long">
+        select * from MERCHANT_REPORT_REC where ID=#{id}
+    </select>
+    <delete id="deleteModel" parameterType="java.lang.Long">
+        delete from MERCHANT_REPORT_REC where ID=#{id}
+    </delete>
+    <update id="updateModel" parameterType="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec">
+        update MERCHANT_REPORT_REC
+        <set>
+        <if test="parMerchantId!= null"><![CDATA[PAR_MERCHANT_ID=#{parMerchantId},]]></if>
+        <if test="reportCode!= null"><![CDATA[REPORT_CODE=#{reportCode},]]></if>
+        <if test="reportTitle!= null"><![CDATA[REPORT_TITLE=#{reportTitle},]]></if>
+        <if test="reportBusiType!= null"><![CDATA[REPORT_BUSI_TYPE=#{reportBusiType},]]></if>
+        <if test="reportClass!= null"><![CDATA[REPORT_CLASS=#{reportClass},]]></if>
+        <if test="cutName!= null"><![CDATA[CUT_NAME=#{cutName},]]></if>
+        <if test="cutValue!= null"><![CDATA[CUT_VALUE=#{cutValue},]]></if>
+        <if test="periodNo!= null"><![CDATA[PERIOD_NO=#{periodNo},]]></if>
+        <if test="reportPeriod!= null"><![CDATA[REPORT_PERIOD=#{reportPeriod},]]></if>
+        <if test="startTime!= null"><![CDATA[START_TIME=#{startTime},]]></if>
+        <if test="endTime!= null"><![CDATA[END_TIME=#{endTime},]]></if>
+        <if test="reportName!= null"><![CDATA[REPORT_NAME=#{reportName},]]></if>
+        <if test="reportFileName!= null"><![CDATA[REPORT_FILE_NAME=#{reportFileName},]]></if>
+        <if test="reportState!= null"><![CDATA[REPORT_STATE=#{reportState},]]></if>
+        <if test="updateTime!= null"><![CDATA[UPDATE_TIME=#{updateTime},]]></if>
+        <if test="updateOperId!= null"><![CDATA[UPDATE_OPER_ID=#{updateOperId},]]></if>
+        </set>
+        where ID=#{id}
+    </update>
+    <sql id="findMerchantReportRecListSql">
+        select * from MERCHANT_REPORT_REC t
+        <where>
+            <if test="id!= null"><![CDATA[and t.ID = #{id}]]></if>
+            <if test="parMerchantId!= null"><![CDATA[and t.PAR_MERCHANT_ID = #{parMerchantId}]]></if>
+            <if test="reportCode!= null"><![CDATA[and t.REPORT_CODE = #{reportCode}]]></if>
+            <if test="reportTitle!= null"><![CDATA[and t.REPORT_TITLE = #{reportTitle}]]></if>
+            <if test="reportBusiType!= null"><![CDATA[and t.REPORT_BUSI_TYPE = #{reportBusiType}]]></if>
+            <if test="reportClass!= null"><![CDATA[and t.REPORT_CLASS = #{reportClass}]]></if>
+            <if test="cutName!= null"><![CDATA[and t.CUT_NAME = #{cutName}]]></if>
+            <if test="cutValue!= null"><![CDATA[and t.CUT_VALUE = #{cutValue}]]></if>
+            <if test="periodNo!= null"><![CDATA[and t.PERIOD_NO = #{periodNo}]]></if>
+            <if test="reportPeriod!= null"><![CDATA[and t.REPORT_PERIOD = #{reportPeriod}]]></if>
+            <if test="startTime!= null"><![CDATA[and t.START_TIME = #{startTime}]]></if>
+            <if test="endTime!= null"><![CDATA[and t.END_TIME = #{endTime}]]></if>
+            <if test="reportName!= null"><![CDATA[and t.REPORT_NAME = #{reportName}]]></if>
+            <if test="reportFileName!= null"><![CDATA[and t.REPORT_FILE_NAME = #{reportFileName}]]></if>
+            <if test="reportState!= null"><![CDATA[and t.REPORT_STATE = #{reportState}]]></if>
+            <if test="updateTime!= null"><![CDATA[and t.UPDATE_TIME = #{updateTime}]]></if>
+            <if test="updateOperId!= null"><![CDATA[and t.UPDATE_OPER_ID = #{updateOperId}]]></if>
+        </where>
+        <if test="sort!=null">order by t.${sort} ${dir}</if>
+    </sql>
+    <select id="findModelList" parameterType="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec" resultMap="MerchantReportRecResult">
+        <include refid="findMerchantReportRecListSql"/>
+    </select>
+    <select id="findModelCount"  parameterType="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec" resultType="java.lang.Integer">
+        SELECT count(1) PG_TOTALCOUNT FROM (
+        <include refid="findMerchantReportRecListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+        ) m
+    </select>
+    <select id="findModelWithPg" parameterType="com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec" resultMap="MerchantReportRecResult">
+        <include refid="findMerchantReportRecListSql" />
+        <if test="start!= null">  limit #{start},#{limit} </if>
+    </select>
+</mapper>

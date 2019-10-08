@@ -1,5 +1,6 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.nnte.framework.annotation.DBSchemaInterface;
 import com.nnte.framework.annotation.DataLibItem;
 import com.nnte.framework.annotation.DataLibType;
 import com.nnte.framework.annotation.WorkDBAspect;
@@ -9,12 +10,14 @@ import com.nnte.framework.base.DBSchemaColum;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
+import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
+import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
@@ -29,6 +32,7 @@ import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -284,6 +288,9 @@ public class AutoReportQueryComponent extends BaseComponent {
         return srcString;
     }
 
+    /*
+    * 保存查询体的设置
+    * */
     @DBSrcTranc
     public Map<String, Object> saveQueryBodySet(Map<String, Object> paramMap){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
@@ -381,6 +388,8 @@ public class AutoReportQueryComponent extends BaseComponent {
     }
     //获取替换的内容,按格式替换
     public static String getReplaceContentByFormat(String format,Object valObj){
+        if (valObj==null)
+            return "";
         if (DataColDef.getDataType(valObj.getClass().getTypeName()).equals(DataColDef.DataType.DATA_DATE))
             return getReplaceDateContentByFormat(format,valObj);
         else if (DataColDef.getDataType(valObj.getClass().getTypeName()).equals(DataColDef.DataType.DATA_INT))
@@ -434,7 +443,77 @@ public class AutoReportQueryComponent extends BaseComponent {
         String repFormat=mStrs[1];
         return getReplaceContentByFormat(repFormat,rc.getReportDataEnv().get(repType));
     }
-
+    //执行查询获取查询结果
+    public Map<String,Object> execQuerySqlForContent(MerchantReportQuery query){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        if (query==null || query.getId()==null) {
+            BaseNnte.setRetFalse(ret, 1002,"查询定义不合法");
+            return ret;
+        }
+        if (query.getConnId()==null|| query.getConnId()<=0){
+            BaseNnte.setRetFalse(ret, 1002,"查询的数据连接不合法");
+            return ret;
+        }
+        MerchantDbconnectDefine mdbd=autoReportDBConnComponent.getReportDBConnDefineById(query.getConnId());
+        if (mdbd==null){
+            BaseNnte.setRetFalse(ret, 1002,"未找到查询的数据连接");
+            return ret;
+        }
+        DBSchemaInterface DBSI= DynamicDatabaseSourceHolder.getSchemaInterfaceByDBType(mdbd.getDbType());
+        if (DBSI==null)
+        {
+            BaseNnte.setRetFalse(ret, 1002,"查询的数据连接类型不合法");
+            return ret;
+        }
+        Connection conn=DBSI.connectNoPoolDataSource(mdbd.getDbIp(),mdbd.getDbPort(),mdbd.getDbSchema(),
+                mdbd.getDbUser(),mdbd.getDbPassword());
+        try {
+            if (conn == null || conn.isClosed() == true) {
+                BaseNnte.setRetFalse(ret, 1002,"不能正常连接查询的数据库");
+                return ret;
+            }
+            String execSql=DBSI.getSqlIncludeLimit(query.getQuerySql(),0,query.getMaxRowCount());
+            return DBSI.execSqlForContent(conn,execSql);
+        }catch (Exception e){
+            BaseNnte.setRetFalse(ret, 9999,"执行查询的SQL语句异常");
+            return ret;
+        }finally {
+            DynamicDatabaseSourceHolder.CloseDBConnection(conn);
+        }
+    }
+    /*
+    * 取得报表分割查询结果
+    * */
+    public Map<String,Object> getReportCutQueryContent( ConnSqlSessionFactory cssf,MerchantReportDefine mrd){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        if (StringUtils.isNotEmpty(mrd.getReportClass())){
+            MerchantReportQuery cutQuery=getReportQueryByCode(cssf,mrd.getParMerchantId(),mrd.getReportClass());
+            if (cutQuery==null){
+                BaseNnte.setRetFalse(ret, 1002,"报表未找到有效的分割查询");
+                return ret;
+            }
+            //执行查询，按KEY-NAME取得查询结果
+            Map<String,Object> queryRet=execQuerySqlForContent(cutQuery);
+            if (!BaseNnte.getRetSuc(queryRet))
+                return queryRet;
+            if (NumberUtil.getDefaultInteger(queryRet.get("count"))<=0){
+                BaseNnte.setRetFalse(ret, 1002,"报表分割查询没有数据，不能生成报表");
+                return ret;
+            }
+            List<JSONObject> cutList=(List<JSONObject>)queryRet.get("rows");
+            List<ObjKeyValue> cutContentList=new ArrayList<>();
+            for(JSONObject jobj:cutList){
+                ObjKeyValue kv=new ObjKeyValue(jobj.get(mrd.getCutKeyField()),jobj.get(mrd.getCutNameField()));
+                cutContentList.add(kv);
+            }
+            ret.put("cutContentList",cutContentList);
+        }else{
+            BaseNnte.setRetFalse(ret, 1002,"报表没有定义分割查询");
+            return ret;
+        }
+        BaseNnte.setRetTrue(ret,"查询报表分割内容成功");
+        return ret;
+    }
     public static void main(String[] args){
 
     }

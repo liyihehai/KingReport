@@ -1,6 +1,7 @@
 package com.nnte.kr_backend.controller.autoReport;
 
 import com.nnte.framework.base.BaseNnte;
+import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.DateUtils;
@@ -44,8 +45,36 @@ public class AutoReportController extends BaseController {
     private AutoReportServerComponent autoReportServerComponent;
 
     @RequestMapping(value = "indexReport")
-    public ModelAndView index(ModelAndView modelAndView){
+    public ModelAndView index(HttpServletRequest request,ModelAndView modelAndView){
+        //取得商户报表分类定义
+        Map<String,Object> map=new HashMap<>();
+        BaseNnte.setParamMapDataEnv(request,map);
+        Map<String,Object> busiMap=autoReportComponent.getMerchantBTReportList(map,true);
+        if (BaseNnte.getRetSuc(busiMap)){
+            List<Map<String,Object>> BTReportList=(List<Map<String,Object>>)busiMap.get("BTReportList");
+            if (BTReportList!=null && BTReportList.size()>0){
+                map.put("BTReportList",BTReportList);
+            }
+        }
+        modelAndView.addObject("map", map);
         modelAndView.setViewName("front/autoReport/indexReport");
+        return modelAndView;
+    }
+
+    /*
+     * 按业务分类打开报表装载页面
+     * */
+    @RequestMapping(value = "openBusiTypeReport")
+    public ModelAndView openBusiTypeReport(HttpServletRequest request, String reportCode, ModelAndView modelAndView){
+        modelAndView.setViewName("front/autoReport/reportBTOpen");
+        Map<String,Object> map=new HashMap<>();
+        BaseNnte.setParamMapDataEnv(request,map);
+        map.put("reportCode",reportCode);
+        Map<String,Object> mapOpen=autoReportServerComponent.onOpenBusiTypeReport(map);
+        if (BaseNnte.getRetSuc(mapOpen)) {
+            map.put("reportDefine", mapOpen.get("reportDefine"));
+        }
+        modelAndView.addObject("map", map);
         return modelAndView;
     }
 
@@ -248,7 +277,7 @@ public class AutoReportController extends BaseController {
 
     @RequestMapping("/genNextPeriodReport")
     @ResponseBody
-    public Map<String, Object> genNextPeriodReport(@RequestBody MerchantReportDefine MRD){
+    public Map<String, Object> genNextPeriodReport(HttpServletRequest request,@RequestBody MerchantReportDefine MRD){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
         if (MRD==null || MRD.getId()==null || MRD.getId()<=0){
             BaseNnte.setRetFalse(ret,1002,"参数错误(报表编号错误)");
@@ -260,6 +289,7 @@ public class AutoReportController extends BaseController {
             return ret;
         }
         Map<String,Object> pMap=new HashMap<>();
+        BaseNnte.setParamMapDataEnv(request,pMap);
         ret=autoReportServerComponent.generatorReportFile(pMap,merchantReportDefine);
         return ret;
     }

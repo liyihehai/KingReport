@@ -63,8 +63,9 @@ public class AutoReportParamsComponent {
         return getBusiTypeFromParam(queryReportBusiTypeParam(merchantId,typeCode));
     }
     //根据条件查询商户报表业务类型定义列表
+    //isOnlyUsed=true，表示只有有效的类型定义才返回
     @DBSrcTranc
-    public Map<String, Object> loadReportParamBusiTypes(Map<String, Object> paramMap){
+    public Map<String, Object> loadReportParamBusiTypes(Map<String, Object> paramMap,boolean isOnlyUsed){
         Map<String, Object> ret = BaseNnte.newMapRetObj();
         BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
         ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
@@ -72,6 +73,8 @@ public class AutoReportParamsComponent {
         paramMap.put("classId",SYSPARAM_MERCHANT_REPORT_BUSI_TYPE);
         paramMap.put("paramType",SysParamComponent.ParamType.TYPE_MER_MUL);
         paramMap.put("parMerchantId",loginMerchant.getParMerchantId());
+        if (isOnlyUsed)
+            paramMap.put("paramState",1);//有效的才返回
         List<ReportBusiType> list=baseSysParamService.queryReportParamBusiTypesList(cssf,paramMap);
         if (list==null || list.size()<=0){
             BaseNnte.setRetFalse(ret, 1002,"未取得商户报表业务类型数据");
