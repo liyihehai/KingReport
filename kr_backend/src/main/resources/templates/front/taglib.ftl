@@ -93,7 +93,7 @@
 	<script src="${envData.staticRoot!''}/css/qjbCustom/qjbGlobal.js"></script>
 	<script src="${envData.staticRoot!''}/js/common.js?v=1.1.10"></script>
     <script>
-        glob_JS_Static_Host = "${envData.staticRoot!''}";
+        var glob_JS_Static_Host = "${envData.staticRoot!''}";
     </script>
 	 <style>
         table{

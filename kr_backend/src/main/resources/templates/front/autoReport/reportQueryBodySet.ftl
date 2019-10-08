@@ -2,6 +2,9 @@
     .form-control {
         width: 230px;
     }
+    .table th, .table td {
+        vertical-align: middle!important;
+    }
     <#--
 .modal-content{
 	height: 570px;
@@ -52,7 +55,16 @@
                 <tr>
                     <td>查询语句</td>
                     <td colspan="3">
-                        <textarea class="form-control" id="reportQueryBodySet_querySql" name="querySql" rows="16" style="min-width: 95%"></textarea>
+                        <div class="col-sm-12">
+                            <#if (map.LibQueryResKeyWord??)>
+                            <#list map.LibQueryResKeyWord as rsk>
+                                <input type="button" class="btn btn-default" onclick="textareaInsertText('reportQueryBodySet_querySql','${rsk.key}')" value="${rsk.value}">
+                            </#list>
+                            </#if>
+                        </div>
+                        <div class="col-sm-12">
+                        <textarea class="form-control" id="reportQueryBodySet_querySql" name="querySql" rows="16" style="min-width: 100%"></textarea>
+                        </div>
                     </td>
                     <td>查询结果列</td>
                     <td>
@@ -62,7 +74,7 @@
                 </tr>
             </table>
             <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-7" ">
+                <div class="col-sm-offset-2 col-sm-7">
                     <input type="button" class="btn btn-default" onclick="saveQueryBody()"value="保存">
                     <input type="button" class="btn btn-default" onclick="backSetIndex();" value="取消">
                 </div>
@@ -133,5 +145,40 @@
             }
             msgbox.showMsgBox(content.msg);
         });
+    }
+    //在textarea控件的光标处插入数据
+    function textareaInsertText(objid,str){
+        var insertTxt="\$\{"+str+"\}";
+        var myField=document.getElementById(""+objid);
+        //IE浏览器
+        if (document.selection) {
+            myField.focus();
+            sel = document.selection.createRange();
+            sel.text = insertTxt;
+            sel.select();
+        }
+        //火狐/网景 浏览器
+        else if (myField.selectionStart || myField.selectionStart == '0')
+        {
+            //得到光标前的位置
+            var startPos = myField.selectionStart;
+            //得到光标后的位置
+            var endPos = myField.selectionEnd;
+            // 在加入数据之前获得滚动条的高度
+            var restoreTop = myField.scrollTop;
+            myField.value = myField.value.substring(0, startPos) + insertTxt + myField.value.substring(endPos, myField.value.length);
+            //如果滚动条高度大于0
+            if (restoreTop > 0) {
+                // 返回
+                myField.scrollTop = restoreTop;
+            }
+            myField.focus();
+            myField.selectionStart = startPos + insertTxt.length;
+            myField.selectionEnd = startPos + insertTxt.length;
+        }
+        else {
+            myField.value += insertTxt;
+            myField.focus();
+        }
     }
 </script>
