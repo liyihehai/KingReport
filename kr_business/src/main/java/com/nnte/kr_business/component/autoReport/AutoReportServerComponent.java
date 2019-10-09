@@ -6,6 +6,7 @@ import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ObjKeyValue;
+import com.nnte.framework.entity.TKeyValue;
 import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
@@ -527,7 +528,7 @@ public class AutoReportServerComponent extends BaseComponent {
             //--文件已打开，进行数据输出-----------
             autoReportExcelComponent.outputDataToReportFile(wao, rc);
             //--数据输出结束，保存文件-------------
-            String reportPath = autoReportComponent.getReportOutFileAbPath(rc.getReportDefine());
+            String reportPath = autoReportComponent.getReportOutFileAbPath(rc);
             outfn = genReportOutFileName(rc, wao);
             outpfn = autoReportExcelComponent.saveExcelFile(wao, reportPath, outfn); //返回报表文件的绝对路径
         }catch (Exception e){
@@ -558,6 +559,20 @@ public class AutoReportServerComponent extends BaseComponent {
         ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
         MerchantReportDefine reportDefine=autoReportComponent.getReportRecordByCode(cssf,loginMerchant.getId(),StringUtils.defaultString(paramMap.get("reportCode")));
         ret.put("reportDefine",reportDefine);
+        if (StringUtils.isNotEmpty(reportDefine.getReportClass())){
+            Map<String,Object> queryRet=autoReportQueryComponent.getReportCutQueryContent(cssf,reportDefine);
+            if (BaseNnte.getRetSuc(queryRet)) {
+                List<ObjKeyValue> cutContentList = (List<ObjKeyValue>) queryRet.get("cutContentList");
+                List<TKeyValue<String, String>> TKVList = new ArrayList<>();
+                for (ObjKeyValue okv : cutContentList) {
+                    TKeyValue<String, String> ssKV = new TKeyValue<>(AutoReportQueryComponent.getReplaceContentByFormat(null, okv.getKey()),
+                            AutoReportQueryComponent.getReplaceContentByFormat(null, okv.getValue()));
+                    TKVList.add(ssKV);
+                }
+                ret.put("cutQuery",queryRet.get("cutQuery"));
+                ret.put("cutKVList", TKVList);
+            }
+        }
         BaseNnte.setRetTrue(ret,"获取数据成功");
         return ret;
     }

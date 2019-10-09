@@ -141,10 +141,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                    <include>**/*.gif</include>
-                    <include>**/*.ftl</include>
+                    <include>**/*.*</include>
                 </includes>
             </resource>
         </resources>

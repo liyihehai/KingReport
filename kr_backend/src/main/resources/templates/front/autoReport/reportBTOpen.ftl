@@ -21,14 +21,27 @@
                                 <strong>总期数：${map.reportDefine.reportPeriodNo!'0'}</strong>
                             </div>
                         </td>
-                        <td width="5%"><strong>分割名称：</strong></td>
+                        <#if (map.cutKVList??)>
+                        <td width="5%"><strong>
+                                <#if (map.cutQuery??)>${map.cutQuery.cutTypeName}</#if>：</strong></td>
                         <td width="15%">
                             <div class="input-group" style="width: 100%;">
                                 <select id="cutValue" class="select2 form-control">
-                                    <option value="" selected="selected">全部</option>
+                                    <#list map.cutKVList as cutKV>
+                                    <option value="${cutKV.key!''}" <#if (cutKV_index==0)>selected="selected"</#if>>${cutKV.value!''}</option>
+                                    </#list>
                                 </select>
                             </div>
                         </td>
+                        <#else>
+                            <#if (map.reportDefine.reportClass?default("")?trim?length gt 1)>
+                            <td width="10%">
+                            <div class="input-group" style="width: 100%;">
+                                <strong>没有取到报表分割选项！</strong>
+                            </div>
+                            </td>
+                            </#if>
+                        </#if>
                     </tr>
                 </table>
                 <div class="nav-tabs-custom" style="cursor: move;">
@@ -44,6 +57,8 @@
                     </ul>
                 </div>
             </div>
+            <iframe src="/openoffice/web/viewer.html?file=/autoReport/previewReport?reportRecId=1" width="100%" height="100%" frameborder="0" scrolling="hidden">
+            </iframe>
             <!-- /.box-body -->
         </div>
         <!-- /.box -->

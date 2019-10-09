@@ -139,6 +139,35 @@
             <artifactId>poi-ooxml-schemas</artifactId>
             <version>3.17</version>
         </dependency>
+        <!--openoffice-->
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>juh</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>jurt</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>ridl</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>unoil</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openoffice</groupId>
+            <artifactId>jodconverter</artifactId>
+            <version>2.2.2</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/openofficelib/jodconverter-2.2.2.jar
+            </systemPath>
+        </dependency>
         <!--内部依赖-->
         <dependency>
             <groupId>com.nnte</groupId>
@@ -169,6 +198,12 @@
                 <directory>classpath</directory>
                 <includes>
                     <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/lib</directory>
+                <includes>
+                    <include>**/*.jar</include>
                 </includes>
             </resource>
         </resources>

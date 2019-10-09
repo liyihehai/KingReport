@@ -1,16 +1,13 @@
 package com.nnte.kr_backend.controller.autoReport;
 
 import com.nnte.framework.base.BaseNnte;
-import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.KeyValue;
-import com.nnte.framework.utils.DateUtils;
-import com.nnte.framework.utils.JsonUtil;
-import com.nnte.framework.utils.NumberUtil;
-import com.nnte.framework.utils.StringUtils;
+import com.nnte.framework.utils.*;
 import com.nnte.kr_business.base.BaseController;
 import com.nnte.kr_business.component.autoReport.AutoReportComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
+import com.nnte.kr_business.component.autoReport.AutoReportRecComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportServerComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
@@ -19,6 +16,10 @@ import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -43,6 +45,8 @@ public class AutoReportController extends BaseController {
     private AutoReportQueryComponent autoReportQueryComponent;
     @Autowired
     private AutoReportServerComponent autoReportServerComponent;
+    @Autowired
+    private AutoReportRecComponent autoReportRecComponent;
 
     @RequestMapping(value = "indexReport")
     public ModelAndView index(HttpServletRequest request,ModelAndView modelAndView){
@@ -73,6 +77,8 @@ public class AutoReportController extends BaseController {
         Map<String,Object> mapOpen=autoReportServerComponent.onOpenBusiTypeReport(map);
         if (BaseNnte.getRetSuc(mapOpen)) {
             map.put("reportDefine", mapOpen.get("reportDefine"));
+            map.put("cutQuery",mapOpen.get("cutQuery"));
+            map.put("cutKVList",mapOpen.get("cutKVList"));
         }
         modelAndView.addObject("map", map);
         return modelAndView;
@@ -364,5 +370,25 @@ public class AutoReportController extends BaseController {
         setLoadCondition(request,paramMap,pMap);
         Map<String,Object> ret=autoReportComponent.exportMerchantReportDefs(pMap);
         return ret;
+    }
+
+    @RequestMapping("/previewReport")
+    public ResponseEntity<byte[]> previewReport(String reportRecId) throws IOException {
+        // 转换并返回结果
+        /*
+        Map<String,Object> paramMap=new HashMap<>();
+        paramMap.put("id",NumberUtil.getDefaultInteger(reportRecId));
+        Map<String,Object> pathMap=autoReportRecComponent.getReportRecPriviewPath(paramMap);
+        if (!BaseNnte.getRetSuc(pathMap)){
+            return null;
+        }
+        byte[] pdfFileBytes = FileUtil.getContent(StringUtils.defaultString(pathMap.get("priviewFileName")));
+        */
+        byte[] pdfFileBytes = FileUtil.getContent("/d:/KingReport_MDXSM_2_3215.pdf");
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.valueOf("application/pdf"));
+        httpHeaders.setContentLength(pdfFileBytes.length);
+        httpHeaders.add(HttpHeaders.ACCEPT_RANGES, "bytes");
+        return new ResponseEntity<byte[]>(pdfFileBytes, httpHeaders, HttpStatus.OK);
     }
 }

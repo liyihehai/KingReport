@@ -6,7 +6,9 @@ import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.KeyValue;
+import com.nnte.framework.utils.FileUtil;
 import com.nnte.framework.utils.StringUtils;
+import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail;
 import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec;
 import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRecService;
@@ -98,6 +100,41 @@ public class AutoReportRecComponent {
             return ret;
         }
         BaseNnte.setRetTrue(ret,"保存报表记录成功");
+        return ret;
+    }
+    /*
+     * 获取报表预览文件的绝对路径
+     * */
+    public String getReportOutPDFFileAbPath(MerchantReportRec reportRec){
+        if (reportRec==null||StringUtils.isEmpty(reportRec.getReportFileName()))
+            return null;
+        String xlsName=reportRec.getReportFileName();
+        String fext=FileUtil.getExtention(xlsName);
+        if (StringUtils.isEmpty(fext))
+            return null;
+        return StringUtils.left(xlsName,xlsName.length()-fext.length())+"pdf";
+    }
+
+    /*
+     * 前端接口函数，取得报表预览文件路径
+     * paramMap.id=报表记录ID
+     * */
+    @DBSrcTranc
+    public Map<String,Object> getReportRecPriviewPath(Map<String,Object> paramMap){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        MerchantReportRec reportRec=merchantReportRecService.findModelByKey(cssf,paramMap.get("id"));
+        if (reportRec==null){
+            BaseNnte.setRetFalse(ret, 1002,"未找到指定的报表记录");
+            return ret;
+        }
+        String priviewFileName=getReportOutPDFFileAbPath(reportRec);
+        if (StringUtils.isEmpty(priviewFileName)){
+            BaseNnte.setRetFalse(ret, 1002,"未找到报表记录的预览文件");
+            return ret;
+        }
+        ret.put("priviewFileName",priviewFileName);
+        BaseNnte.setRetTrue(ret, "找到报表记录的预览文件");
         return ret;
     }
 }

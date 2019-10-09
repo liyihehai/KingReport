@@ -112,5 +112,18 @@
     <orderEntry type="library" name="Maven: org.apache.xmlbeans:xmlbeans:2.6.0" level="project" />
     <orderEntry type="library" name="Maven: stax:stax-api:1.0.1" level="project" />
     <orderEntry type="module" module-name="kr_business" />
+    <orderEntry type="library" name="Maven: org.openoffice:juh:4.1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openoffice:jurt:4.1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openoffice:ridl:4.1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.openoffice:unoil:4.1.2" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: org.openoffice:jodconverter:2.2.2">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../kr_business/src/main/lib/openofficelib/jodconverter-2.2.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

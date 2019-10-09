@@ -16,6 +16,7 @@ import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.ReportTemplateFileFilter;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
+import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
@@ -321,10 +322,14 @@ public class AutoReportComponent extends BaseComponent {
         return StringUtils.pathAppend(pmerchant,mrd.getReportCode());
     }
     //获取报表输出文件的绝对路径
-    public String getReportOutFileAbPath(MerchantReportDefine mrd){
+    //path=StaticRoot/ReportRoot/ReportFileRoot/ParMerchantId/ReportCode/PeriodNo
+    public String getReportOutFileAbPath(ReportControl rc){
+        MerchantReportDefine mrd=rc.getReportDefine();
         String abReportRoot=StringUtils.pathAppend(appConfig.getAbStaticRoot(),appConfig.getReportRoot());
         String abReprtFileRoot=StringUtils.pathAppend(abReportRoot,appConfig.getReportFileRoot());
         String pmerchant=StringUtils.pathAppend(abReprtFileRoot,mrd.getParMerchantId().toString());
-        return StringUtils.pathAppend(pmerchant,mrd.getReportCode());
+        String pmrepcode=StringUtils.pathAppend(pmerchant,mrd.getReportCode());
+        return StringUtils.pathAppend(pmrepcode,StringUtils.defaultString(
+                AutoReportGenDetailComponent.getReportPeriodNoFromReportControl(rc)));
     }
 }

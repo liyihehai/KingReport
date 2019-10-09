@@ -506,6 +506,7 @@ public class AutoReportQueryComponent extends BaseComponent {
                 ObjKeyValue kv=new ObjKeyValue(jobj.get(mrd.getCutKeyField()),jobj.get(mrd.getCutNameField()));
                 cutContentList.add(kv);
             }
+            ret.put("cutQuery",cutQuery);
             ret.put("cutContentList",cutContentList);
         }else{
             BaseNnte.setRetFalse(ret, 1002,"报表没有定义分割查询");
