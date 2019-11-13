@@ -258,7 +258,7 @@ Map.prototype.remove = function (key) {
 
 //全局JS Ajax闭包
 function AppJSGlobAjax(token) {
-    this.clent_token = token;
+    this.client_token = token;
     this.getAjaxSetting = function (url, data) {
         var settings = {
             "async": true,
@@ -268,7 +268,7 @@ function AppJSGlobAjax(token) {
             "headers": {
                 "Content-Type": "application/json",
                 "cache-control": "no-cache",
-                "Postman-Token": this.clent_token
+                "Postman-Token": this.client_token
             },
             "processDate": false,
             "data": data
@@ -403,9 +403,38 @@ function AppJSGlobUtil() {
         }
         return unknown;
     }
+    this.getS=function(def,ojbVal){
+        if (ojbVal==undefined||ojbVal==null)
+            return def;
+        return ojbVal;
+    }
+    this.getL=function(def,ojbVal){
+        if (ojbVal==undefined||ojbVal==null)
+        {
+            if (def==undefined||def==null)
+                return 0;
+            return def;
+        }
+        return ojbVal;
+    }
+    this.getD=function(def,fmt,ojbVal){
+        if (ojbVal==undefined||ojbVal==null)
+        {
+            ojbVal=null;
+            if (def==undefined||def==null)
+                ojbVal=new Date(Date.now());
+            else
+                ojbVal=new Date(def);
+        }else
+            ojbVal=new Date(ojbVal);
+        if (fmt==undefined||fmt==null)
+            return this.dateFtt(ojbVal,"yyyy-MM-dd");
+        return this.dateFtt(ojbVal,fmt);
+    }
 }
 
 function messageBox() {
+    var onComfire = function(agrs){};
     this.showMsgBox=function(text) {
         $('.modal-dialog').hide();
         BootstrapDialog.show({
@@ -421,6 +450,38 @@ function messageBox() {
                     $('.modal-dialog').show();
                 }
             }]
+        });
+    }
+    this.showComfireBox = function(text,param,onComfire) {
+        $('.modal-dialog').hide();
+        BootstrapDialog.show({
+            message : text,
+            type: BootstrapDialog.TYPE_DEFAULT,
+            title : "询问窗",
+            size : BootstrapDialog.SIZE_SMALL,
+            buttons : [ {
+                id : 'button-comfire',
+                label : '确定',
+                hotkey : 13,
+                action : function(dialog) {
+                    dialog.close();
+                    $('.modal-dialog').show();
+                    if (onComfire!=undefined && onComfire!=null)
+                        onComfire(param);
+                }
+            },
+                {
+                    id : 'button-cancel',
+                    label : '取消',
+                    hotkey : 27,
+                    action : function(dialog) {
+                        dialog.close();
+                        $('.modal-dialog').show();
+                    }
+                }],
+            onhidden : function () {
+                $('.modal-dialog').show();
+            }
         });
     }
     this.showUrlPage=function (url,OnPageOpened) {

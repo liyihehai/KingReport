@@ -12,6 +12,7 @@ import com.nnte.kr_business.component.autoReport.AutoReportServerComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
+import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -31,7 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -371,7 +371,26 @@ public class AutoReportController extends BaseController {
         Map<String,Object> ret=autoReportComponent.exportMerchantReportDefs(pMap);
         return ret;
     }
-
+    /*
+    * 打开特定账期的报表前取得相关的参数
+    * */
+    @RequestMapping("/priOpenPeroidReport")
+    @ResponseBody
+    public Map<String, Object> priOpenPeroidReport(HttpServletRequest request,
+                                                   @RequestBody Map<String,Object> paramMap){
+        Map<String,Object> ret = BaseNnte.newMapRetObj();
+        MerchantReportRec queryDto=new MerchantReportRec();
+        try {
+            Map<String,Object> pMap=new HashMap<>();
+            BaseNnte.setParamMapDataEnv(request,pMap);
+            MapUtil.copyFromSrcMap(paramMap, queryDto);
+            Integer off=NumberUtil.getDefaultInteger(paramMap.get("off"));
+            ret=autoReportServerComponent.priOpenPeroidReport(pMap,queryDto,off);
+        }catch (Exception e){
+            BaseNnte.setRetFalse(ret,1002,e.getMessage());
+        }
+        return ret;
+    }
     @RequestMapping("/previewReport")
     public ResponseEntity<byte[]> previewReport(String reportRecId) throws IOException {
         // 转换并返回结果

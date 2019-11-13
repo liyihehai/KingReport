@@ -137,4 +137,30 @@ public class AutoReportRecComponent {
         BaseNnte.setRetTrue(ret, "找到报表记录的预览文件");
         return ret;
     }
+
+    /*
+     * 获取用于预览的指定商户报表生成记录
+     * */
+    public MerchantReportRec priOpenPeroidReport(ConnSqlSessionFactory cssf,MerchantReportRec queryDto,Integer off){
+        MerchantReportRec dto=new MerchantReportRec();
+        dto.setParMerchantId(queryDto.getParMerchantId());
+        dto.setReportCode(queryDto.getReportCode());
+        if (StringUtils.isNotEmpty(queryDto.getCutValue()))
+            dto.setCutValue(queryDto.getCutValue());
+        dto.setSort("PERIOD_NO");//按账期排序
+        dto.setDir("ASC");
+        List<MerchantReportRec> list=merchantReportRecService.findModelWithPg(cssf,dto);
+        for(int i=0;i<list.size();i++){
+            MerchantReportRec mrr=list.get(i);
+            if (mrr.getPeriodNo().equals(queryDto.getPeriodNo())){
+                int needIndex=i+off;
+                if (needIndex<=0)
+                    needIndex=0;
+                else if (needIndex>=list.size())
+                    needIndex=list.size()-1;
+                return list.get(needIndex);
+            }
+        }
+        return null;
+    }
 }

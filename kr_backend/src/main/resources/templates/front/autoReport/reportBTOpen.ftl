@@ -6,7 +6,7 @@
 <body>
 <div class="row level0">
     <div class="col-xs-12">
-        <div class="box">
+        <p class="box">
             <div class="box-body">
                 <table style="width: 100%; margin-bottom: 20px;">
                     <tr height="50px">
@@ -15,9 +15,9 @@
                         <td width="5%"><strong>报表期数：</strong></td>
                         <td width="30%">
                             <div class="form-inline" style="width: 90%;">
-                                <button type="button" class="btn bg-blue" onclick="openPriPeroidReport()">前一期</button>
+                                <button type="button" class="btn bg-blue" onclick="openPeroidReport(-1)">前一期</button>
                                 <input type="text" class="form-control" id="curPeriodNo" style="width: 100px;" value="${map.reportDefine.reportPeriodNo!'0'}" readonly="readonly">
-                                <button type="button" class="btn bg-blue" onclick="openNextPeroidReport()">后一期</button>
+                                <button type="button" class="btn bg-blue" onclick="openPeroidReport(1)">后一期</button>
                                 <strong>总期数：${map.reportDefine.reportPeriodNo!'0'}</strong>
                             </div>
                         </td>
@@ -44,20 +44,25 @@
                         </#if>
                     </tr>
                 </table>
-                <div class="nav-tabs-custom" style="cursor: move;">
-                    <!-- Tabs within a box -->
-                    <ul class="nav nav-tabs pull-left ui-sortable-handle" style="width: 50%;">
-                        <li class="active"><a href="#" data-toggle="tab" aria-expanded="true">报表时间范围：2019-01-20 12:10:01.999~2019-01-20 12:10:01.999</a></li>
-                    </ul>
-                    <ul class="nav nav-tabs pull-left ui-sortable-handle" style="width: 50%;">
-                        <li style="float: right;">
-                            <button type="button" class="btn bg-blue" onclick="openSpecReport()">打开</button>
-                            <button type="button" class="btn bg-maroon" onclick="reportFileExport()">导出</button>
-                        </li>
-                    </ul>
-                </div>
             </div>
-            <iframe src="/openoffice/web/viewer.html?file=/autoReport/previewReport?reportRecId=1" width="100%" height="100%" frameborder="0" scrolling="hidden">
+            <p class="well st-well" style="height: 50px;padding: 9px;">
+                <table style="width: 100%;">
+                <tr>
+                    <td style="width: 100px;">
+                        报表时间范围：
+                    </td>
+                    <td>
+                        <a id="repDateRange">2019-01-20 12:10:01.999~2019-01-20 12:10:01.999</a>
+                    </td>
+                    <td style="text-align:-webkit-right">
+                        <button type="button" class="btn bg-blue" onclick="openSpecReport()">打开</button>
+                        <button type="button" class="btn bg-maroon" onclick="reportFileExport()">导出</button>
+                    </td>
+                </ul>
+                </tr>
+                </table>
+            </p>
+            <iframe id="reportContainer" src="" width="100%" height="100%" frameborder="0" scrolling="hidden">
             </iframe>
             <!-- /.box-body -->
         </div>
@@ -69,7 +74,33 @@
 <!-- 弹出窗 项目新增，更改-->
 <!-- 弹出窗结束 -->
 <script>
-    
+    var postman_token="doccca78-002b-4608-afst-assaassddd";
+    var reportCode="${map.reportDefine.reportCode!''}";
+    function openPeroidReport(off){
+        var param={
+            reportCode:reportCode,
+            periodNo:$("#curPeriodNo").val(),
+            cutValue:$("#cutValue").val(),
+            off:off
+        };
+        var ajga=new AppJSGlobAjax(postman_token);
+        var url="/autoReport/priOpenPeroidReport";
+        var data = JSON.stringify(param);
+        ajga.AjaxApplicationJson(url,data,function (content){
+            if (content.code==0){
+                if (content.merchantReportRec && content.merchantReportRec.id){
+                    var glob_util=new AppJSGlobUtil();
+                    var startDate=glob_util.dateFtt("yyyy-MM-dd hh:mm:ss.S",new Date(content.merchantReportRec.startTime));
+                    var endDate=glob_util.dateFtt("yyyy-MM-dd hh:mm:ss.S",new Date(content.merchantReportRec.endTime));
+                    $("#repDateRange").empty().append(startDate+"~"+endDate);
+                    $("#curPeriodNo").val(content.merchantReportRec.periodNo);
+                    var src="/openoffice/web/viewer.html?file=/autoReport/previewReport?reportRecId="+content.merchantReportRec.id;
+                    $("#reportContainer").attr("src",src);
+                }
+            }else
+                msgbox.showMsgBox(content.msg);
+        });
+    }
 </script>
 </body>
 </html>

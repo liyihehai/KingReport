@@ -1,6 +1,5 @@
 package com.nnte.kr_business.component.autoReport;
 
-import com.nnte.framework.annotation.DBSchemaInterface;
 import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
@@ -12,24 +11,21 @@ import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
-import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.*;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
-import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGendetail;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
+import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import java.sql.Connection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /*
 * 报表服务组件
@@ -573,6 +569,22 @@ public class AutoReportServerComponent extends BaseComponent {
                 ret.put("cutKVList", TKVList);
             }
         }
+        BaseNnte.setRetTrue(ret,"获取数据成功");
+        return ret;
+    }
+
+    @DBSrcTranc
+    public Map<String,Object> priOpenPeroidReport(Map<String, Object> paramMap, MerchantReportRec queryDto,
+                                                  Integer off){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        queryDto.setParMerchantId(loginMerchant.getId());
+        MerchantReportRec mmr=autoReportRecComponent.priOpenPeroidReport(cssf,queryDto,off);
+        if (mmr==null){
+            BaseNnte.setRetFalse(ret,1002,"没有找到特定的报表记录["+queryDto.getReportCode()+"]");
+        }
+        ret.put("merchantReportRec",mmr);
         BaseNnte.setRetTrue(ret,"获取数据成功");
         return ret;
     }
