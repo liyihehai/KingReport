@@ -11,6 +11,7 @@ import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
+import com.nnte.kr_business.base.Office2PDF;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.*;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
@@ -22,6 +23,7 @@ import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -534,6 +536,12 @@ public class AutoReportServerComponent extends BaseComponent {
             return ret;
         }
         autoReportExcelComponent.closeExcelTemplate(wao);
+        //Excel文件生成成功，生成响应的PDF文件
+        File pdfFile=Office2PDF.openOfficeToPDF(outpfn);
+        if (pdfFile==null){
+            BaseNnte.setRetFalse(ret, 1002,"Excel文件生成PDF文件失败");
+            return ret;
+        }
         //文件保存结束，记录报表生成明细-------
         Map<String,Object> genMap=autoReportGenDetailComponent.saveReportGenDetail(cssf,operator,rc,outfn,outpfn,createStartTime);
         if (!BaseNnte.getRetSuc(genMap))

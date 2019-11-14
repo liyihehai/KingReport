@@ -274,4 +274,7 @@ public class AutoReportExcelComponent extends BaseComponent {
             }
         }
     }
+
+    //以下内容为通过OpenOffice将EXCEL文件生成PDF内容
+
 }

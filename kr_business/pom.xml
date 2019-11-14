@@ -141,6 +141,11 @@
         </dependency>
         <!--openoffice-->
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
             <groupId>org.openoffice</groupId>
             <artifactId>juh</artifactId>
             <version>4.1.2</version>
@@ -168,6 +173,12 @@
             <systemPath>${project.basedir}/src/main/lib/openofficelib/jodconverter-2.2.2.jar
             </systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.artofsolving.jodconverter</groupId>
+            <artifactId>jodconverter-core</artifactId>
+            <version>3.0-beta-4</version>
+        </dependency>
+
         <!--内部依赖-->
         <dependency>
             <groupId>com.nnte</groupId>
