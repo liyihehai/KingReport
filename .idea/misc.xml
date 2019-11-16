@@ -8,10 +8,10 @@
       <list>
         <option value="$PROJECT_DIR$/Framework/pom.xml" />
         <option value="$PROJECT_DIR$/../Framework/pom.xml" />
-        <option value="$PROJECT_DIR$/kr_business/pom.xml" />
         <option value="$PROJECT_DIR$/ac_business/pom.xml" />
         <option value="$PROJECT_DIR$/ac_backend/pom.xml" />
         <option value="$PROJECT_DIR$/kr_backend/pom.xml" />
+        <option value="$PROJECT_DIR$/kr_business/pom.xml" />
       </list>
     </option>
   </component>

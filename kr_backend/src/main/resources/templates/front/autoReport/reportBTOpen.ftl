@@ -26,7 +26,7 @@
                                 <#if (map.cutQuery??)>${map.cutQuery.cutTypeName}</#if>：</strong></td>
                         <td width="15%">
                             <div class="input-group" style="width: 100%;">
-                                <select id="cutValue" class="select2 form-control">
+                                <select id="cutValue" class="select2 form-control" onchange="openPeroidReport(0);">
                                     <#list map.cutKVList as cutKV>
                                     <option value="${cutKV.key!''}" <#if (cutKV_index==0)>selected="selected"</#if>>${cutKV.value!''}</option>
                                     </#list>
@@ -55,8 +55,8 @@
                         <a id="repDateRange">2019-01-20 12:10:01.999~2019-01-20 12:10:01.999</a>
                     </td>
                     <td style="text-align:-webkit-right">
-                        <button type="button" class="btn bg-blue" onclick="openSpecReport()">打开</button>
-                        <button type="button" class="btn bg-maroon" onclick="reportFileExport()">导出</button>
+                        <button type="button" class="btn bg-blue" onclick="downloadFile('excel')">下载Excel</button>
+                        <button type="button" class="btn bg-maroon" onclick="downloadFile('pdf')">下载PDF</button>
                     </td>
                 </ul>
                 </tr>
@@ -94,13 +94,34 @@
                     var endDate=glob_util.dateFtt("yyyy-MM-dd hh:mm:ss.S",new Date(content.merchantReportRec.endTime));
                     $("#repDateRange").empty().append(startDate+"~"+endDate);
                     $("#curPeriodNo").val(content.merchantReportRec.periodNo);
-                    var src="/openoffice/web/viewer.html?file=/autoReport/previewReport?reportRecId="+content.merchantReportRec.id;
+                    var src="/openoffice/web/viewer.html?file=/autoReport/previewReport"+encodeURIComponent("?reportRecId="+content.merchantReportRec.id);
                     $("#reportContainer").attr("src",src);
                 }
             }else
                 msgbox.showMsgBox(content.msg);
         });
     }
+    function downloadFile(fileType){
+        var param={
+            reportCode:reportCode,
+            periodNo:$("#curPeriodNo").val(),
+            cutValue:$("#cutValue").val(),
+            fileType:fileType
+        };
+        var ajga=new AppJSGlobAjax(postman_token);
+        var url="/autoReport/downloadReportFile";
+        var data = JSON.stringify(param);
+        ajga.AjaxApplicationJson(url,data,function (content){
+            if (content){
+                if (content.code==0){
+                    window.location.href=content.downloadFileUrl;
+                }else
+                    msgbox.showMsgBox(content.msg);
+            }
+        });
+    }
+    $(document).ready(function () {
+        openPeroidReport(0);});
 </script>
 </body>
 </html>

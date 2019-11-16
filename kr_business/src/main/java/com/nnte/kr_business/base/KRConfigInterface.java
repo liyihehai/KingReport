@@ -1,6 +1,7 @@
 package com.nnte.kr_business.base;
 
 public interface KRConfigInterface {
+    public String getConfig(String key);
     public String getLocalHostName();
     public void setLocalHostName(String localHostName);
     public String getLocalHostAbstractName();

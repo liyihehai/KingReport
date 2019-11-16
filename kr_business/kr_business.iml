@@ -124,5 +124,7 @@
     </orderEntry>
     <orderEntry type="library" name="Maven: org.artofsolving.jodconverter:jodconverter-core:3.0-beta-4" level="project" />
     <orderEntry type="library" name="Maven: com.nnte:nnte_Framework:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.8" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.11" level="project" />
   </component>
 </module>

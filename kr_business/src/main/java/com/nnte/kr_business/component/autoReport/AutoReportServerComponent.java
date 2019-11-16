@@ -6,11 +6,11 @@ import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.entity.TKeyValue;
-import com.nnte.framework.utils.DateUtils;
-import com.nnte.framework.utils.NumberUtil;
-import com.nnte.framework.utils.StringUtils;
+import com.nnte.framework.utils.*;
+import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
+import com.nnte.kr_business.base.KRConfigInterface;
 import com.nnte.kr_business.base.Office2PDF;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.*;
@@ -23,7 +23,6 @@ import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +39,6 @@ public class AutoReportServerComponent extends BaseComponent {
     @Autowired
     private ReportPeriodComponent reportPeriodComponent;
     @Autowired
-    private AutoReportDBConnComponent autoReportDBConnComponent;
-    @Autowired
     private AutoReportExcelComponent autoReportExcelComponent;
     @Autowired
     private AutoReportComponent autoReportComponent;
@@ -49,6 +46,27 @@ public class AutoReportServerComponent extends BaseComponent {
     private AutoReportGenDetailComponent autoReportGenDetailComponent;
     @Autowired
     private AutoReportRecComponent autoReportRecComponent;
+
+    @Autowired
+    @ConfigLoad
+    public KRConfigInterface config;
+
+    public Map<String,Object> convertPDF(String srcFile){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        String url=config.getConfig("converPDFUrl");
+        if (StringUtils.isEmpty(url)){
+            BaseNnte.setRetFalse(ret,1002,"没有取得PDF转换服务器的配置");
+            return ret;
+        }
+        url+="?srcFileName="+UrlEncodeUtil.UrlEncode(srcFile);
+        String retJson=HttpUtil.sendPost(url,"");
+        if (StringUtils.isEmpty(retJson)){
+            BaseNnte.setRetFalse(ret,1002,"没有取得PDF转换的结果");
+            return ret;
+        }
+        ret=JsonUtil.getMap4Json(retJson);
+        return ret;
+    }
 
     //monthCount>=1 ,表示指定日期向后推算的月数
     public static String getNextMonth(Date date,int monthCount){
@@ -347,24 +365,8 @@ public class AutoReportServerComponent extends BaseComponent {
         //如果报表生成时间满足了，查看报表是否有分割查询
         if (StringUtils.isNotEmpty(mrd.getReportClass())){
             Map<String,Object> queryRet=autoReportQueryComponent.getReportCutQueryContent(cssf,mrd);
-            /*
-            MerchantReportQuery cutQuery=autoReportQueryComponent.getReportQueryByCode(cssf,mrd.getParMerchantId(),mrd.getReportClass());
-            if (cutQuery==null){
-                BaseNnte.setRetFalse(ret, 1002,"报表未找到有效的分割查询");
-                return ret;
-            }
-            //执行查询，按KEY-NAME取得查询结果
-            Map<String,Object> queryRet=autoReportQueryComponent.execQuerySqlForContent(cutQuery);
             if (!BaseNnte.getRetSuc(queryRet))
                 return queryRet;
-            if (NumberUtil.getDefaultInteger(queryRet.get("count"))<=0){
-                BaseNnte.setRetFalse(ret, 1002,"报表分割查询没有数据，不能生成报表");
-                return ret;
-            }
-            List<JSONObject> cutList=(List<JSONObject>)queryRet.get("rows");*/
-            if (!BaseNnte.getRetSuc(queryRet))
-                return queryRet;
-        //    for(JSONObject jobj:cutList){
             List<ObjKeyValue> cutList=(List<ObjKeyValue>)queryRet.get("cutContentList");
             for(ObjKeyValue jobj:cutList){
                 ReportControl RC=new ReportControl();
@@ -537,11 +539,12 @@ public class AutoReportServerComponent extends BaseComponent {
         }
         autoReportExcelComponent.closeExcelTemplate(wao);
         //Excel文件生成成功，生成响应的PDF文件
-        File pdfFile=Office2PDF.openOfficeToPDF(outpfn);
-        if (pdfFile==null){
-            BaseNnte.setRetFalse(ret, 1002,"Excel文件生成PDF文件失败");
+        Map converMap=convertPDF(outpfn);
+        if (!BaseNnte.getRetSuc(converMap)){
+            BaseNnte.setRetFalse(ret, 1002,"Excel文件生成PDF文件失败("+converMap.get("msg")+")");
             return ret;
         }
+        ret.put("pdfFileName",converMap.get("converMap"));
         //文件保存结束，记录报表生成明细-------
         Map<String,Object> genMap=autoReportGenDetailComponent.saveReportGenDetail(cssf,operator,rc,outfn,outpfn,createStartTime);
         if (!BaseNnte.getRetSuc(genMap))

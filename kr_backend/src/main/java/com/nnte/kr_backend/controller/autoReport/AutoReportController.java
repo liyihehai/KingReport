@@ -4,6 +4,7 @@ import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.*;
+import com.nnte.kr_backend.KingReportConfig;
 import com.nnte.kr_business.base.BaseController;
 import com.nnte.kr_business.component.autoReport.AutoReportComponent;
 import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
@@ -39,6 +40,8 @@ import java.util.*;
 @Controller
 @RequestMapping(value = "/autoReport")
 public class AutoReportController extends BaseController {
+    @Autowired
+    private KingReportConfig kingReportConfig;
     @Autowired
     private AutoReportComponent autoReportComponent;
     @Autowired
@@ -392,22 +395,62 @@ public class AutoReportController extends BaseController {
         return ret;
     }
     @RequestMapping("/previewReport")
-    public ResponseEntity<byte[]> previewReport(String reportRecId) throws IOException {
+    public ResponseEntity<byte[]> previewReport(HttpServletRequest request) {
         // 转换并返回结果
-        /*
-        Map<String,Object> paramMap=new HashMap<>();
-        paramMap.put("id",NumberUtil.getDefaultInteger(reportRecId));
-        Map<String,Object> pathMap=autoReportRecComponent.getReportRecPriviewPath(paramMap);
+        Map<String,Object> map=new HashMap<>();
+        Object reportRecId=request.getParameter("reportRecId");
+        BaseNnte.setParamMapDataEnv(request,map);
+        map.put("id",NumberUtil.getDefaultLong(reportRecId.toString()));
+        Map<String,Object> pathMap=autoReportRecComponent.getReportRecPriviewPath(map);
         if (!BaseNnte.getRetSuc(pathMap)){
             return null;
         }
-        byte[] pdfFileBytes = FileUtil.getContent(StringUtils.defaultString(pathMap.get("priviewFileName")));
-        */
-        byte[] pdfFileBytes = FileUtil.getContent("/d:/KingReport_MDXSM_2_3215.pdf");
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.valueOf("application/pdf"));
-        httpHeaders.setContentLength(pdfFileBytes.length);
-        httpHeaders.add(HttpHeaders.ACCEPT_RANGES, "bytes");
-        return new ResponseEntity<byte[]>(pdfFileBytes, httpHeaders, HttpStatus.OK);
+        try {
+            byte[] pdfFileBytes = FileUtil.getContent(StringUtils.defaultString(pathMap.get("priviewFileName")));
+            //  byte[] pdfFileBytes = FileUtil.getContent("/d:/KingReport_MDXSM_2_3215.pdf");
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.valueOf("application/pdf"));
+            httpHeaders.setContentLength(pdfFileBytes.length);
+            httpHeaders.add(HttpHeaders.ACCEPT_RANGES, "bytes");
+            return new ResponseEntity<>(pdfFileBytes, httpHeaders, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getDownloadUrl(MerchantReportRec mrr){
+        String p1= StringUtils.pathAppend(kingReportConfig.getStaticRoot(),kingReportConfig.getReportRoot());
+        String p2= StringUtils.pathAppend(p1,kingReportConfig.getReportFileRoot());
+        String p3= StringUtils.pathAppend(p2,mrr.getParMerchantId().toString());
+        String p4= StringUtils.pathAppend(p3,mrr.getReportCode());
+        String p5= StringUtils.pathAppend(p4,mrr.getPeriodNo().toString());
+        return StringUtils.pathAppend(p5,mrr.getReportName());
+    }
+
+    @RequestMapping("/downloadReportFile")
+    @ResponseBody
+    public Map<String, Object> downloadReportFile(HttpServletRequest request,
+                                                  @RequestBody Map<String,Object> paramMap){
+        Map<String,Object> ret = BaseNnte.newMapRetObj();
+        MerchantReportRec queryDto=new MerchantReportRec();
+        try {
+            Map<String,Object> pMap=new HashMap<>();
+            BaseNnte.setParamMapDataEnv(request,pMap);
+            MapUtil.copyFromSrcMap(paramMap, queryDto);
+            Map<String,Object> queryMap =autoReportServerComponent.priOpenPeroidReport(pMap,queryDto,0);
+            if (!BaseNnte.getRetSuc(queryMap))
+                return queryMap;
+            MerchantReportRec mrr=(MerchantReportRec)queryMap.get("merchantReportRec");
+            String downloadFileUrl=getDownloadUrl(mrr);
+            if ("pdf".equalsIgnoreCase(StringUtils.defaultString(paramMap.get("fileType")))){
+                downloadFileUrl=FileUtil.changeFileNameExten(downloadFileUrl,"pdf");
+            }
+            ret.put("downloadFileUrl",downloadFileUrl);
+            BaseNnte.setRetTrue(ret,"取得下载文件成功");
+        }catch (Exception e){
+            BaseNnte.setRetFalse(ret,1002,e.getMessage());
+        }
+        return ret;
     }
 }

@@ -109,10 +109,7 @@ public class AutoReportRecComponent {
         if (reportRec==null||StringUtils.isEmpty(reportRec.getReportFileName()))
             return null;
         String xlsName=reportRec.getReportFileName();
-        String fext=FileUtil.getExtention(xlsName);
-        if (StringUtils.isEmpty(fext))
-            return null;
-        return StringUtils.left(xlsName,xlsName.length()-fext.length())+"pdf";
+        return FileUtil.changeFileNameExten(xlsName,"pdf");
     }
 
     /*
