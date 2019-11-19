@@ -431,6 +431,12 @@ function AppJSGlobUtil() {
             return this.dateFtt(ojbVal,"yyyy-MM-dd");
         return this.dateFtt(ojbVal,fmt);
     }
+    //取得文件名的扩展名(文件类型)
+    this.getFileNameExten=function (fileName) {
+        var index = fileName.lastIndexOf(".");
+        var suffix = fileName.substr(index+1);
+        return suffix;
+    }
 }
 
 function messageBox() {

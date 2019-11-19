@@ -114,7 +114,11 @@
         ajga.AjaxApplicationJson(url,data,function (content){
             if (content){
                 if (content.code==0){
-                    window.location.href=content.downloadFileUrl;
+                    var g=new AppJSGlobUtil();
+                    if (g.getFileNameExten(content.downloadFileUrl)=='pdf'){
+                        window.open (content.downloadFileUrl, "下载["+content.reportName+"]");
+                    }else
+                        window.location.href=content.downloadFileUrl;
                 }else
                     msgbox.showMsgBox(content.msg);
             }
