@@ -111,7 +111,7 @@ function dataExport(searchParams, exportUrl) {
 
 
 var tabCount = 0;
-var menuMap = new Map();
+var menuMap = new ObjectMap();
 
 function jumpPage(jumpurl, title, menukey, nav) {
     var value = menuMap.get(menukey);
@@ -240,19 +240,19 @@ function showMeDetail(obj) {
 }
 
 
-function Map() {
+function ObjectMap() {
     this.container = new Object();
 }
 
-Map.prototype.put = function (key, value) {
+ObjectMap.prototype.put = function (key, value) {
     this.container[key] = value;
 }
 
-Map.prototype.get = function (key) {
+ObjectMap.prototype.get = function (key) {
     return this.container[key];
 }
 
-Map.prototype.remove = function (key) {
+ObjectMap.prototype.remove = function (key) {
     delete this.container[key];
 }
 
@@ -366,8 +366,11 @@ function AppJSGlobDataTable(){
             '<button type="button" class="btn btn-warning btn-default" data-toggle="dropdown">'+buttonTxt+'<i class="fa fa-caret-down"></i></button>'+
             '<ul class="dropdown-menu" role="menu" style="width:100px;">';
         for(var i=0;i<funcs.length;i++){
+            var paramFlag='';
+            if (funcs[i].funcParamType!=undefined && funcs[i].funcParamType!=null && funcs[i].funcParamType=='text')
+                paramFlag="'";
             hm+='<li><a href="javascript:void(0);" onclick="'+funcs[i].funcName+
-                '('+funcs[i].funcId+')">'+funcs[i].funcText+'</a></li>';
+                '('+paramFlag+funcs[i].funcId+paramFlag+')">'+funcs[i].funcText+'</a></li>';
         }
         hm+='</ul>'+
             '</div>';

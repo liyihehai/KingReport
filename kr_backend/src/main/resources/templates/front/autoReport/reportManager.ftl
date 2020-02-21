@@ -178,6 +178,7 @@
                         {funcName:'modifyReport',funcText:'编辑报表信息',funcId:full.id},
                         {funcName:'setReportCut',funcText:'设置报表分割',funcId:full.id},
                         {funcName:'setReportTemplate',funcText:'设置报表模板',funcId:full.id},
+                        {funcName:'setReportOutput',funcText:'设置报表输出',funcId:full.reportCode,funcParamType:'text'},
                         {funcName:'genNextPeriodReport',funcText:'产生下期报表',funcId:full.id}]);
                 }
             },{
@@ -333,6 +334,15 @@
     }
     function setReportCut(id) {
         showReportDialg(id,$('#reportDefineCutSetting'));
+    }
+
+    function setReportOutput(reportCode){
+        if (reportCode==undefined  || reportCode==null || reportCode=='')
+            return;
+        var link="/autoReportSetOutput/openSetOutput?reportCode="+reportCode;
+        var menukey="ReportOutput_"+reportCode;
+        var menuName="报表输出["+reportCode+"]";
+        window.parent.jumpPage(link,menuName,menukey,"");
     }
 
     function genNextPeriodReport(id){

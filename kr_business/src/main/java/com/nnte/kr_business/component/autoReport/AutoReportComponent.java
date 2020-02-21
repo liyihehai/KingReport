@@ -6,6 +6,7 @@ import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.base.DataLibrary;
+import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.DateUtils;
@@ -17,6 +18,7 @@ import com.nnte.kr_business.base.ReportTemplateFileFilter;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
+import com.nnte.kr_business.entity.autoReport.ReportControlCircle;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
@@ -54,6 +56,21 @@ public class AutoReportComponent extends BaseComponent {
         LibReportState.add(new KeyValue(ReportState.USED.toString(),"启用"));
         LibReportState.add(new KeyValue(ReportState.PAUSE.toString(),"暂停"));
         LibReportState.add(new KeyValue(ReportState.DELETED.toString(),"删除"));
+    }
+    @DataLibItem("报表循环类型")
+    public final static List<KeyValue> LibControlCircleItemType = new ArrayList<>();
+    static {
+        LibControlCircleItemType.add(new KeyValue(ReportControlCircle.CircleItemType.CIT_EnvData.toString(),"环境数据"));
+        LibControlCircleItemType.add(new KeyValue(ReportControlCircle.CircleItemType.CIT_QueryFeild.toString(),"查询字段"));
+        LibControlCircleItemType.add(new KeyValue(ReportControlCircle.CircleItemType.CIT_NormalTxt.toString(),"普通文本"));
+    }
+    @DataLibItem("控制循环明细数据类型")
+    public final static List<KeyValue> LibCircleItemDataType = new ArrayList<>();
+    static {
+        LibCircleItemDataType.add(new KeyValue(DataColDef.DataType.DATA_STRING.toString(),"字符串"));
+        LibCircleItemDataType.add(new KeyValue(DataColDef.DataType.DATA_INT.toString(),"整数"));
+        LibCircleItemDataType.add(new KeyValue(DataColDef.DataType.DATA_FLOT.toString(),"浮点数"));
+        LibCircleItemDataType.add(new KeyValue(DataColDef.DataType.DATA_DATE.toString(),"日期时间"));
     }
     //------------------------------------------
     //查询商户定义的所有使用状态的报表
@@ -117,6 +134,22 @@ public class AutoReportComponent extends BaseComponent {
         return list;
     }
 
+    @DBSrcTranc
+    public Map<String, Object> getReportRecordByCode(Map<String, Object> paramMap){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        MerchantReportDefine merchantReportDefine=getReportRecordByCode(cssf,loginMerchant.getId(),
+                StringUtils.defaultString(paramMap.get("reportCode")));
+        if (merchantReportDefine==null||merchantReportDefine.getId()==null||
+                merchantReportDefine.getId()<=0){
+            BaseNnte.setRetFalse(ret, 1002,"取得报表定义错误");
+            return ret;
+        }
+        ret.put("merchantReportDefine",merchantReportDefine);
+        BaseNnte.setRetTrue(ret,"取得报表定义成功");
+        return ret;
+    }
     //通过CODE查找报表记录
     public MerchantReportDefine getReportRecordByCode(ConnSqlSessionFactory cssf, Long merchantId, String code) {
         MerchantReportDefine dto = new MerchantReportDefine();
