@@ -11,6 +11,7 @@
     <groupId>com.nnte.kingreport</groupId>
     <artifactId>kr_backend</artifactId>
     <version>1.0.1</version>
+    <packaging>war</packaging>
     <name>kr_backend</name>
     <description>nnte king report kr_backend model for Spring Boot</description>
 
