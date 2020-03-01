@@ -6,9 +6,13 @@ import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.base.JedisCom;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.zaxxer.hikari.HikariConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.ArrayList;
@@ -16,7 +20,8 @@ import java.util.List;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan("com.nnte")
-public class KingReportApplication
+public class KingReportApplication extends SpringBootServletInitializer
+        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>
 {
     public static void main(String[] args)
     {
@@ -42,5 +47,10 @@ public class KingReportApplication
         List<String> mappers=new ArrayList<>();
         mappers.add("com.nnte.kr_business.mapper.workdb");
         ddh.initDataBaseSource(DBSrcTranc.Work_DBSrc_Name,config,mappers,true);
+    }
+
+    @Override
+    public void customize(ConfigurableServletWebServerFactory factory) {
+
     }
 }
