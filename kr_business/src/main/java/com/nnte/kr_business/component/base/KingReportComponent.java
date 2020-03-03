@@ -60,8 +60,4 @@ public class KingReportComponent {
             setKRConfig(instanceBody,fields,KRConfig);
         }
     }
-
-    public static void main(String[] args){
-
-    }
 }

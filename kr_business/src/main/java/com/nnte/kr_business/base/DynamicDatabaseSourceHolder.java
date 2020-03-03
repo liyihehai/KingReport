@@ -20,10 +20,16 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.sql.*;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 @Component
 public class DynamicDatabaseSourceHolder {
@@ -105,19 +111,51 @@ public class DynamicDatabaseSourceHolder {
         }
         return null;
     }
+    private void setMapperFile(Configuration configuration,String resource,InputStream inputStream) {
+        if (!configuration.isResourceLoaded(resource)) {
+            BaseNnte.outConsoleLog("mapper xml:"+resource+"......append");
+            XMLMapperBuilder xmb = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+            xmb.parse();
+        }
+    }
+    private void setMapperFile(Configuration configuration,String resource) throws IOException{
+        if (!configuration.isResourceLoaded(resource)) {
+            BaseNnte.outConsoleLog("mapper xml:"+resource+"......append");
+            InputStream inputStream = Resources.getResourceAsStream(resource);
+            XMLMapperBuilder xmb = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+            xmb.parse();
+        }
+    }
     //按包设置映射文件
     public void setMapperPackage(Configuration configuration, List<String> mappers) {
         for (String packageName : mappers) {
             try {
                 //装载正常的映射文件
                 configuration.addMappers(packageName);
+                for(String key:configuration.getSqlFragments().keySet()){
+                    BaseNnte.outConsoleLog("mapper xml loaded key:"+key);
+                }
                 //装载扩展映射文件，资源路径与正常映射文件相同
-                List<String> exXmls = PackageUtil.getResourcePathName(packageName, "xml");
-                for (String resource : exXmls) {
-                    if (!configuration.isResourceLoaded(resource)) {
-                        InputStream inputStream = Resources.getResourceAsStream(resource);
-                        XMLMapperBuilder xmb = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
-                        xmb.parse();
+                Class<?> cls=this.getClass();
+                String jarName=cls.getProtectionDomain().getCodeSource().getLocation().getFile();
+                jarName = URLDecoder.decode(jarName, "utf-8");
+                if (jarName.indexOf(".jar")>0) {
+                    BaseNnte.outConsoleLog("mapper jar Name="+jarName);
+                    JarFile localJarFile = new JarFile(new File(jarName));
+                    Enumeration<JarEntry> entries = localJarFile.entries();
+                    String pattern = packageName.replace(".", "/") + "/.*.xml";
+                    while (entries.hasMoreElements()) {
+                        JarEntry jarEntry = entries.nextElement();
+                        String innerPath = jarEntry.getName();
+                        if (Pattern.matches(pattern, innerPath)) {
+                            InputStream inputStream = cls.getClassLoader().getResourceAsStream(innerPath);
+                            setMapperFile(configuration, innerPath, inputStream);
+                        }
+                    }
+                }else {
+                    List<String> exXmls = PackageUtil.getResourcePathName(packageName, "xml");
+                    for (String resource : exXmls) {
+                        setMapperFile(configuration, resource);
                     }
                 }
             } catch (BindingException | IOException ibatisE) {
@@ -205,13 +243,23 @@ public class DynamicDatabaseSourceHolder {
 
     //初始化一个数据源
     public void initDataBaseSource(String dbsrcName, HikariConfig config, List<String> mappers, boolean isDefault) {
+        BaseNnte.outConsoleLog("初始化连接池......");
         if (dbsrcName == null || config == null || dbsrcName.isEmpty())
+        {
+            BaseNnte.outConsoleLog("错误：dbsrcName == null || config == null || dbsrcName.isEmpty()");
             return;
+        }
         String db_srcName = getDBSrcName(dbsrcName);
         if (DataSourceHolderMap.get(db_srcName) != null)
+        {
+            BaseNnte.outConsoleLog("错误：DataSourceHolderMap.get(db_srcName) != null");
             return;
-        config.setPoolName(dbsrcName + "_HikariPool");
+        }
+        String poolName=dbsrcName + "_HikariPool";
+        config.setPoolName(poolName);
+        BaseNnte.outConsoleLog("初始化连接池:"+poolName+"......");
         HikariDataSource ds = new HikariDataSource(config);
+        BaseNnte.outConsoleLog("初始化连接池:"+poolName+"......成功");
         if (ds != null) {
             try {
                 Connection conn = ds.getConnection();
@@ -224,6 +272,7 @@ public class DynamicDatabaseSourceHolder {
                     configuration.setMapUnderscoreToCamelCase(false);
                     //创建SqlSessionFactory对象
                     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+                    BaseNnte.outConsoleLog("mappers="+mappers.toString());
                     setMapperPackage(sqlSessionFactory.getConfiguration(), mappers);
                     dbsourceSqlSessionFactory dbsrcSSF = new dbsourceSqlSessionFactory();
                     dbsrcSSF.setDbsrcName(db_srcName);
@@ -232,10 +281,14 @@ public class DynamicDatabaseSourceHolder {
                     DataSourceHolderMap.put(dbsrcSSF.getDbsrcName(), dbsrcSSF);
                     if (isDefault)
                         defaultDatasrcName = dbsrcName;
+                }else{
+                    BaseNnte.outConsoleLog("错误：Connection conn = ds.getConnection() = null");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }else{
+            BaseNnte.outConsoleLog("错误：HikariDataSource ds = new HikariDataSource(config) = null");
         }
     }
 

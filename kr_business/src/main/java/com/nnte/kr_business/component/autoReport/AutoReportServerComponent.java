@@ -599,33 +599,4 @@ public class AutoReportServerComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"获取数据成功");
         return ret;
     }
-
-    public static void main(String[] args){
-
-        MerchantReportDefine mrd=new MerchantReportDefine();
-        mrd.setReportPeriodNo(1);
-        mrd.setReportPeriod(ReportPeriodComponent.Period.Day_Report);
-        mrd.setStartDate(DateUtils.stringToDate("2019-06-07",DateUtils.DF_YMD));
-        mrd.setEndTime(DateUtils.stringToDate("2019-06-07 23:59:59.999",DateUtils.DF_YMD_HMSSSS));
-
-        MerchantReportGendetail mrg=new MerchantReportGendetail();
-        ReportPeriodSetting RPS=new ReportPeriodSetting();
-        RPS.setEndTimeDay("23:59:59.999");
-        RPS.setEndTimeWeek("5");
-        RPS.setEndTimeMonth("25");
-        RPS.setEndTimeQuarter("03-30");
-        RPS.setEndTimeHalfYear("12-30");
-        RPS.setEndTimeYear("02-28");
-
-        Map<String, Object> controlDateRet = setControlDate(mrd,mrg,RPS);
-        if (BaseNnte.getRetSuc(controlDateRet)){
-            System.out.println(mrg.getPeriodNo());
-            System.out.println(DateUtils.dateToString(mrg.getStartTime(),DateUtils.DF_YMD_HMSSSS));
-            System.out.println(DateUtils.dateToString(mrg.getEndTime(),DateUtils.DF_YMD_HMSSSS));
-        }
-
-        String cell="BB21";
-        int[] rc=AutoReportExcelComponent.getCellRowCol(cell);
-        System.out.println(String.format("CELL="+cell+" row=%d,col=%d",rc[0],rc[1]));
-    }
 }

@@ -515,7 +515,4 @@ public class AutoReportQueryComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"查询报表分割内容成功");
         return ret;
     }
-    public static void main(String[] args){
-
-    }
 }
