@@ -156,6 +156,7 @@ public class AutoReportController extends BaseController {
         }
         Map<String,Object> pMap=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,pMap);
+        pMap.put("KingReportConfig",kingReportConfig);
         ret=autoReportComponent.uploadTemplateFile(pMap,1L,reportCode,fname,bytes);
         return ret;
     }

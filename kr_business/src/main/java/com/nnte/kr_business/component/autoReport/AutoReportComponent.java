@@ -1,5 +1,6 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.annotation.DataLibItem;
 import com.nnte.framework.annotation.DataLibType;
 import com.nnte.framework.annotation.WorkDBAspect;
@@ -14,7 +15,7 @@ import com.nnte.framework.utils.FileUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
-import com.nnte.kr_business.base.ReportTemplateFileFilter;
+import com.nnte.kr_business.base.NConfig;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
@@ -23,10 +24,11 @@ import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefineService;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.*;
 
 /*
@@ -47,6 +49,8 @@ public class AutoReportComponent extends BaseComponent {
     private MerchantReportDefineService merchantReportDefineService;
     @Autowired
     private AutoReportParamsComponent autoReportParamsComponent;
+    @Autowired
+    private FdfsClientMgrComponent fdfsClientMgrComponent;
     //组件数据字典区域
     //------------------------------------------
     @DataLibItem("报表启用状态")
@@ -208,26 +212,18 @@ public class AutoReportComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"报表保存成功");
         return ret;
     }
-    //保存报表模板文件
-    private void saveReportTemplateFile(MerchantReportDefine mrd,String fileName, byte[] content){
-        String fpath=getReportTemplateAbPath(mrd);
-        if (!FileUtil.isPathExists(fpath))
-            FileUtil.makeDirectory(fpath);
-        String pfn=StringUtils.pathAppend(fpath,fileName);
-        FileUtil.writeFile(pfn,content);
-    }
+
     //查询报表模板文件名列表
     public List<String> getReportTemplateFileNames(MerchantReportDefine mrd) {
-        String fpath = getReportTemplateAbPath(mrd);
-        File[] files=FileUtil.listAll(new File(fpath),new ReportTemplateFileFilter());
-        if (files!=null && files.length>0){
-            List<String> list = new ArrayList<>();
-            for(File f:files){
-                list.add(f.getName());
-            }
-            return list;
+        JSONArray jArray=MerchantReportDefineService.initReportTempfileCollect(mrd);
+        if (jArray==null || jArray.size()<=0)
+            return null;
+        List<String> list = new ArrayList<>();
+        for(int i=0;i<jArray.size();i++){
+            JSONObject jobj=jArray.getJSONObject(i);
+            list.add(StringUtils.defaultString(jobj.get("fileName")));
         }
-        return null;
+        return list;
     }
     //上传并保存模板文件
     @DBSrcTranc
@@ -250,11 +246,25 @@ public class AutoReportComponent extends BaseComponent {
             BaseNnte.setRetFalse(ret, 1002,"未取得报表定义");
             return ret;
         }
-        saveReportTemplateFile(dto,fileName,content);
-        BaseNnte.setRetTrue(ret,"保存模板文件成功");
-        List<String> templateFiles=getReportTemplateFileNames(dto);
-        ret.put("templateFiles",templateFiles);
-        ret.put("templateFile",fileName);
+        //替换原有将模板文件保存在应用服务器,模板文件改为保存在文件服务器中
+        NConfig config=(NConfig)paramMap.get("KingReportConfig");
+        String templateType=config.getConfig("templateType");
+        String submitName=fdfsClientMgrComponent.uploadFile(templateType,content,FileUtil.getExtention(fileName));
+        if (StringUtils.isNotEmpty(submitName)){
+            BaseNnte.setRetTrue(ret,"保存模板文件成功");
+            String srcSubmitName=MerchantReportDefineService.addFileToCollect(dto,fileName,submitName);
+            merchantReportDefineService.saveReportTempfileCollect(cssf,dto);//在数据库中保存模板集更改
+            List<String> templateFiles=getReportTemplateFileNames(dto);
+            ret.put("templateFiles",templateFiles);
+            ret.put("templateFile",fileName);
+            if (StringUtils.isNotEmpty(srcSubmitName)){
+                //如果存在被替换的模板文件名，需要在文件服务器端删除原始的模板文件
+                fdfsClientMgrComponent.deleteFile(templateType,srcSubmitName);
+            }
+        }else{
+            BaseNnte.setRetTrue(ret,"保存模板文件失败");
+        }
+        //------------------------------------------------------
         return ret;
     }
     //保存报表模板文件设置
@@ -346,23 +356,5 @@ public class AutoReportComponent extends BaseComponent {
         ret=DataExport(loginMerchant.getParMerchantId(),list,colDefList,
                 sysParamComponent.getMerchantExportSheetCount(loginMerchant.getParMerchantId()));
         return ret;
-    }
-    //获取报表模板文件的绝对路径
-    public String getReportTemplateAbPath(MerchantReportDefine mrd){
-        String abReportRoot=StringUtils.pathAppend(appConfig.getAbStaticRoot(),appConfig.getReportRoot());
-        String abTemplateRoot=StringUtils.pathAppend(abReportRoot,appConfig.getReportTemplateRoot());
-        String pmerchant=StringUtils.pathAppend(abTemplateRoot,mrd.getParMerchantId().toString());
-        return StringUtils.pathAppend(pmerchant,mrd.getReportCode());
-    }
-    //获取报表输出文件的绝对路径
-    //path=StaticRoot/ReportRoot/ReportFileRoot/ParMerchantId/ReportCode/PeriodNo
-    public String getReportOutFileAbPath(ReportControl rc){
-        MerchantReportDefine mrd=rc.getReportDefine();
-        String abReportRoot=StringUtils.pathAppend(appConfig.getAbStaticRoot(),appConfig.getReportRoot());
-        String abReprtFileRoot=StringUtils.pathAppend(abReportRoot,appConfig.getReportFileRoot());
-        String pmerchant=StringUtils.pathAppend(abReprtFileRoot,mrd.getParMerchantId().toString());
-        String pmrepcode=StringUtils.pathAppend(pmerchant,mrd.getReportCode());
-        return StringUtils.pathAppend(pmrepcode,StringUtils.defaultString(
-                AutoReportGenDetailComponent.getReportPeriodNoFromReportControl(rc)));
     }
 }

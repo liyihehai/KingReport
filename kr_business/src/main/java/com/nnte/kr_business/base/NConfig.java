@@ -14,8 +14,6 @@ public abstract class NConfig implements KRConfigInterface{
     private String reportFileRoot;          //报表EXCEL文件根目录
     private String ExpotExcelTmpRoot;       //数据导出Excel文件的tmp根目录
 
-    public abstract String getConfig(String key);
-
     @Override
     public String getLocalHostName() {
         return LocalHostName;

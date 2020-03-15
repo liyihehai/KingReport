@@ -1,17 +1,20 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.entity.TKeyValue;
-import com.nnte.framework.utils.*;
+import com.nnte.framework.utils.DateUtils;
+import com.nnte.framework.utils.FileUtil;
+import com.nnte.framework.utils.NumberUtil;
+import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.KRConfigInterface;
-import com.nnte.kr_business.base.Office2PDF;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.*;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
@@ -20,6 +23,8 @@ import com.nnte.kr_business.mapper.workdb.merchant.gendetail.MerchantReportGende
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,27 +51,12 @@ public class AutoReportServerComponent extends BaseComponent {
     private AutoReportGenDetailComponent autoReportGenDetailComponent;
     @Autowired
     private AutoReportRecComponent autoReportRecComponent;
+    @Autowired
+    private FdfsClientMgrComponent fdfsClientMgrComponent;
 
     @Autowired
     @ConfigLoad
     public KRConfigInterface config;
-
-    public Map<String,Object> convertPDF(String srcFile){
-        Map<String, Object> ret = BaseNnte.newMapRetObj();
-        String url=config.getConfig("converPDFUrl");
-        if (StringUtils.isEmpty(url)){
-            BaseNnte.setRetFalse(ret,1002,"没有取得PDF转换服务器的配置");
-            return ret;
-        }
-        url+="?srcFileName="+UrlEncodeUtil.UrlEncode(srcFile);
-        String retJson=HttpUtil.sendPost(url,"");
-        if (StringUtils.isEmpty(retJson)){
-            BaseNnte.setRetFalse(ret,1002,"没有取得PDF转换的结果");
-            return ret;
-        }
-        ret=JsonUtil.getMap4Json(retJson);
-        return ret;
-    }
 
     //monthCount>=1 ,表示指定日期向后推算的月数
     public static String getNextMonth(Date date,int monthCount){
@@ -480,17 +470,6 @@ public class AutoReportServerComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"产生报表文件成功");
         return ret;
     }
-    //产生报表生成文件的文件名
-    public String genReportOutFileName(ReportControl rc, XSSFWorkbookAndOPC wao){
-        StringBuilder builder=new StringBuilder();
-        builder.append("KingReport_").append(rc.getReportCode()).append("_")
-        .append(rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.PERIOD_NO));
-        Object cutKey=rc.getReportDataEnv().get(AutoReportQueryComponent.ResKeyWord.CUT_KEY);
-        if (cutKey!=null)
-            builder.append("_").append(cutKey);
-        builder.append(".").append(wao.getFileType());//保存为excel文件
-        return builder.toString();
-    }
 
     //产生一张具体的报表
     public Map<String, Object> genReportFile(BaseMerchantOperator operator,ConnSqlSessionFactory cssf,List<MerchantReportQuery> queryList,ReportControl rc){
@@ -511,15 +490,13 @@ public class AutoReportServerComponent extends BaseComponent {
             rc.getReportDataEnv().put(query.getQueryCode(),retQuery.get("rows"));
         }
         //数据生成后按报表控制进行数据输出
-        if (StringUtils.isEmpty(rc.getReportDefine().getTemplateFile())){
-            BaseNnte.setRetFalse(ret, 1002,"没有输出的模板文件");
-            return ret;//没有输出的模板文件
-        }
-        String tempPath=this.autoReportComponent.getReportTemplateAbPath(rc.getReportDefine());
-        String fn=StringUtils.pathAppend(tempPath,rc.getReportDefine().getTemplateFile());
+        //从文件服务器下载模板文件,生成临时文件----
+        String fn=downloadReportTemplateFile(rc.getReportDefine());
+        //---------------------------------------
         XSSFWorkbookAndOPC wao=autoReportExcelComponent.openExcelTemplate(fn);
         if (wao==null){
             BaseNnte.setRetFalse(ret, 1002,"不能按模板文件生成报表文件");
+            FileUtil.deleteFile(fn);
             return ret;//不能按模板文件生成报表文件
         }
         String outfn=null;
@@ -528,25 +505,33 @@ public class AutoReportServerComponent extends BaseComponent {
             //--文件已打开，进行数据输出-----------
             autoReportExcelComponent.outputDataToReportFile(wao, rc);
             //--数据输出结束，保存文件-------------
-            String reportPath = autoReportComponent.getReportOutFileAbPath(rc);
-            outfn = genReportOutFileName(rc, wao);
-            outpfn = autoReportExcelComponent.saveExcelFile(wao, reportPath, outfn); //返回报表文件的绝对路径
+            outfn = FileUtil.genTmpFileName(FileUtil.getExtention(fn));
+            outpfn = autoReportExcelComponent.saveExcelFile(wao, outfn); //返回报表文件的绝对路径
         }catch (Exception e){
             e.printStackTrace();
             BaseNnte.setRetFalse(ret, 9999,"向Excel文件输出数据时异常");
             autoReportExcelComponent.closeExcelTemplate(wao);
+            FileUtil.deleteFile(fn);
             return ret;
         }
         autoReportExcelComponent.closeExcelTemplate(wao);
+        FileUtil.deleteFile(fn);
         //Excel文件生成成功，生成响应的PDF文件
-        Map converMap=convertPDF(outpfn);
+        //Map converMap=convertPDF(outpfn);
+        //--本地转换改为通过服务器转换并提交文件服务器---
+        Map<String,Object> converMap=KingReportComponent.convExcelToPdf(config.getConfig("convPdfUrl"),
+                config.getConfig("convPdfType"),outfn);
+        FileUtil.deleteFile(outfn);//删除临时生成的Excel文件
+        //--------------------------------------------
         if (!BaseNnte.getRetSuc(converMap)){
             BaseNnte.setRetFalse(ret, 1002,"Excel文件生成PDF文件失败("+converMap.get("msg")+")");
             return ret;
         }
-        ret.put("pdfFileName",converMap.get("converMap"));
+        String pdfFile=StringUtils.defaultString(converMap.get("pdfFile"));
+        String officeFile=StringUtils.defaultString(converMap.get("officeFile"));
+        ret.put("pdfFileName",pdfFile);
         //文件保存结束，记录报表生成明细-------
-        Map<String,Object> genMap=autoReportGenDetailComponent.saveReportGenDetail(cssf,operator,rc,outfn,outpfn,createStartTime);
+        Map<String,Object> genMap=autoReportGenDetailComponent.saveReportGenDetail(cssf,operator,rc,officeFile,pdfFile,createStartTime);
         if (!BaseNnte.getRetSuc(genMap))
             return genMap;
         MerchantReportGendetail gendetail=(MerchantReportGendetail)genMap.get("gendetail");
@@ -598,5 +583,26 @@ public class AutoReportServerComponent extends BaseComponent {
         ret.put("merchantReportRec",mmr);
         BaseNnte.setRetTrue(ret,"获取数据成功");
         return ret;
+    }
+    //下载报表模板文件，生成临时文件，返回临时文件路径文件名
+    public String downloadReportTemplateFile(MerchantReportDefine mrd){
+        if (mrd==null || StringUtils.isEmpty(mrd.getTemplateFile()) ||
+                StringUtils.isEmpty(mrd.getTempfileCollect()))
+            return null;
+        JSONArray jarray=JSONArray.fromObject(mrd.getTempfileCollect());
+        if (jarray==null || jarray.size()<=0)
+            return null;
+        String fileName=mrd.getTemplateFile();
+        for(int i=0;i<jarray.size();i++){
+            TemplateItem ti= (TemplateItem) JSONObject.toBean(jarray.getJSONObject(i),TemplateItem.class);
+            if (ti.getFileName().equals(fileName)){
+                byte[] content=fdfsClientMgrComponent.downloadFile(config.getConfig("reportTemplate"),
+                        ti.getSubmitName());
+                if (content!=null){
+                    return FileUtil.saveBufToTmpFile(content,FileUtil.getExtention(fileName));
+                }
+            }
+        }
+        return null;
     }
 }

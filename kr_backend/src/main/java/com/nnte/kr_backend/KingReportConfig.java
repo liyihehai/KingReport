@@ -1,5 +1,6 @@
 package com.nnte.kr_backend;
 
+import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.SpringContextHolder;
 import com.nnte.kr_business.annotation.DBSrcTranc;
@@ -29,8 +30,12 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
     private String workDBSchema;
     private String workDBUser;
     private String workDBPassword;
-    //PDF文件转换服务器配置
-    private String converPDFUrl;
+
+    //文件服务器配置
+    private String fileSysUrl;
+    private String templateType;
+    private String convPdfUrl;
+    private String convPdfType;
 
     public String getWorkDBDriverClassName() {
         return workDBDriverClassName;
@@ -80,21 +85,6 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
         this.workDBPassword = workDBPassword;
     }
 
-    public String getConverPDFUrl() {
-        return converPDFUrl;
-    }
-
-    public void setConverPDFUrl(String converPDFUrl) {
-        this.converPDFUrl = converPDFUrl;
-    }
-
-    @Override
-    public String getConfig(String key) {
-        if (key.equals("converPDFUrl"))
-            return converPDFUrl;
-        return null;
-    }
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         appInit();
@@ -111,7 +101,10 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
         JedisCom jedisCom = SpringContextHolder.getBean("jedisCom");
         BaseNnte.outConsoleLog("初始化JedisCom组件......");
         jedisCom.initJedisCom();
-
+        //--初始化文件服务器连接--
+        FdfsClientMgrComponent fdfsClientMgrComponent = SpringContextHolder.getBean("fdfsClientMgrComponent");
+        fdfsClientMgrComponent.runFdfsClientMgr(null);
+        //------------------------
         BaseNnte.outConsoleLog("初始化工作数据库连接......");
         HikariConfig config = new HikariConfig();
         config.setDriverClassName(Config.getWorkDBDriverClassName());
@@ -129,5 +122,37 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
         BaseNnte.outConsoleLog("初始化工作数据库连接数据源......");
         ddh.initDataBaseSource(DBSrcTranc.Work_DBSrc_Name,config,mappers,true);
         BaseNnte.outConsoleLog("KingReport Backend main......end");
+    }
+
+    public String getFileSysUrl() {
+        return fileSysUrl;
+    }
+
+    public void setFileSysUrl(String fileSysUrl) {
+        this.fileSysUrl = fileSysUrl;
+    }
+
+    public String getTemplateType() {
+        return templateType;
+    }
+
+    public void setTemplateType(String templateType) {
+        this.templateType = templateType;
+    }
+
+    public String getConvPdfUrl() {
+        return convPdfUrl;
+    }
+
+    public void setConvPdfUrl(String convPdfUrl) {
+        this.convPdfUrl = convPdfUrl;
+    }
+
+    public String getConvPdfType() {
+        return convPdfType;
+    }
+
+    public void setConvPdfType(String convPdfType) {
+        this.convPdfType = convPdfType;
     }
 }

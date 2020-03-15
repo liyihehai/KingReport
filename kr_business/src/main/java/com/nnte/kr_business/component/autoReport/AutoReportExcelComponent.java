@@ -1,10 +1,13 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.utils.FileUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
+import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.base.BaseComponent;
+import com.nnte.kr_business.base.KRConfigInterface;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.entity.autoReport.ReportControlCircle;
 import com.nnte.kr_business.entity.autoReport.ReportControlCircleItem;
@@ -15,6 +18,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -28,6 +32,12 @@ import java.util.regex.Pattern;
 
 @Component
 public class AutoReportExcelComponent extends BaseComponent {
+    @Autowired
+    private FdfsClientMgrComponent fdfsClientMgrComponent;
+    @Autowired
+    @ConfigLoad
+    public KRConfigInterface config;
+
     public XSSFWorkbookAndOPC openExcelTemplate(String templateFile) {
         try {
             XSSFWorkbookAndOPC WbAndOpc= new XSSFWorkbookAndOPC();
@@ -45,18 +55,16 @@ public class AutoReportExcelComponent extends BaseComponent {
         }
         return null;
     }
-    //将打开的文件进行保存
-    public String saveExcelFile(XSSFWorkbookAndOPC wao,String fpath,String excelFile){
+    //将打开的文件进行保存,上传到文件服务器，返回文件ID
+    public String saveExcelFile(XSSFWorkbookAndOPC wao,String excelFile){
         try {
-            if (!FileUtil.isPathExists(fpath))
-                FileUtil.makeDirectory(fpath);
-            String pathFile=StringUtils.pathAppend(fpath,excelFile);
-            FileOutputStream fos = new FileOutputStream(new File(pathFile));
+            FileOutputStream fos = new FileOutputStream(new File(excelFile));
             if (fos!=null){
                 wao.getWb().write(fos);
                 fos.flush();
                 fos.close();
-                return pathFile;
+                //将文件上传到文件服务器保存，返回文件ID
+                return fdfsClientMgrComponent.uploadFile(config.getConfig("reportConvPdf"),excelFile);
             }
         } catch (IOException e) {
             e.printStackTrace();

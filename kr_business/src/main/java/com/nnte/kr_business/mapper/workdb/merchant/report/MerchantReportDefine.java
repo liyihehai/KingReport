@@ -4,7 +4,7 @@ import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2019-09-26 07:03:33>
+ * 自动代码 请勿更改 <2020-03-12 11:02:51>
  */
 public class MerchantReportDefine extends BaseModel {
     @DBPKColum private Long id;
@@ -16,6 +16,7 @@ public class MerchantReportDefine extends BaseModel {
     private String reportPeriod;
     private Date startDate;
     private String templateFile;
+    private String tempfileCollect;
     private Integer reportState;
     private Date createTime;
     private Long createOperId;
@@ -52,6 +53,8 @@ public class MerchantReportDefine extends BaseModel {
     public void setStartDate(Date  startDate){ this.startDate = startDate;}
     public String  getTemplateFile(){ return templateFile;}
     public void setTemplateFile(String  templateFile){ this.templateFile = templateFile;}
+    public String  getTempfileCollect(){ return tempfileCollect;}
+    public void setTempfileCollect(String  tempfileCollect){ this.tempfileCollect = tempfileCollect;}
     public Integer  getReportState(){ return reportState;}
     public void setReportState(Integer  reportState){ this.reportState = reportState;}
     public Date  getCreateTime(){ return createTime;}

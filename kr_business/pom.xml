@@ -180,6 +180,11 @@
             <artifactId>nnte_Framework</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.nnte.kservice</groupId>
+            <artifactId>fdfs_client_mgr</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
