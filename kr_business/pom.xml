@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.nnte.kingreport</groupId>
     <artifactId>kr_business</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>kr_business</name>
     <description>nnte king report business model for Spring Boot</description>
     <repositories>
@@ -178,12 +178,12 @@
         <dependency>
             <groupId>com.nnte</groupId>
             <artifactId>nnte_Framework</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.nnte.kservice</groupId>
             <artifactId>fdfs_client_mgr</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
