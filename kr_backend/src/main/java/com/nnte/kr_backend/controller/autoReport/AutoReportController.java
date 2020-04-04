@@ -1,5 +1,6 @@
 package com.nnte.kr_backend.controller.autoReport;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.KeyValue;
@@ -15,8 +16,6 @@ import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.rec.MerchantReportRec;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -100,14 +99,14 @@ public class AutoReportController extends BaseController {
         BaseNnte.setParamMapDataEnv(request,map);
         BaseMerchant merchant= KingReportComponent.getLoginMerchantFromRequest(request);
         List<KeyValue> LibReportClass = autoReportQueryComponent.getMerchantCutFlagQuerys(merchant.getParMerchantId(),null);
-        map.put("LibReportClass",JsonUtil.getJsonString4JavaList(LibReportClass,DateUtils.DF_YMDHMS));
+        map.put("LibReportClass",JsonUtil.beanToJson(LibReportClass));
         map.put("LibReportClassOption",getKeyValListOption(LibReportClass,null));
-        map.put("LibReportPeriod",JsonUtil.getJsonString4JavaList(DataLibrary.getLibKeyValueList("LibReportPeriod"),DateUtils.DF_YMDHMS));
+        map.put("LibReportPeriod",JsonUtil.beanToJson(DataLibrary.getLibKeyValueList("LibReportPeriod")));
         map.put("LibReportPeriodOption",getKeyValListOption(DataLibrary.getLibKeyValueList("LibReportPeriod"),DateUtils.DF_YMDHMS));
-        map.put("LibReportState",JsonUtil.getJsonString4JavaList(DataLibrary.getLibKeyValueList("LibReportState"),DateUtils.DF_YMDHMS));
+        map.put("LibReportState",JsonUtil.beanToJson(DataLibrary.getLibKeyValueList("LibReportState")));
         //取商户报表业务分类,从系统参数中取得
         List<KeyValue> LibReportBusiType=sysParamComponent.getMerchantMulKVParams(merchant.getParMerchantId(),"SYSPARAM_MERCHANT_REPORT_BUSI_TYPE");
-        map.put("LibReportBusiType",JsonUtil.getJsonString4JavaList(LibReportBusiType,DateUtils.DF_YMDHMS));
+        map.put("LibReportBusiType",JsonUtil.beanToJson(LibReportBusiType));
         map.put("LibReportBusiTypeOption",getKeyValListOption(LibReportBusiType,null));
         modelAndView.addObject("map", map);
         return modelAndView;
@@ -164,30 +163,31 @@ public class AutoReportController extends BaseController {
     @RequestMapping("/saveMerchantReportDefine")
     @ResponseBody
     public Map<String, Object> saveMerchantReportDefine(HttpServletRequest request,
-                                                        @RequestBody JSONObject jsonParam){
+                                                        @RequestBody JsonNode jsonParam){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
+        JsonUtil.JNode node=JsonUtil.createJNode(jsonParam);
         if (jsonParam==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(空)");
             return ret;
         }
         Map<String,Object> pMap=new HashMap<>();
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportCode")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(node.get("reportCode")),
                 "reportCode",pMap, ret,1002,"参数错误(报表代码未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportName")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(node.get("reportName")),
                 "reportName",pMap, ret,1002,"参数错误(报表名称未设置)"))
             return ret;
         //报表分割可以不设置
-        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportClass")),
+        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(node.get("reportClass")),
                 "reportClass",pMap, ret,1002,"参数错误(报表分割未设置)");
         //-----------------
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportYWType")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(node.get("reportYWType")),
                 "reportBusiType",pMap, ret,1002,"参数错误(业务分级未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportPeriod")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(node.get("reportPeriod")),
                 "reportPeriod",pMap, ret,1002,"参数错误(报表周期未设置)"))
             return ret;
-        String startDate=StringUtils.defaultString(jsonParam.get("startDate"));
+        String startDate=StringUtils.defaultString(node.get("startDate"));
         Date sd = DateUtils.stringToDate(startDate,"yyyy-MM-dd");
         if (sd==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(开始日期未设置)");
@@ -239,10 +239,10 @@ public class AutoReportController extends BaseController {
         Integer count = NumberUtil.getDefaultInteger(loadMap.get("count"));
         List<MerchantReportDefine> lists = (List<MerchantReportDefine>)loadMap.get("list");
         if (lists!=null)
-            printLoadListMsg(response,sEcho+1,count, JsonUtil.getJsonString4JavaList(lists,DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho+1,count, JsonUtil.beanToJson(lists));
         else {
             lists = new ArrayList<>();
-            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.getJsonString4JavaList(lists, DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.beanToJson(lists));
         }
     }
 
@@ -271,12 +271,12 @@ public class AutoReportController extends BaseController {
                     merchantReportDefine.getParMerchantId(),merchantReportDefine.getReportClass());
             if (mrq!=null) {
                 ret.put("cutTypeName", mrq.getCutTypeName());
-                JSONArray jarray=JsonUtil.getJsonArray4Json(mrq.getQuerySqlCols());
+                List<JsonNode> jarray=JsonUtil.jsonToNodeArray(mrq.getQuerySqlCols());
                 if (jarray!=null){
                     List<String> colNameList=new ArrayList<>();
                     for (int i=0;i<jarray.size();i++){
-                        JSONObject jobj=jarray.getJSONObject(i);
-                        colNameList.add(jobj.get("colName").toString());
+                        JsonNode jobj=jarray.get(i);
+                        colNameList.add(jobj.get("colName").textValue());
                     }
                     ret.put("cutColNameList", colNameList);
                 }

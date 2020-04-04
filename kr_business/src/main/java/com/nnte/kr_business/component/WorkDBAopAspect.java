@@ -2,8 +2,8 @@ package com.nnte.kr_business.component;
 
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
+import com.nnte.framework.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.annotation.DBSrcTranc;
-import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

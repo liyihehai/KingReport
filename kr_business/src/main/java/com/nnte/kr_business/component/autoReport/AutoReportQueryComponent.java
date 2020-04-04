@@ -1,5 +1,6 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.framework.annotation.DBSchemaInterface;
 import com.nnte.framework.annotation.DataLibItem;
 import com.nnte.framework.annotation.DataLibType;
@@ -7,6 +8,7 @@ import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.base.DBSchemaColum;
+import com.nnte.framework.base.DynamicDatabaseSourceHolder;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
@@ -17,7 +19,6 @@ import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
-import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
@@ -27,7 +28,6 @@ import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQueryService;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefineService;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -235,14 +235,14 @@ public class AutoReportQueryComponent extends BaseComponent {
     }
     //取得分割查询字段的类型：Integer,Long,String,Date,Float,Double(?)
     public String getCutFieldType(MerchantReportQuery cutQuery,String fieldName){
-        JSONArray jarray=JsonUtil.getJsonArray4Json(cutQuery.getQuerySqlCols());
+        List<JsonNode> jarray=JsonUtil.jsonToNodeArray(cutQuery.getQuerySqlCols());
         if (jarray!=null){
             for(int i=0;i<jarray.size();i++){
-                JSONObject jobj=jarray.getJSONObject(i);
-                if (jobj!=null && jobj.get("colName").equals(fieldName)){
-                    Object dataType=jobj.get("dataType");
+                JsonNode jobj=jarray.get(i);
+                if (jobj!=null && jobj.get("colName").textValue().equals(fieldName)){
+                    JsonNode dataType=jobj.get("dataType");
                     if (dataType!=null)
-                        return dataType.toString();
+                        return dataType.textValue();
                     break;
                 }
             }
@@ -319,7 +319,7 @@ public class AutoReportQueryComponent extends BaseComponent {
         MerchantReportQuery updateDto=new MerchantReportQuery();
         updateDto.setId(dto.getId());
         updateDto.setQuerySql(sSql);
-        String cols= JsonUtil.getJsonString4JavaList(listCol,"");
+        String cols= JsonUtil.beanToJson(listCol);
         updateDto.setQuerySqlCols(cols);
         MerchantReportQuery retDto=merchantReportQueryService.save(cssf,updateDto,false);
         if (retDto==null){

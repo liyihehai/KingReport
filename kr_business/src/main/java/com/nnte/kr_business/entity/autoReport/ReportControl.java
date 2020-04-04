@@ -31,4 +31,14 @@ public class ReportControl {
     public void setReportDefine(MerchantReportDefine reportDefine) {
         this.reportDefine = reportDefine;
     }
+    /**
+     * 装载报表输出控制
+     * [{},......]
+     * */
+    public void loadControl(){
+
+    }
+    public String circleListToJson(){
+        return circleList.toString();
+    }
 }

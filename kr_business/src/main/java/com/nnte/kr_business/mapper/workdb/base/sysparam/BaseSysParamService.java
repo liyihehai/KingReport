@@ -1,7 +1,7 @@
 package com.nnte.kr_business.mapper.workdb.base.sysparam;
 
+import com.nnte.framework.base.BaseService;
 import com.nnte.framework.base.ConnSqlSessionFactory;
-import com.nnte.kr_business.base.BaseService;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
 import org.springframework.stereotype.Component;
 

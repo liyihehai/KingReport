@@ -1,5 +1,6 @@
 package com.nnte.kr_business.mapper.workdb.merchant.dbconn;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nnte.framework.annotation.DBPKColum;
 import com.nnte.framework.base.BaseModel;
 
@@ -19,9 +20,11 @@ public class MerchantDbconnectDefine extends BaseModel {
     private String dbUser;
     private String dbPassword;
     private Integer connState;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
     private Long createOperId;
     private String createOperName;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     public MerchantDbconnectDefine(){}

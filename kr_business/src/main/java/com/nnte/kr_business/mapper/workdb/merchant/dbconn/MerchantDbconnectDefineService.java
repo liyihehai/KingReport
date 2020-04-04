@@ -1,7 +1,7 @@
 package com.nnte.kr_business.mapper.workdb.merchant.dbconn;
 
+import com.nnte.framework.base.BaseService;
 import com.nnte.framework.base.ConnSqlSessionFactory;
-import com.nnte.kr_business.base.BaseService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

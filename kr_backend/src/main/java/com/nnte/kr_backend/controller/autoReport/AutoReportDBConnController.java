@@ -1,8 +1,8 @@
 package com.nnte.kr_backend.controller.autoReport;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.entity.KeyValue;
-import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
@@ -11,7 +11,6 @@ import com.nnte.kr_business.component.autoReport.AutoReportDBConnComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.merchant.dbconn.MerchantDbconnectDefine;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,7 +21,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @Controller
@@ -37,9 +39,9 @@ public class AutoReportDBConnController extends BaseController {
         Map<String,Object> map=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,map);
         BaseMerchant merchant= KingReportComponent.getLoginMerchantFromRequest(request);
-        map.put("LibReportDBConnState", JsonUtil.getJsonString4JavaList(AutoReportDBConnComponent.LibReportDBConnState, DateUtils.DF_YMDHMS));
+        map.put("LibReportDBConnState", JsonUtil.beanToJson(AutoReportDBConnComponent.LibReportDBConnState));
         List<KeyValue> LibDBConnType=autoReportDBConnComponent.getLibDBConnType();
-        map.put("LibDBConnType", JsonUtil.getJsonString4JavaList(LibDBConnType, DateUtils.DF_YMDHMS));
+        map.put("LibDBConnType", JsonUtil.beanToJson(LibDBConnType));
         map.put("LibDBConnTypeOption",getKeyValListOption(LibDBConnType,null));
         modelAndView.addObject("map", map);
         return modelAndView;
@@ -101,42 +103,43 @@ public class AutoReportDBConnController extends BaseController {
         Integer count = NumberUtil.getDefaultInteger(loadMap.get("count"));
         List<MerchantDbconnectDefine> lists = (List<MerchantDbconnectDefine>)loadMap.get("list");
         if (lists!=null)
-            printLoadListMsg(response,sEcho+1,count, JsonUtil.getJsonString4JavaList(lists,DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho+1,count, JsonUtil.beanToJson(lists));
         else {
             lists = new ArrayList<>();
-            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.getJsonString4JavaList(lists, DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.beanToJson(lists));
         }
     }
 
 
     @RequestMapping("/saveReportDBconn")
     @ResponseBody
-    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JSONObject jsonParam){
+    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JsonNode jsonParam){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
         if (jsonParam==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(空)");
             return ret;
         }
+        JsonUtil.JNode jNode=JsonUtil.createJNode(jsonParam);
         Map<String,Object> pMap=new HashMap<>();
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("connCode")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("connCode")),
                 "connCode",pMap, ret,1002,"参数错误(连接代码未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("connName")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("connName")),
                 "connName",pMap, ret,1002,"参数错误( 连接名称未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbType")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbType")),
                 "dbType",pMap, ret,1002,"参数错误(数据库类型未设置)"))
             return ret;
-        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbIp")),
+        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbIp")),
                 "dbIp",pMap, ret,1002,"参数错误(数据库IP未设置)");
-        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbPort")),
+        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbPort")),
                 "dbPort",pMap, ret,1002,"参数错误(数据库端口未设置)");
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbSchema")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbSchema")),
                 "dbSchema",pMap, ret,1002,"参数错误(数据库名未设置)"))
             return ret;
-        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbUser")),
+        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbUser")),
                 "dbUser",pMap, ret,1002,"参数错误(数据库用户名未设置)");
-        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("dbPassword")),
+        BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("dbPassword")),
                 "dbPassword",pMap, ret,1002,"参数错误(数据库密码未设置)");
         BaseNnte.setParamMapDataEnv(request,pMap);
         ret=autoReportDBConnComponent.saveReportDBconn(pMap);

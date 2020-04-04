@@ -1,5 +1,6 @@
 package com.nnte.kr_backend.controller.autoReport;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.DateUtils;
@@ -13,7 +14,6 @@ import com.nnte.kr_business.component.autoReport.AutoReportQueryComponent;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,15 +43,16 @@ public class AutoReportQueryController extends BaseController {
         Map<String,Object> map=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,map);
         BaseMerchant merchant= KingReportComponent.getLoginMerchantFromRequest(request);
-        map.put("LibReportQueryType", JsonUtil.getJsonString4JavaList(AutoReportQueryComponent.LibReportQueryType, DateUtils.DF_YMDHMS));
+
+        map.put("LibReportQueryType", JsonUtil.beanToJson(AutoReportQueryComponent.LibReportQueryType));
         map.put("LibReportQueryTypeOption",getKeyValListOption(AutoReportQueryComponent.LibReportQueryType,null));
         List<KeyValue> LibMerchantReport=autoReportComponent.getUsedReportsByMerchantKV(merchant.getParMerchantId());
-        map.put("LibMerchantReport", JsonUtil.getJsonString4JavaList(LibMerchantReport, DateUtils.DF_YMDHMS));
+        map.put("LibMerchantReport", JsonUtil.beanToJson(LibMerchantReport));
         map.put("LibMerchantReportOption",getKeyValListOption(LibMerchantReport,null));
         List<KeyValue> LibReportDBConn=autoReportDBConnComponent.getUsedReportDBConnsKV(merchant.getParMerchantId());
-        map.put("LibReportDBConn", JsonUtil.getJsonString4JavaList(LibReportDBConn,DateUtils.DF_YMDHMS));
+        map.put("LibReportDBConn", JsonUtil.beanToJson(LibReportDBConn));
         map.put("LibReportDBConnOption",getKeyValListOption(LibReportDBConn,null));
-        map.put("LibReportQueryCutFlag", JsonUtil.getJsonString4JavaList(AutoReportQueryComponent.LibReportQueryCutFlag,DateUtils.DF_YMDHMS));
+        map.put("LibReportQueryCutFlag", JsonUtil.beanToJson(AutoReportQueryComponent.LibReportQueryCutFlag));
         map.put("LibReportQueryCutFlagOption",getKeyValListOption(AutoReportQueryComponent.LibReportQueryCutFlag,null));
         modelAndView.addObject("map", map);
         return modelAndView;
@@ -126,16 +127,16 @@ public class AutoReportQueryController extends BaseController {
         Integer count = NumberUtil.getDefaultInteger(loadMap.get("count"));
         List<MerchantReportQuery> lists = (List<MerchantReportQuery>)loadMap.get("list");
         if (lists!=null)
-            printLoadListMsg(response,sEcho+1,count, JsonUtil.getJsonString4JavaList(lists,DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho+1,count, JsonUtil.beanToJson(lists));
         else {
             lists = new ArrayList<>();
-            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.getJsonString4JavaList(lists, DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.beanToJson(lists));
         }
     }
 
     @RequestMapping("/saveReportQuery")
     @ResponseBody
-    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JSONObject jsonParam){
+    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JsonNode jsonParam){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
         if (jsonParam==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(空)");
@@ -187,7 +188,7 @@ public class AutoReportQueryController extends BaseController {
     @RequestMapping("/saveQueryBodySet")
     @ResponseBody
     public Map<String, Object> saveQueryBodySet(HttpServletRequest request,
-                                               @RequestBody JSONObject jsonParam){
+                                               @RequestBody JsonNode jsonParam){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
         Map<String,Object> pMap=new HashMap<>();
         if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("queryCode")),

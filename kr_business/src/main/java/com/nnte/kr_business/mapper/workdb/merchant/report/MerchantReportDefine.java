@@ -1,10 +1,11 @@
 package com.nnte.kr_business.mapper.workdb.merchant.report;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nnte.framework.base.BaseModel;
 import com.nnte.framework.annotation.DBPKColum;
 
 import java.util.Date;
 /*
- * 自动代码 请勿更改 <2020-03-12 11:02:51>
+ * 自动代码 请勿更改 <2020-03-30 19:05:53>
  */
 public class MerchantReportDefine extends BaseModel {
     @DBPKColum private Long id;
@@ -14,18 +15,25 @@ public class MerchantReportDefine extends BaseModel {
     private String reportClass;
     private String reportBusiType;
     private String reportPeriod;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date startDate;
     private String templateFile;
     private String tempfileCollect;
+    private String outputControl;
     private Integer reportState;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
     private Long createOperId;
     private String createOperName;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date opeTime;
     private Integer opeNum;
     private Integer reportPeriodNo;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date startTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date endTime;
     private String opeMsg;
     private String cutKeyField;
@@ -55,6 +63,8 @@ public class MerchantReportDefine extends BaseModel {
     public void setTemplateFile(String  templateFile){ this.templateFile = templateFile;}
     public String  getTempfileCollect(){ return tempfileCollect;}
     public void setTempfileCollect(String  tempfileCollect){ this.tempfileCollect = tempfileCollect;}
+    public String  getOutputControl(){ return outputControl;}
+    public void setOutputControl(String  outputControl){ this.outputControl = outputControl;}
     public Integer  getReportState(){ return reportState;}
     public void setReportState(Integer  reportState){ this.reportState = reportState;}
     public Date  getCreateTime(){ return createTime;}

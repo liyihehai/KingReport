@@ -1,4 +1,5 @@
 package com.nnte.kr_business.mapper.workdb.merchant.query;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nnte.framework.base.BaseModel;
 import com.nnte.framework.annotation.DBPKColum;
 
@@ -19,9 +20,11 @@ public class MerchantReportQuery extends BaseModel {
     private Integer maxRowCount;
     private String querySql;
     private String querySqlCols;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date createTime;
     private Long createOperId;
     private String createOperName;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date updateTime;
 
     public MerchantReportQuery(){}

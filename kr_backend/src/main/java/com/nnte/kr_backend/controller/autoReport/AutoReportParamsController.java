@@ -43,7 +43,7 @@ public class AutoReportParamsController extends BaseController {
         Map<String,Object> map=new HashMap<>();
         BaseNnte.setParamMapDataEnv(request,map);
         List<KeyValue> LibBusiTypeState=AutoReportParamsComponent.LibBusiTypeState;
-        map.put("LibBusiTypeState", JsonUtil.getJsonString4JavaList(LibBusiTypeState, DateUtils.DF_YMDHMS));
+        map.put("LibBusiTypeState", JsonUtil.beanToJson(LibBusiTypeState));
         Map<String,Object> mrpMap=autoReportParamsComponent.getMerchantReportPeriod(map);
         map.put("rps",mrpMap.get("rps"));
         modelAndView.addObject("map", map);
@@ -65,10 +65,10 @@ public class AutoReportParamsController extends BaseController {
         Integer count = NumberUtil.getDefaultInteger(loadMap.get("count"));
         List<ReportBusiType> lists = (List<ReportBusiType>)loadMap.get("list");
         if (lists!=null)
-            printLoadListMsg(response,sEcho+1,count, JsonUtil.getJsonString4JavaList(lists, DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho+1,count, JsonUtil.beanToJson(lists));
         else {
             lists = new ArrayList<>();
-            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.getJsonString4JavaList(lists, DateUtils.DF_YMDHMS));
+            printLoadListMsg(response,sEcho + 1, 0, JsonUtil.beanToJson(lists));
         }
     }
 

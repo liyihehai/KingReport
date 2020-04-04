@@ -18,7 +18,6 @@ import com.nnte.kr_business.base.BaseComponent;
 import com.nnte.kr_business.base.NConfig;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
-import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.entity.autoReport.ReportControlCircle;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;

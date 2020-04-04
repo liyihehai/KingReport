@@ -1,9 +1,9 @@
 package com.nnte.kr_backend.controller;
 
 import com.nnte.framework.base.BaseNnte;
+import com.nnte.framework.base.DynamicDatabaseSourceHolder;
 import com.nnte.framework.utils.HttpUtil;
 import com.nnte.kr_business.annotation.ConfigLoad;
-import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.base.KRConfigInterface;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

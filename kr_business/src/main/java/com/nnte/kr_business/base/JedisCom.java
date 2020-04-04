@@ -1,11 +1,10 @@
 package com.nnte.kr_business.base;
 
 import com.nnte.framework.base.NameLock;
+import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.SerializeUtil;
 import com.nnte.framework.utils.ThreadUtil;
 import com.nnte.kr_business.annotation.ConfigLoad;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,7 +212,7 @@ public class JedisCom {
         Jedis jedis=null;
         try {
             jedis = pool.getResource();
-            r = jedis.setex(key, seconds, JSONObject.fromObject(o).toString());
+            r = jedis.setex(key, seconds,JsonUtil.beanToJson(o));
         } catch (Exception e) {
             e.printStackTrace();
         } finally{
@@ -237,8 +236,7 @@ public class JedisCom {
         }
         if (json!=null)
             try {
-                JSONObject jsonObject = JSONObject.fromObject(json);
-                return (T)JSONObject.toBean(jsonObject,pojoCalss);
+                return JsonUtil.jsonToBean(json,pojoCalss);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -250,8 +248,7 @@ public class JedisCom {
         Jedis jedis=null;
         try {
             jedis = pool.getResource();
-            JSONArray arrayObject = JSONArray.fromObject(o);
-            r = jedis.setex(key, seconds, arrayObject.toString());
+            r = jedis.setex(key, seconds,JsonUtil.beanToJson(o));
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
@@ -261,7 +258,7 @@ public class JedisCom {
         return r;
     }
 
-    public <T> List<T> getObjList(String key, Class<T> pojoCalss){
+    public <T> List<T> getObjList(String key){
         String json = null;
         Jedis jedis=null;
         try {
@@ -275,8 +272,8 @@ public class JedisCom {
         }
         if (json != null)
             try {
-                JSONArray arrayObject = JSONArray.fromObject(json);
-                return (List<T>) JSONArray.toArray(arrayObject, pojoCalss);
+                List<T> tmpList=new ArrayList<>();
+                return JsonUtil.jsonToBean(json,tmpList.getClass());
             } catch (Exception e) {
                 e.printStackTrace();
             }

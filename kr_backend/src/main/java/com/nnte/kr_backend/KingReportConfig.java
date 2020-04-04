@@ -2,9 +2,9 @@ package com.nnte.kr_backend;
 
 import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.base.BaseNnte;
+import com.nnte.framework.base.DynamicDatabaseSourceHolder;
 import com.nnte.framework.base.SpringContextHolder;
 import com.nnte.kr_business.annotation.DBSrcTranc;
-import com.nnte.kr_business.base.DynamicDatabaseSourceHolder;
 import com.nnte.kr_business.base.JedisCom;
 import com.nnte.kr_business.base.NConfig;
 import com.nnte.kr_business.component.base.KingReportComponent;
@@ -120,7 +120,7 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
         List<String> mappers=new ArrayList<>();
         mappers.add("com.nnte.kr_business.mapper.workdb");
         BaseNnte.outConsoleLog("初始化工作数据库连接数据源......");
-        ddh.initDataBaseSource(DBSrcTranc.Work_DBSrc_Name,config,mappers,true);
+        ddh.initDataBaseSource(DBSrcTranc.Work_DBSrc_Name,config,mappers,KingReportComponent.class,true);
         BaseNnte.outConsoleLog("KingReport Backend main......end");
     }
 

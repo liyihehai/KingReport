@@ -1,6 +1,6 @@
 package com.nnte.kr_business.mapper.workdb.merchant.gendetail;
 
-import com.nnte.kr_business.base.BaseService;
+import com.nnte.framework.base.BaseService;
 import org.springframework.stereotype.Component;
 
 @Component

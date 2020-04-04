@@ -59,7 +59,7 @@ public class ReportPeriodComponent {
                 SysParamComponent.ValCol.VAL_TXT);
         ReportPeriodSetting ret=new ReportPeriodSetting();
         if (StringUtils.isNotEmpty(jsonPeriod)){
-            Object obj= JsonUtil.getObject4JsonString(jsonPeriod,ReportPeriodSetting.class);
+            Object obj= JsonUtil.jsonToBean(jsonPeriod,ReportPeriodSetting.class);
             if (obj!=null){
                 ReportPeriodSetting settingObj=(ReportPeriodSetting) obj;
                 setReportPeriodSetting(settingObj,ret);
@@ -96,7 +96,7 @@ public class ReportPeriodComponent {
             BaseNnte.setRetFalse(ret,1002,"周期参数数值错误");
             return ret;
         }
-        String jsonPeriod=JsonUtil.getJsonStringFromBean(newPeriod);
+        String jsonPeriod=JsonUtil.beanToJson(newPeriod);
         if (StringUtils.isEmpty(jsonPeriod)){
             BaseNnte.setRetFalse(ret,1002,"周期参数对象转换错误");
             return ret;

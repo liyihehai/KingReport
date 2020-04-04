@@ -1,8 +1,8 @@
 package com.nnte.kr_business.mapper.workdb.merchant.report;
 
+import com.nnte.framework.base.BaseService;
 import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.utils.StringUtils;
-import com.nnte.kr_business.base.BaseService;
 import com.nnte.kr_business.entity.autoReport.TemplateItem;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

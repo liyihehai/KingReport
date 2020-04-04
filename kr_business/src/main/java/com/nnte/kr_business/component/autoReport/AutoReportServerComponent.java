@@ -7,6 +7,7 @@ import com.nnte.framework.base.ConnSqlSessionFactory;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.entity.TKeyValue;
+import com.nnte.framework.entity.XSSFWorkbookAndOPC;
 import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.FileUtil;
 import com.nnte.framework.utils.NumberUtil;
@@ -506,7 +507,7 @@ public class AutoReportServerComponent extends BaseComponent {
             autoReportExcelComponent.outputDataToReportFile(wao, rc);
             //--数据输出结束，保存文件-------------
             outfn = FileUtil.genTmpFileName(FileUtil.getExtention(fn));
-            outpfn = autoReportExcelComponent.saveExcelFile(wao, outfn); //返回报表文件的绝对路径
+            outpfn = autoReportExcelComponent.saveExcelFile(wao,config.getConfig("reportConvPdf"), outfn); //返回报表文件的绝对路径
         }catch (Exception e){
             e.printStackTrace();
             BaseNnte.setRetFalse(ret, 9999,"向Excel文件输出数据时异常");
