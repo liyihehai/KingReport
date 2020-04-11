@@ -9,6 +9,8 @@ import com.nnte.kr_business.base.JedisCom;
 import com.nnte.kr_business.base.NConfig;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.zaxxer.hikari.HikariConfig;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,6 +24,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "nnte.kr.conf.kingreport")
 @PropertySource(value = "classpath:nnte-kingreport-config.properties")
 
+@Getter
+@Setter
 public class KingReportConfig extends NConfig implements ApplicationRunner {
     //工作数据库连接配置
     private String workDBDriverClassName;
@@ -36,54 +40,6 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
     private String templateType;
     private String convPdfUrl;
     private String convPdfType;
-
-    public String getWorkDBDriverClassName() {
-        return workDBDriverClassName;
-    }
-
-    public void setWorkDBDriverClassName(String workDBDriverClassName) {
-        this.workDBDriverClassName = workDBDriverClassName;
-    }
-
-    public String getWorkDBIp() {
-        return workDBIp;
-    }
-
-    public void setWorkDBIp(String workDBIp) {
-        this.workDBIp = workDBIp;
-    }
-
-    public String getWorkDBPort() {
-        return workDBPort;
-    }
-
-    public void setWorkDBPort(String workDBPort) {
-        this.workDBPort = workDBPort;
-    }
-
-    public String getWorkDBSchema() {
-        return workDBSchema;
-    }
-
-    public void setWorkDBSchema(String workDBSchema) {
-        this.workDBSchema = workDBSchema;
-    }
-
-    public String getWorkDBUser() {
-        return workDBUser;
-    }
-
-    public void setWorkDBUser(String workDBUser) {
-        this.workDBUser = workDBUser;
-    }
-
-    public String getWorkDBPassword() {
-        return workDBPassword;
-    }
-
-    public void setWorkDBPassword(String workDBPassword) {
-        this.workDBPassword = workDBPassword;
-    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -122,37 +78,5 @@ public class KingReportConfig extends NConfig implements ApplicationRunner {
         BaseNnte.outConsoleLog("初始化工作数据库连接数据源......");
         ddh.initDataBaseSource(DBSrcTranc.Work_DBSrc_Name,config,mappers,KingReportComponent.class,true);
         BaseNnte.outConsoleLog("KingReport Backend main......end");
-    }
-
-    public String getFileSysUrl() {
-        return fileSysUrl;
-    }
-
-    public void setFileSysUrl(String fileSysUrl) {
-        this.fileSysUrl = fileSysUrl;
-    }
-
-    public String getTemplateType() {
-        return templateType;
-    }
-
-    public void setTemplateType(String templateType) {
-        this.templateType = templateType;
-    }
-
-    public String getConvPdfUrl() {
-        return convPdfUrl;
-    }
-
-    public void setConvPdfUrl(String convPdfUrl) {
-        this.convPdfUrl = convPdfUrl;
-    }
-
-    public String getConvPdfType() {
-        return convPdfType;
-    }
-
-    public void setConvPdfType(String convPdfType) {
-        this.convPdfType = convPdfType;
     }
 }

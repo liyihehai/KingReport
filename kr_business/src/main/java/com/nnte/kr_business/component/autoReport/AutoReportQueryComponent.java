@@ -5,10 +5,7 @@ import com.nnte.framework.annotation.DBSchemaInterface;
 import com.nnte.framework.annotation.DataLibItem;
 import com.nnte.framework.annotation.DataLibType;
 import com.nnte.framework.annotation.WorkDBAspect;
-import com.nnte.framework.base.BaseNnte;
-import com.nnte.framework.base.ConnSqlSessionFactory;
-import com.nnte.framework.base.DBSchemaColum;
-import com.nnte.framework.base.DynamicDatabaseSourceHolder;
+import com.nnte.framework.base.*;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
@@ -17,9 +14,12 @@ import com.nnte.framework.utils.DateUtils;
 import com.nnte.framework.utils.JsonUtil;
 import com.nnte.framework.utils.NumberUtil;
 import com.nnte.framework.utils.StringUtils;
+import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
+import com.nnte.kr_business.base.KRConfigInterface;
 import com.nnte.kr_business.component.base.KingReportComponent;
+import com.nnte.kr_business.entity.autoReport.EnvDataItem;
 import com.nnte.kr_business.entity.autoReport.ReportControl;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
@@ -33,12 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.nnte.kr_business.base.BaseController.getKeyValListOption;
 
 @Component
 @WorkDBAspect
@@ -52,6 +51,9 @@ public class AutoReportQueryComponent extends BaseComponent {
     private AutoReportDBConnComponent autoReportDBConnComponent;
     @Autowired
     private MerchantReportQueryService merchantReportQueryService;
+    @Autowired
+    @ConfigLoad
+    public KRConfigInterface config;
     //组件数据字典区域
     //------------------------------------------
     @DataLibItem("报表查询类型")
@@ -81,6 +83,26 @@ public class AutoReportQueryComponent extends BaseComponent {
         LibQueryResKeyWord.add(new KeyValue(ResKeyWord.PERIOD_NO,"报表期数"));
         LibQueryResKeyWord.add(new KeyValue(ResKeyWord.CUT_KEY,"报表分割字段值"));
         LibQueryResKeyWord.add(new KeyValue(ResKeyWord.CUT_NAME,"报表分割字段名"));
+    }
+    //---数据输出格式定义------------------------
+    public final static List<KeyValue> LibDataOutputFmt_INT = new ArrayList<>();
+    static {//Int数据格式
+        LibDataOutputFmt_INT.add(new KeyValue("0","0"));
+        LibDataOutputFmt_INT.add(new KeyValue("000,000","000,000"));
+    }
+    public final static List<KeyValue> LibDataOutputFmt_FLOAT = new ArrayList<>();
+    static {//浮点数据格式
+        LibDataOutputFmt_FLOAT.add(new KeyValue("0.0","0.0"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue("0.00","0.00"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue("0.000","0.000"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue("000,000.00","000,000.00"));
+    }
+    public final static List<KeyValue> LibDataOutputFmt_DATE = new ArrayList<>();
+    static {//浮点数据格式
+        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD","YYYY-MM-DD"));
+        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD hh:mm:ss","YYYY-MM-DD hh:mm:ss"));
+        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD hh:mm","YYYY-MM-DD hh:mm"));
+        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM","YYYY-MM"));
     }
     //------------------------------------------
     public MerchantReportQuery getReportQueryDefineById(Long queryId){
@@ -125,6 +147,77 @@ public class AutoReportQueryComponent extends BaseComponent {
         else
             list=merchantReportQueryService.findModelList(cssf, dto);
         return list;
+    }
+
+    @DBSrcTranc
+    public Map<String, Object> queryReportDataQuerysForOption(Map<String, Object> paramMap){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        //--------------------------------
+        MerchantReportDefine merchantReportDefine=autoReportComponent.getReportRecordByCode(cssf,loginMerchant.getId(),
+                StringUtils.defaultString(paramMap.get("reportCode")));
+        if (merchantReportDefine==null||merchantReportDefine.getId()==null||
+                merchantReportDefine.getId()<=0){
+            BaseNnte.setRetFalse(ret, 1002,"取得报表定义错误");
+            return ret;
+        }
+        //取得报表查询列表-----------------
+        List<MerchantReportQuery> queryList=queryReportDataQuerys(loginMerchant.getId(),
+                merchantReportDefine,cssf);
+        List<KeyValue> queryOptionList=new ArrayList<>();
+        List<KeyValue> queryColsList=new ArrayList<>();
+        List<KeyValue> queryColsOptionList=new ArrayList<>();
+        if (queryList!=null){
+            for(MerchantReportQuery mrq:queryList){
+                KeyValue kv=new KeyValue(mrq.getQueryCode(),mrq.getQueryName());
+                queryOptionList.add(kv);
+                //取得查询列信息
+                List<KeyValue> colTypeList=new ArrayList<>(); //用过KV方式返回字段的类型
+                List<KeyValue> colOptionList=new ArrayList<>(); //用过KV方式返回字段的类型
+                List<JsonNode> colList=JsonUtil.jsonToNodeArray(mrq.getQuerySqlCols());
+                if (colList!=null && colList.size()>0){
+                    for(JsonNode jnode:colList){
+                        DBSchemaColum col=JsonUtil.jsonToBean(jnode.toString(),DBSchemaColum.class);
+                        if (col!=null){
+                            DataColDef.DataType dt = DataColDef.getDataTypeFromSchemaColEnum(
+                                    DBSchemaBase.SchemaColType.getColTypeFromStr(col.getDataType()));
+                            colTypeList.add(new KeyValue(col.getColName(),dt));
+                            colOptionList.add(new KeyValue(col.getColName(),col.getColName()));
+                        }
+                    }
+                }
+                queryColsList.add(new KeyValue(mrq.getQueryCode(),colTypeList));
+                queryColsOptionList.add(new KeyValue(mrq.getQueryCode(),
+                        getKeyValListOption(colOptionList,null)));
+            }
+        }
+        //查询列定义MAP
+        ret.put("queryColsList",queryColsList);
+        ret.put("queryColsOptionList",queryColsOptionList);
+        //输出控制JSON文本
+        ret.put("OutputControl",merchantReportDefine.getOutputControl());
+        //报表关联的查询--select 选项
+        ret.put("CircleQueryOption",getKeyValListOption(queryOptionList,null));
+        //Excel模板文件SheetName -- select 选项
+        String[] sheetNames=autoReportComponent.loadTemplateFileInfo(merchantReportDefine,config.getConfig("templateType"));
+        List<KeyValue> sheetNamesList=new ArrayList<>();
+        for(String sheetName:sheetNames){
+            sheetNamesList.add(new KeyValue(sheetName,sheetName));
+        }
+        ret.put("sheetNamesOption",getKeyValListOption(sheetNamesList,null));
+        //环境数据数据类型定义-------------------
+        List<EnvDataItem> envDataItemList=EnvDataItem.getAllEnvDataItemList();
+        ret.put("envDataItemList",envDataItemList);
+        //环境数据 -- select 选项
+        ret.put("LibQueryResKeyWordOption",getKeyValListOption(LibQueryResKeyWord,null));
+        //数据格式 -- select 选项
+        ret.put("LibDataOutputFmtINTOption",getKeyValListOption(LibDataOutputFmt_INT,null));
+        ret.put("LibDataOutputFmtFLOATOption",getKeyValListOption(LibDataOutputFmt_FLOAT,null));
+        ret.put("LibDataOutputFmtDATEOption",getKeyValListOption(LibDataOutputFmt_DATE,null));
+        //------------------------------------
+        BaseNnte.setRetTrue(ret, "查询报表查询成功");
+        return ret;
     }
 
     //查询商户的分割查询列表，以KEY-VALUE形式返回

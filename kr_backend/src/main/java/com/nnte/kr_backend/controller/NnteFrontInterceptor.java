@@ -25,9 +25,9 @@ public class NnteFrontInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         if (session.getAttribute("envData")==null) {
             Map<String, Object> envData = new HashMap<>();
-            envData.put("debug", appconfig.getDebug().toUpperCase());
-            envData.put("staticRoot", appconfig.getStaticRoot());
-            envData.put("localHostName", appconfig.getLocalHostName());
+            envData.put("debug", appconfig.getConfig("debug").toUpperCase());
+            envData.put("staticRoot", appconfig.getConfig("staticRoot"));
+            envData.put("localHostName", appconfig.getConfig("localHostName"));
 
             //测试用，设置默认的商户信息
             BaseMerchant loginMerchant=new BaseMerchant();

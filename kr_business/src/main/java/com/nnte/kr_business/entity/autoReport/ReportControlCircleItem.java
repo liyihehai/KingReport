@@ -1,7 +1,13 @@
 package com.nnte.kr_business.entity.autoReport;
 
 import com.nnte.framework.entity.DataColDef;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class ReportControlCircleItem {
     private DataColDef.DataType dataType;       //数据类型
     private String outText;                     //输出项字段名
@@ -15,30 +21,5 @@ public class ReportControlCircleItem {
         setOutText(outText);
         setCellPoint(cellPoint);
         setFormat(format);
-    }
-    //--------------------------------------------------
-    public String getCellPoint() {
-        return cellPoint;
-    }
-    public void setCellPoint(String cellPoint) {
-        this.cellPoint = cellPoint;
-    }
-    public String getFormat() {
-        return format;
-    }
-    public void setFormat(String format) {
-        this.format = format;
-    }
-    public DataColDef.DataType getDataType() {
-        return dataType;
-    }
-    public void setDataType(DataColDef.DataType dataType) {
-        this.dataType = dataType;
-    }
-    public String getOutText() {
-        return outText;
-    }
-    public void setOutText(String outText) {
-        this.outText = outText;
     }
 }

@@ -113,13 +113,13 @@ public class AutoReportDBConnController extends BaseController {
 
     @RequestMapping("/saveReportDBconn")
     @ResponseBody
-    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JsonNode jsonParam){
+    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody String json){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
-        if (jsonParam==null){
+        JsonUtil.JNode jNode=JsonUtil.createJNode(JsonUtil.jsonToNode(json));
+        if (jNode==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(空)");
             return ret;
         }
-        JsonUtil.JNode jNode=JsonUtil.createJNode(jsonParam);
         Map<String,Object> pMap=new HashMap<>();
         if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("connCode")),
                 "connCode",pMap, ret,1002,"参数错误(连接代码未设置)"))

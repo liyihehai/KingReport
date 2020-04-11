@@ -230,7 +230,13 @@ public class AutoReportExcelComponent extends BaseComponent {
                     Object outObj=rc.getReportDataEnv().get(circleItem.getOutText());
                     outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj,0);
                 }
-            }else if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_QueryFeild)){
+            }else if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_NormalTxt)){
+                //如果是普通文本输出
+                for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
+                    outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),circleItem.getOutText(),0);
+                }
+            }
+            else if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_QueryFeild)){
                 if (controlCircle.getCircleItemList().size()<=0)
                     continue;//没有行定义，不能输出数据
                 //取得开始的行号

@@ -445,7 +445,7 @@ function AppJSGlobUtil() {
 function messageBox() {
     var onComfire = function(agrs){};
     this.showMsgBox=function(text) {
-        $('.modal-dialog').hide();
+    //    $('.modal-dialog').hide();
         BootstrapDialog.show({
             message: text,
             title: "温馨提示",
@@ -462,10 +462,9 @@ function messageBox() {
         });
     }
     this.showComfireBox = function(text,param,onComfire) {
-        $('.modal-dialog').hide();
+    //    $('.modal-dialog').hide();
         BootstrapDialog.show({
             message : text,
-            type: BootstrapDialog.TYPE_DEFAULT,
             title : "询问窗",
             size : BootstrapDialog.SIZE_SMALL,
             buttons : [ {
@@ -478,16 +477,15 @@ function messageBox() {
                     if (onComfire!=undefined && onComfire!=null)
                         onComfire(param);
                 }
-            },
-                {
-                    id : 'button-cancel',
-                    label : '取消',
-                    hotkey : 27,
-                    action : function(dialog) {
-                        dialog.close();
-                        $('.modal-dialog').show();
-                    }
-                }],
+            }, {
+               id : 'button-cancel',
+               label : '取消',
+               hotkey : 27,
+               action : function(dialog) {
+                   dialog.close();
+                   $('.modal-dialog').show();
+               }
+            }],
             onhidden : function () {
                 $('.modal-dialog').show();
             }

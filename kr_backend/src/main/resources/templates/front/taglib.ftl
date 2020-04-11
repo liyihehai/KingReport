@@ -91,7 +91,7 @@
 	<link rel="stylesheet" href="${envData.staticRoot!''}/css/qjbCustom/global.css">
 	<!--自定义JS引入-->
 	<script src="${envData.staticRoot!''}/css/qjbCustom/qjbGlobal.js"></script>
-	<script src="${envData.staticRoot!''}/js/common.js?v=1.1.16"></script>
+	<script src="${envData.staticRoot!''}/js/common.js?v=1.1.18"></script>
     <script>
         var glob_JS_Static_Host = "${envData.staticRoot!''}";
     </script>

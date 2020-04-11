@@ -25,7 +25,7 @@ public class BaseComponent {
     public String genExportExcelRelPath(Date date,Long parMerchantId){
         if (parMerchantId==null)
             return null;
-        String p1= StringUtils.pathAppend(appConfig.getExpotExcelTmpRoot(),parMerchantId.toString());
+        String p1= StringUtils.pathAppend(appConfig.getConfig("expotExcelTmpRoot"),parMerchantId.toString());
         String yearMonth= DateUtils.dateToString(date,"yyyyMM");
         String path=StringUtils.pathAppend(p1,yearMonth);
         return path;
@@ -34,7 +34,7 @@ public class BaseComponent {
     public String genExportExcelAbPath(Date date,Long parMerchantId){
         if (parMerchantId==null)
             return null;
-        String path=StringUtils.pathAppend(appConfig.getAbStaticRoot(),genExportExcelRelPath(date,parMerchantId));
+        String path=StringUtils.pathAppend(appConfig.getConfig("abStaticRoot"),genExportExcelRelPath(date,parMerchantId));
         if (!FileUtil.isPathExists(path))
         {
             if (!FileUtil.makeDirectory(path))
@@ -58,14 +58,14 @@ public class BaseComponent {
         String id= UUID.randomUUID().toString();
         String fileName = "exportexcel"+id+".xls";
         String abPathFileName = StringUtils.pathAppend(abPath,fileName);
-        String relFileUrl = StringUtils.pathAppend(appConfig.getStaticRoot(),StringUtils.pathAppend(relPath,fileName));
+        String relFileUrl = StringUtils.pathAppend(appConfig.getConfig("staticRoot"),StringUtils.pathAppend(relPath,fileName));
         String[] ret = new String[5];
         ret[0]=abPathFileName;  //绝对路径文件名
         ret[1]=relFileUrl;      //静态文件名访问url
         ret[2]=fileName;        //文件名
         ret[3]=abPath;          //绝对路径
         ret[4]=relPath;         //相对路径
-        if ("true".equalsIgnoreCase(appConfig.getDebug()))
+        if ("true".equalsIgnoreCase(appConfig.getConfig("debug")))
             BaseNnte.outConsoleLog(relFileUrl);
         return ret;
     }

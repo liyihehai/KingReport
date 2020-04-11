@@ -10,7 +10,9 @@ import com.nnte.framework.base.DataLibrary;
 import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ExpotColDef;
 import com.nnte.framework.entity.KeyValue;
+import com.nnte.framework.entity.XSSFWorkbookAndOPC;
 import com.nnte.framework.utils.DateUtils;
+import com.nnte.framework.utils.ExcelUtil;
 import com.nnte.framework.utils.FileUtil;
 import com.nnte.framework.utils.StringUtils;
 import com.nnte.kr_business.annotation.DBSrcTranc;
@@ -19,6 +21,7 @@ import com.nnte.kr_business.base.NConfig;
 import com.nnte.kr_business.component.base.KingReportComponent;
 import com.nnte.kr_business.entity.autoReport.ReportBusiType;
 import com.nnte.kr_business.entity.autoReport.ReportControlCircle;
+import com.nnte.kr_business.entity.autoReport.TemplateItem;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
@@ -50,6 +53,8 @@ public class AutoReportComponent extends BaseComponent {
     private AutoReportParamsComponent autoReportParamsComponent;
     @Autowired
     private FdfsClientMgrComponent fdfsClientMgrComponent;
+    @Autowired
+    private AutoReportExcelComponent autoReportExcelComponent;
     //组件数据字典区域
     //------------------------------------------
     @DataLibItem("报表启用状态")
@@ -153,6 +158,30 @@ public class AutoReportComponent extends BaseComponent {
         BaseNnte.setRetTrue(ret,"取得报表定义成功");
         return ret;
     }
+
+    @DBSrcTranc
+    public Map<String, Object> saveReportOutput(Map<String, Object> paramMap){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        BaseMerchant loginMerchant= KingReportComponent.getLoginMerchantFromParamMap(paramMap);
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        MerchantReportDefine merchantReportDefine=(MerchantReportDefine)paramMap.get("merchantReportDefine");
+        if (merchantReportDefine==null||merchantReportDefine.getId()==null||
+                merchantReportDefine.getId()<=0){
+            BaseNnte.setRetFalse(ret, 1002,"取得报表定义错误");
+            return ret;
+        }
+        MerchantReportDefine updateMRD=new MerchantReportDefine();
+        updateMRD.setId(merchantReportDefine.getId());
+        updateMRD.setOutputControl(StringUtils.defaultString(paramMap.get("output")));
+        if (!merchantReportDefineService.updateModel(cssf,updateMRD).equals(1))
+        {
+            BaseNnte.setRetFalse(ret, 1002,"保存报表输出错误");
+            return ret;
+        }
+        BaseNnte.setRetTrue(ret,"保存报表输出成功");
+        return ret;
+    }
+
     //通过CODE查找报表记录
     public MerchantReportDefine getReportRecordByCode(ConnSqlSessionFactory cssf, Long merchantId, String code) {
         MerchantReportDefine dto = new MerchantReportDefine();
@@ -265,6 +294,58 @@ public class AutoReportComponent extends BaseComponent {
         }
         //------------------------------------------------------
         return ret;
+    }
+    //下载报表模板文件，生成临时文件，返回临时文件路径文件名
+    public String downloadReportTemplateFile(MerchantReportDefine mrd,String type){
+        if (mrd==null || StringUtils.isEmpty(mrd.getTemplateFile()) ||
+                StringUtils.isEmpty(mrd.getTempfileCollect()))
+            return null;
+        JSONArray jarray=JSONArray.fromObject(mrd.getTempfileCollect());
+        if (jarray==null || jarray.size()<=0)
+            return null;
+        String fileName=mrd.getTemplateFile();
+        for(int i=0;i<jarray.size();i++){
+            TemplateItem ti= (TemplateItem) JSONObject.toBean(jarray.getJSONObject(i),TemplateItem.class);
+            if (ti.getFileName().equals(fileName)){
+                String[] typeAndSubmitName=ti.getSubmitName().split(":");
+                if (typeAndSubmitName==null || typeAndSubmitName.length!=2)
+                    return null;
+                String submitName=typeAndSubmitName[1];
+                byte[] content=fdfsClientMgrComponent.downloadFile(type,submitName);
+                //byte[] content=fdfsClientMgrComponent.downloadFile(type,
+                //        ti.getSubmitName());
+                if (content!=null){
+                    return FileUtil.saveBufToTmpFile(content,FileUtil.getExtention(fileName));
+                }
+            }
+        }
+        return null;
+    }
+    //装载模板文件信息
+    public String[] loadTemplateFileInfo(MerchantReportDefine mrd,String type){
+        //从文件服务器下载模板文件,生成临时文件----
+        String fn=downloadReportTemplateFile(mrd,type);
+        //---------------------------------------
+        XSSFWorkbookAndOPC wao=autoReportExcelComponent.openExcelTemplate(fn);
+        if (wao==null){
+            FileUtil.deleteFile(fn);
+            return null;//不能打开模板文件
+        }
+        try {
+            //--读取模板文件信息-----------
+            String[] retNames=new String[wao.getWb().getNumberOfSheets()];
+            for(int i=0;i<retNames.length;i++){
+                retNames[i]=wao.getWb().getSheetName(i);
+            }
+            autoReportExcelComponent.closeExcelTemplate(wao);
+            FileUtil.deleteFile(fn);
+            return retNames;
+        }catch (Exception e){
+            e.printStackTrace();
+            autoReportExcelComponent.closeExcelTemplate(wao);
+            FileUtil.deleteFile(fn);
+            return null;
+        }
     }
     //保存报表模板文件设置
     @DBSrcTranc

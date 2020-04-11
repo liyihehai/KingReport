@@ -136,39 +136,40 @@ public class AutoReportQueryController extends BaseController {
 
     @RequestMapping("/saveReportQuery")
     @ResponseBody
-    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody JsonNode jsonParam){
+    public Map<String, Object> saveReportDBconn(HttpServletRequest request,@RequestBody String json){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
-        if (jsonParam==null){
+        JsonUtil.JNode jNode=JsonUtil.createJNode(JsonUtil.jsonToNode(json));
+        if (jNode==null){
             BaseNnte.setRetFalse(ret,1002,"参数错误(空)");
             return ret;
         }
         Map<String,Object> pMap=new HashMap<>();
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("queryCode")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("queryCode")),
                 "queryCode",pMap, ret,1002,"参数错误(查询代码未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("queryName")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("queryName")),
                 "queryName",pMap, ret,1002,"参数错误(查询名称未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("queryType")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("queryType")),
                 "queryType",pMap, ret,1002,"参数错误(查询类型未设置)"))
             return ret;
         //如果分割标志为是，不设置所属报表
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("cutFlag")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("cutFlag")),
                 "cutFlag",pMap, ret,1002,"参数错误(分割标志未设置)"))
             return ret;
         if (pMap.get("cutFlag").equals("1")){
-            if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("cutTypeName")),
+            if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("cutTypeName")),
                     "cutTypeName",pMap, ret,1002,"参数错误(分割名称未设置)"))
                 return ret;
         }else {
-            if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("reportId")),
+            if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("reportId")),
                     "reportId", pMap, ret, 1002, "参数错误(所属报表)"))
                 return ret;
         }
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("connId")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.get("connId")),
                 "connId",pMap, ret,1002,"参数错误(数据连接未设置)"))
             return ret;
-        String maxRowCount_str=StringUtils.defaultString(jsonParam.get("maxRowCount"));
+        String maxRowCount_str=StringUtils.defaultString(jNode.get("maxRowCount"));
         Integer maxRowCount=NumberUtil.getDefaultInteger(maxRowCount_str);
         if (maxRowCount<=0){
             BaseNnte.setRetFalse(ret,1002,"参数错误(最大行数未设置)");
@@ -188,13 +189,18 @@ public class AutoReportQueryController extends BaseController {
     @RequestMapping("/saveQueryBodySet")
     @ResponseBody
     public Map<String, Object> saveQueryBodySet(HttpServletRequest request,
-                                               @RequestBody JsonNode jsonParam){
+                                                @RequestBody String json){
         Map<String,Object> ret = BaseNnte.newMapRetObj();
+        JsonUtil.JNode jNode=JsonUtil.createJNode(JsonUtil.jsonToNode(json));
+        if (jNode==null){
+            BaseNnte.setRetFalse(ret,-1,"数据输入错误");
+            return ret;
+        }
         Map<String,Object> pMap=new HashMap<>();
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("queryCode")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.getText("queryCode")),
                 "queryCode",pMap, ret,1002,"参数错误(查询代码未设置)"))
             return ret;
-        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jsonParam.get("querySql")),
+        if (!BaseNnte.checkSetParamMapStr(StringUtils.defaultString(jNode.getText("querySql")),
                 "querySql",pMap, ret,1002,"参数错误(查询语句未设置)"))
             return ret;
         //-------------------------------------------------

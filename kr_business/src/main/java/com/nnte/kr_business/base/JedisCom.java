@@ -62,8 +62,8 @@ public class JedisCom {
         //逐出扫描的时间间隔(毫秒) 如果为负数,则不运行逐出线程, 默认-1
         config.setTimeBetweenEvictionRunsMillis(100000);
         try{
-            pool = new JedisPool(config, localConfig.getRedisServer(),
-                    Protocol.DEFAULT_PORT,Protocol.DEFAULT_TIMEOUT,localConfig.getRedisPws());
+            pool = new JedisPool(config, localConfig.getConfig("redisServer"),
+                    Protocol.DEFAULT_PORT,Protocol.DEFAULT_TIMEOUT,localConfig.getConfig("redisPws"));
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -100,12 +100,12 @@ public class JedisCom {
         //逐出扫描的时间间隔(毫秒) 如果为负数,则不运行逐出线程, 默认-1
         config2.setTimeBetweenEvictionRunsMillis(100000);
         try{
-            jedis_rmq= new JedisPool(config2, localConfig.getRedisServer(),
-                    Protocol.DEFAULT_PORT,Protocol.DEFAULT_TIMEOUT,localConfig.getRedisPws());
+            jedis_rmq= new JedisPool(config2, localConfig.getConfig("redisServer"),
+                    Protocol.DEFAULT_PORT,Protocol.DEFAULT_TIMEOUT,localConfig.getConfig("redisPws"));
         }catch(Exception e){
             e.printStackTrace();
         }
-        logger.info("Jedis init success!IP=" + localConfig.getRedisServer());
+        logger.info("Jedis init success!IP=" + localConfig.getConfig("redisServer"));
     }
 
     public Map<String, String> getByPattern(String pkey){
@@ -362,7 +362,7 @@ public class JedisCom {
             int interval=250;//默认250毫秒试着加锁一次
             do {
                 //服务器绝对名称+线程号+锁名=锁值，表示锁只能被当前服务器的加锁线程释放
-                String value=localConfig.getLocalHostAbstractName()+"_"+ ThreadUtil.getThreadCode()+"_"+lock;
+                String value=localConfig.getConfig("localHostAbstractName")+"_"+ ThreadUtil.getThreadCode()+"_"+lock;
                 jedis = pool.getResource();
                 long acquired = jedis.setnx(lock, String.valueOf(value));
                 //SETNX成功，则成功获取一个锁
@@ -397,7 +397,7 @@ public class JedisCom {
                 if (isForce)
                     jedis.del(lock);
                 else {
-                    String value = localConfig.getLocalHostAbstractName() + "_" + ThreadUtil.getThreadCode() + "_" + lock;
+                    String value = localConfig.getConfig("localHostAbstractName") + "_" + ThreadUtil.getThreadCode() + "_" + lock;
                     String lockVal = jedis.get(lock);
                     if (lockVal.equals(value))
                         jedis.del(lock);
@@ -409,5 +409,9 @@ public class JedisCom {
             if(jedis!=null)
                 jedis.close();
         }
+    }
+
+    public void setLocalConfig(KRConfigInterface localConfig) {
+        this.localConfig = localConfig;
     }
 }

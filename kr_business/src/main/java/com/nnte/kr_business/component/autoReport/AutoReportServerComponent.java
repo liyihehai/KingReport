@@ -492,7 +492,7 @@ public class AutoReportServerComponent extends BaseComponent {
         }
         //数据生成后按报表控制进行数据输出
         //从文件服务器下载模板文件,生成临时文件----
-        String fn=downloadReportTemplateFile(rc.getReportDefine());
+        String fn=autoReportComponent.downloadReportTemplateFile(rc.getReportDefine(),config.getConfig("reportTemplate"));
         //---------------------------------------
         XSSFWorkbookAndOPC wao=autoReportExcelComponent.openExcelTemplate(fn);
         if (wao==null){
@@ -584,26 +584,5 @@ public class AutoReportServerComponent extends BaseComponent {
         ret.put("merchantReportRec",mmr);
         BaseNnte.setRetTrue(ret,"获取数据成功");
         return ret;
-    }
-    //下载报表模板文件，生成临时文件，返回临时文件路径文件名
-    public String downloadReportTemplateFile(MerchantReportDefine mrd){
-        if (mrd==null || StringUtils.isEmpty(mrd.getTemplateFile()) ||
-                StringUtils.isEmpty(mrd.getTempfileCollect()))
-            return null;
-        JSONArray jarray=JSONArray.fromObject(mrd.getTempfileCollect());
-        if (jarray==null || jarray.size()<=0)
-            return null;
-        String fileName=mrd.getTemplateFile();
-        for(int i=0;i<jarray.size();i++){
-            TemplateItem ti= (TemplateItem) JSONObject.toBean(jarray.getJSONObject(i),TemplateItem.class);
-            if (ti.getFileName().equals(fileName)){
-                byte[] content=fdfsClientMgrComponent.downloadFile(config.getConfig("reportTemplate"),
-                        ti.getSubmitName());
-                if (content!=null){
-                    return FileUtil.saveBufToTmpFile(content,FileUtil.getExtention(fileName));
-                }
-            }
-        }
-        return null;
     }
 }
