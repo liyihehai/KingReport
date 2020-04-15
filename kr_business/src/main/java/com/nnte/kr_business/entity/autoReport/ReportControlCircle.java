@@ -20,7 +20,7 @@ public class ReportControlCircle {
     private CircleItemType circleItemType;  //输出项类型
     private String sheetName="sheet1";      //页面名称，默认sheet1
     private String queryCode;               //查询代码 circleItemType=CIT_QueryFeild有效
-    @JsonDeserialize(using= JsonUtil.ListJsonDeserializer.class)
+    @JsonDeserialize(as = List.class,contentAs = ReportControlCircleItem.class)
     @JsonSerialize(using= JsonUtil.ListJsonSerializer.class)
     private List<ReportControlCircleItem> circleItemList=new ArrayList<>();
     //------------------------------------------------------

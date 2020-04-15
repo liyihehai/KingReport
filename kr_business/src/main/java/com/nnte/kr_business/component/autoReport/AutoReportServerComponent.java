@@ -1,5 +1,6 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.annotation.WorkDBAspect;
 import com.nnte.framework.base.BaseNnte;
@@ -8,10 +9,7 @@ import com.nnte.framework.entity.DataColDef;
 import com.nnte.framework.entity.ObjKeyValue;
 import com.nnte.framework.entity.TKeyValue;
 import com.nnte.framework.entity.XSSFWorkbookAndOPC;
-import com.nnte.framework.utils.DateUtils;
-import com.nnte.framework.utils.FileUtil;
-import com.nnte.framework.utils.NumberUtil;
-import com.nnte.framework.utils.StringUtils;
+import com.nnte.framework.utils.*;
 import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.annotation.DBSrcTranc;
 import com.nnte.kr_business.base.BaseComponent;
@@ -387,7 +385,13 @@ public class AutoReportServerComponent extends BaseComponent {
     }
     //设置报表输出控制信息
     public void setReportOutputControl(ReportControl rc){
-        ReportControlCircle cc=new ReportControlCircle();
+        List<JsonNode> jnodeList= JsonUtil.jsonToNodeArray(rc.getReportDefine().getOutputControl());
+        for(JsonNode jcc:jnodeList){
+            ReportControlCircle cc=JsonUtil.jsonToBean(jcc.toString(),ReportControlCircle.class);
+            if (cc!=null)
+                rc.getCircleList().add(cc);
+        }
+        /*
         cc.setCircleItemType(ReportControlCircle.CircleItemType.CIT_EnvData);//数据环境循环
         //---------------------------------------------------------------
         cc.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_INT,
@@ -419,6 +423,7 @@ public class AutoReportServerComponent extends BaseComponent {
         cc2.getCircleItemList().add(new ReportControlCircleItem(DataColDef.DataType.DATA_FLOT,
                 "SUMAMOUNT","G5","%.2f"));
         rc.getCircleList().add(cc2);
+        */
     }
     //产生报表文件
     @DBSrcTranc

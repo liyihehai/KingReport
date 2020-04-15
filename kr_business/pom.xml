@@ -12,6 +12,8 @@
     <artifactId>kr_business</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <name>kr_business</name>
+    <packaging>jar</packaging>
+
     <description>nnte king report business model for Spring Boot</description>
     <repositories>
         <repository>
@@ -61,16 +63,6 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <classifier>exec</classifier>
-                    <mainClass>nnte.kr_business.component.base.KingReportComponent</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
         <resources>
             <resource>
                 <directory>src/main/java</directory>

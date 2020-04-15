@@ -44,12 +44,6 @@ public class AutoReportSetOutputController extends BaseController {
         map.put("merchantReportDefine",mrd);
 
         //查询报表查询(排除分割查询)
-        //Map<String,Object> rdqOptionMap=autoReportQueryComponent.queryReportDataQuerysForOption(map);
-        /*
-        map.put("CircleQueryOption",getKeyValListOption((List<KeyValue>) rdqOptionMap.get("queryOptionList"),null));
-        map.put("LibQueryResKeyWordOption",rdqOptionMap.get("LibQueryResKeyWordOption"));
-        map.put("envDataItemList",rdqOptionMap.get("envDataItemList"));
-        */
         modelAndView.addObject("map", map);
         modelAndView.setViewName("front/autoReport/reportSetOutput");
         return modelAndView;

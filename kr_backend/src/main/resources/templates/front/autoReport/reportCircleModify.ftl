@@ -98,11 +98,11 @@
         this.addControlCircle=function(circle,isLoad){
             var jsUtil=new AppJSGlobUtil();
             var item='<tr class="tableRow">';
-            item+='<td><span class="glyphicon-button glyphicon-pencil circleEdit"/></td>';
+            item+='<td>'+globalCtrl.iconButtonHtml("circleEdit","glyphicon-button glyphicon-pencil")+'</td>';
             item+='<td>'+jsUtil.getS('',circle.circleItemTypeName)+'</td>';
             item+='<td>'+jsUtil.getS('',circle.sheetName)+'</td>';
             item+='<td>'+jsUtil.getS('',circle.queryName)+'</td>';
-            item+='<td><span class="glyphicon-button glyphicon-trash circleDelete"/></td>';
+            item+='<td>'+globalCtrl.iconButtonHtml("circleDelete","glyphicon-button glyphicon-trash")+'</td>';
             item+='</tr>';
             this.circleContainer.append(item);
             if (!isLoad) {//如果是加载则不增加控制循环对象

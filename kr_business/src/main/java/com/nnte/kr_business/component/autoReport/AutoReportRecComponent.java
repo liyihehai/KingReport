@@ -1,5 +1,6 @@
 package com.nnte.kr_business.component.autoReport;
 
+import com.nnte.fdfs_client_mgr.FdfsClientMgrComponent;
 import com.nnte.framework.annotation.DataLibItem;
 import com.nnte.framework.annotation.DataLibType;
 import com.nnte.framework.annotation.WorkDBAspect;
@@ -27,6 +28,8 @@ import java.util.Map;
 public class AutoReportRecComponent {
     @Autowired
     private MerchantReportRecService merchantReportRecService;
+    @Autowired
+    private FdfsClientMgrComponent fdfsClientMgrComponent;
 
     public static class ReportRecState{
         public final static Integer PAUSE=0;  //暂停
@@ -135,6 +138,34 @@ public class AutoReportRecComponent {
         return ret;
     }
 
+    @DBSrcTranc
+    public Map<String,Object> getReportRecPriviewBytes(Map<String,Object> paramMap){
+        Map<String, Object> ret = BaseNnte.newMapRetObj();
+        ConnSqlSessionFactory cssf = (ConnSqlSessionFactory) paramMap.get("ConnSqlSessionFactory");
+        MerchantReportRec reportRec=merchantReportRecService.findModelByKey(cssf,paramMap.get("id"));
+        if (reportRec==null){
+            BaseNnte.setRetFalse(ret, 1002,"未找到指定的报表记录");
+            return ret;
+        }
+        String name=reportRec.getReportFileName();
+        if (StringUtils.isEmpty(name)){
+            BaseNnte.setRetFalse(ret, 1002,"未找到指定的报表的预览文件");
+            return ret;
+        }
+        String[] names=name.split(":");
+        if (names==null || names.length<2){
+            BaseNnte.setRetFalse(ret, 1002,"未找到指定的报表的预览文件名");
+            return ret;
+        }
+        byte[] priviewContent=fdfsClientMgrComponent.downloadFile("reportConvPdf",names[1]);
+        if (priviewContent==null || priviewContent.length<=0){
+            BaseNnte.setRetFalse(ret, 1002,"未取得指定的报表的预览文件数据");
+            return ret;
+        }
+        ret.put("priviewContent",priviewContent);
+        BaseNnte.setRetTrue(ret, "找到报表记录的预览文件");
+        return ret;
+    }
     /*
      * 获取用于预览的指定商户报表生成记录
      * */

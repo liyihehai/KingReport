@@ -18,6 +18,11 @@
         .table-col-opt {
             width: 20px;
         }
+        .low-button{
+            height: 23px;
+            padding: 0;
+            width: 25px;
+        }
         .selTableRow {
             background-color: aquamarine;
         }
@@ -29,32 +34,50 @@
         <div class="box">
             <div class="box-body">
                 <table class="table">
-                    <thead>
-                        <th class="tabble-head-1">数据环境输出</th>
-                        <th class="tabble-head-1" style="text-align: right">
-                            <div onclick="switchOutSpan(1);">
-                                <span id="dataEnvSwitch" class="glyphicon-button glyphicon-triangle-top"></span>
-                            </div>
-                        </th>
+                    <thead class="tabble-head-1">
+                        <td colspan="2">
+                            <table style="width: 100%;table-layout:fixed;word-break:break-all">
+                                <tr>
+                                    <td class="st3_td_label"><strong>报表名称：</strong></td>
+                                    <td class="st3_td_input"><strong>${map.merchantReportDefine.reportName}</strong></td>
+                                    <td class="st3_td_label"><strong>报表代码：</strong></td>
+                                    <td class="st3_td_input"><strong>${map.merchantReportDefine.reportCode}</strong></td>
+                                    <td style="width: 20%"></td>
+                                    <td style="width: 150px">
+                                    <table style="width: 100%">
+                                        <tr>
+                                            <td style="width: 100px">
+                                                <button class="btn bg-maroon" data-toggle="button" onclick="saveReportOutput();">保存输出</button>
+                                            </td>
+                                            <td style="width: 30px">
+                                                <button class="btn bg-maroon" data-toggle="button" onclick="switchOutSpan(1);">
+                                                    <span class="glyphicon-button glyphicon-triangle-top"/>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </td>
+                                    </table>
+                                </tr>
+                            </table>
+                        </td>
                     </thead>
                     <tbody>
-                        <tr id="dataEnvOutSpanHead" class="switchOutSpan">
-                            <td width="40%">
-                                <button class="btn bg-maroon" data-toggle="button" onclick="saveReportOutput();">保存输出</button>
-                            </td>
-                        </tr>
                         <tr id="dataEnvOutSpan" class="switchOutSpan">
                             <td width="40%">
                                 <table class="table table-bordered table-hover">
                                     <thead>
-                                    <th class="table-head-2 table-col-opt"><span class="glyphicon-button glyphicon-tags"/></th>
+                                    <th class="table-head-2 table-col-opt">
+                                        <button class="btn bg-maroon low-button" data-toggle="button">
+                                            <span class="glyphicon-button glyphicon-tags"/>
+                                        </button>
+                                    </th>
                                     <th class="table-head-2">循环类型</th>
                                     <th class="table-head-2">SHEET名称</th>
                                     <th class="table-head-2">查询名称</th>
                                     <th class="table-head-2 table-col-opt">
-                                        <div onclick="addControlCircle();">
-                                            <span class="glyphicon-button glyphicon-plus"></span>
-                                        </div>
+                                        <button class="btn bg-maroon low-button" data-toggle="button" onclick="addControlCircle();">
+                                            <span class="glyphicon-button glyphicon-plus"/>
+                                        </button>
                                     </th>
                                     </thead>
                                     <tbody id="controlCircleContainer">
@@ -64,15 +87,19 @@
                             <td width="60%">
                                 <table class="table table-bordered table-hover">
                                     <thead>
-                                    <th class="table-head-2 table-col-opt"><span class="glyphicon-button glyphicon-tags"/></th>
+                                    <th class="table-head-2 table-col-opt">
+                                        <button class="btn bg-maroon low-button" data-toggle="button">
+                                            <span class="glyphicon-button glyphicon-tags"/>
+                                        </button>
+                                    </th>
                                     <th class="table-head-2">输出位置</th>
                                     <th class="table-head-2">数据类型</th>
                                     <th class="table-head-2">变量/字段</th>
                                     <th class="table-head-2">格式化</th>
                                     <th class="table-head-2 table-col-opt">
-                                        <div onclick="addCircleItem();">
-                                            <span class="glyphicon-button glyphicon-plus"></span>
-                                        </div>
+                                        <button class="btn bg-maroon low-button" data-toggle="button" onclick="addCircleItem();">
+                                            <span class="glyphicon-button glyphicon-plus"/>
+                                        </button>
                                     </th>
                                     </thead>
                                     <tbody id="circleItemContainer">

@@ -402,13 +402,13 @@ public class AutoReportController extends BaseController {
         Object reportRecId=request.getParameter("reportRecId");
         BaseNnte.setParamMapDataEnv(request,map);
         map.put("id",NumberUtil.getDefaultLong(reportRecId.toString()));
-        Map<String,Object> pathMap=autoReportRecComponent.getReportRecPriviewPath(map);
+        Map<String,Object> pathMap=autoReportRecComponent.getReportRecPriviewBytes(map);
         if (!BaseNnte.getRetSuc(pathMap)){
             return null;
         }
         try {
-            byte[] pdfFileBytes = FileUtil.getContent(StringUtils.defaultString(pathMap.get("priviewFileName")));
-            //  byte[] pdfFileBytes = FileUtil.getContent("/d:/KingReport_MDXSM_2_3215.pdf");
+            //byte[] pdfFileBytes = FileUtil.getContent(StringUtils.defaultString(pathMap.get("priviewFileName")));
+            byte[] pdfFileBytes = (byte[])pathMap.get("priviewContent");
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.valueOf("application/pdf"));
             httpHeaders.setContentLength(pdfFileBytes.length);

@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -212,7 +213,7 @@ public class AutoReportExcelComponent extends BaseComponent {
             if (controlCircle.getCircleItemType().equals(ReportControlCircle.CircleItemType.CIT_EnvData))
                 resortCCList.add(0,controlCircle);
             else{
-                List<JSONObject> rows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
+                List<Map<String,Object>> rows=(List<Map<String,Object>>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
                 if (rows.size()>1)
                     resortCCList.add(controlCircle);
                 else
@@ -245,7 +246,7 @@ public class AutoReportExcelComponent extends BaseComponent {
                     continue;//没找到行，不能输出数据
                 int startRow=rcPoint[0];
                 //如果是查询结果集输出，每一行要控制循环执行一次
-                List<JSONObject> dataRows=(List<JSONObject>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
+                List<Map<String,Object>> dataRows=(List<Map<String,Object>>)rc.getReportDataEnv().get(controlCircle.getQueryCode());
                 int rowCount=dataRows.size();
                 CellCopyPolicy policy=null;
                 if (rowCount>1){
@@ -274,7 +275,7 @@ public class AutoReportExcelComponent extends BaseComponent {
                 }else if (rowCount<=0)
                     continue;//没有数据，本控制不输出
                 int rowOff=0;
-                for(JSONObject jData:dataRows){
+                for(Map jData:dataRows){
                     for(ReportControlCircleItem circleItem:controlCircle.getCircleItemList()){
                         Object outObj=jData.get(circleItem.getOutText()); //从查询结果中取数据
                         outputDataToCell(sheet,circleItem.getCellPoint(),circleItem.getFormat(),outObj,rowOff);

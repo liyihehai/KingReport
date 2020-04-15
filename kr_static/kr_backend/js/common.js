@@ -530,6 +530,18 @@ function messageBox() {
     }
 }
 var msgbox=new messageBox();
+
+function GlobalCtrl(){
+    /*动态图标按钮*/
+    this.iconButtonHtml=function (opeClasss,icon){
+        var html ="<button class='btn bg-maroon low-button "+opeClasss+"' data-toggle='button'>" +
+            "<span class='"+icon+"'></span>" +
+            "</button>";
+        return html;
+    }
+}
+
+var globalCtrl=new GlobalCtrl();
  
 
 

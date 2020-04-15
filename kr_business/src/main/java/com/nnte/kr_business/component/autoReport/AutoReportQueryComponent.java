@@ -28,12 +28,14 @@ import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQuery;
 import com.nnte.kr_business.mapper.workdb.merchant.query.MerchantReportQueryService;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefine;
 import com.nnte.kr_business.mapper.workdb.merchant.report.MerchantReportDefineService;
-import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,22 +89,22 @@ public class AutoReportQueryComponent extends BaseComponent {
     //---数据输出格式定义------------------------
     public final static List<KeyValue> LibDataOutputFmt_INT = new ArrayList<>();
     static {//Int数据格式
-        LibDataOutputFmt_INT.add(new KeyValue("0","0"));
-        LibDataOutputFmt_INT.add(new KeyValue("000,000","000,000"));
+        LibDataOutputFmt_INT.add(new KeyValue(StringUtils.INT_F_D,"0"));
+        LibDataOutputFmt_INT.add(new KeyValue(StringUtils.INT_F_TSD,"000,000"));
     }
     public final static List<KeyValue> LibDataOutputFmt_FLOAT = new ArrayList<>();
     static {//浮点数据格式
-        LibDataOutputFmt_FLOAT.add(new KeyValue("0.0","0.0"));
-        LibDataOutputFmt_FLOAT.add(new KeyValue("0.00","0.00"));
-        LibDataOutputFmt_FLOAT.add(new KeyValue("0.000","0.000"));
-        LibDataOutputFmt_FLOAT.add(new KeyValue("000,000.00","000,000.00"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue(StringUtils.FLOAT_F_1F,"0.0"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue(StringUtils.FLOAT_F_2F,"0.00"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue(StringUtils.FLOAT_F_3F,"0.000"));
+        LibDataOutputFmt_FLOAT.add(new KeyValue(StringUtils.FLOAT_F_TS2F,"000,000.00"));
     }
     public final static List<KeyValue> LibDataOutputFmt_DATE = new ArrayList<>();
     static {//浮点数据格式
-        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD","YYYY-MM-DD"));
-        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD hh:mm:ss","YYYY-MM-DD hh:mm:ss"));
-        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM-DD hh:mm","YYYY-MM-DD hh:mm"));
-        LibDataOutputFmt_DATE.add(new KeyValue("YYYY-MM","YYYY-MM"));
+        LibDataOutputFmt_DATE.add(new KeyValue(DateUtils.DF_YMD,"YYYY-MM-DD"));
+        LibDataOutputFmt_DATE.add(new KeyValue(DateUtils.DF_YMDHMS,"YYYY-MM-DD hh:mm:ss"));
+        LibDataOutputFmt_DATE.add(new KeyValue(DateUtils.DF_YMDHM,"YYYY-MM-DD hh:mm"));
+        LibDataOutputFmt_DATE.add(new KeyValue(DateUtils.DF_YM,"YYYY-MM"));
     }
     //------------------------------------------
     public MerchantReportQuery getReportQueryDefineById(Long queryId){
@@ -593,9 +595,9 @@ public class AutoReportQueryComponent extends BaseComponent {
                 BaseNnte.setRetFalse(ret, 1002,"报表分割查询没有数据，不能生成报表");
                 return ret;
             }
-            List<JSONObject> cutList=(List<JSONObject>)queryRet.get("rows");
+            List<Map<String,Object>> cutList=(List<Map<String,Object>>)queryRet.get("rows");
             List<ObjKeyValue> cutContentList=new ArrayList<>();
-            for(JSONObject jobj:cutList){
+            for(Map jobj:cutList){
                 ObjKeyValue kv=new ObjKeyValue(jobj.get(mrd.getCutKeyField()),jobj.get(mrd.getCutNameField()));
                 cutContentList.add(kv);
             }

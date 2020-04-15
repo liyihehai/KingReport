@@ -312,8 +312,6 @@ public class AutoReportComponent extends BaseComponent {
                     return null;
                 String submitName=typeAndSubmitName[1];
                 byte[] content=fdfsClientMgrComponent.downloadFile(type,submitName);
-                //byte[] content=fdfsClientMgrComponent.downloadFile(type,
-                //        ti.getSubmitName());
                 if (content!=null){
                     return FileUtil.saveBufToTmpFile(content,FileUtil.getExtention(fileName));
                 }

@@ -2,15 +2,11 @@ package com.nnte.kr_business.component.base;
 
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.base.SpringContextHolder;
-import com.nnte.framework.utils.FileUtil;
-import com.nnte.framework.utils.HttpUtil;
-import com.nnte.framework.utils.NumberUtil;
-import com.nnte.framework.utils.StringUtils;
+import com.nnte.framework.utils.*;
 import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.base.KRConfigInterface;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
-import net.sf.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -75,13 +71,13 @@ public class KingReportComponent {
         String url=convUrl+"?type="+type+"&fileName="+fileName;
         try {
             String retmsg= HttpUtil.sendHttpFile(url,pathFileName);
-            JSONObject jsonRet=JSONObject.fromObject(retmsg);
-            Integer code= NumberUtil.getDefaultInteger(jsonRet.get("code"));
-            retMap.put("suc",code.equals(0)?true:false);
+            JsonUtil.JNode jsonRet= new JsonUtil.JNode(JsonUtil.jsonToNode(retmsg));
+            Integer code= jsonRet.getInteger("code");
+            retMap.put("suc",code==null?false:code.equals(0)?true:false);
             retMap.put("code",code);
-            retMap.put("msg", StringUtils.defaultString(jsonRet.get("msg")));
-            retMap.put("officeFile",StringUtils.defaultString(jsonRet.get("officeFile")));
-            retMap.put("pdfFile",StringUtils.defaultString(jsonRet.get("pdfFile")));
+            retMap.put("msg", StringUtils.defaultString(jsonRet.getText("msg")));
+            retMap.put("officeFile",StringUtils.defaultString(jsonRet.getText("officeFile")));
+            retMap.put("pdfFile",StringUtils.defaultString(jsonRet.getText("pdfFile")));
             return retMap;
         } catch (IOException e) {
             e.printStackTrace();

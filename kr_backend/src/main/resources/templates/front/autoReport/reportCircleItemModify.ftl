@@ -140,12 +140,12 @@
         this.addControlCircleItem=function(circleItem,isAddData){
             var jsUtil=new AppJSGlobUtil();
             var item='<tr class="tableRow">';
-            item+='<td><span class="glyphicon-button glyphicon-pencil circleItemEdit"/></td>';
+            item+='<td>'+globalCtrl.iconButtonHtml("circleItemEdit","glyphicon-button glyphicon-pencil")+'</td>';
             item+='<td>'+jsUtil.getS('',circleItem.cellPoint)+'</td>';
             item+='<td>'+jsUtil.getS('',circleItem.dataTypeName)+'</td>';
             item+='<td>'+jsUtil.getS('',circleItem.outText)+'</td>';
-            item+='<td>'+jsUtil.getS('',circleItem.format)+'</td>';
-            item+='<td><span class="glyphicon-button glyphicon-trash circleItemDelete"/></td>';
+            item+='<td>'+jsUtil.getS('',circleItem.formatName)+'</td>';
+            item+='<td>'+globalCtrl.iconButtonHtml("circleItemDelete","glyphicon-button glyphicon-trash")+'</td>';
             item+='</tr>';
             this.circleItemContainer.append(item);
             if (isAddData) {
@@ -160,7 +160,7 @@
             tds.eq(1).text(jsUtil.getS('',circleItem.cellPoint));
             tds.eq(2).text(jsUtil.getS('',circleItem.dataTypeName));
             tds.eq(3).text(jsUtil.getS('',circleItem.outText));
-            tds.eq(4).text(jsUtil.getS('',circleItem.format));
+            tds.eq(4).text(jsUtil.getS('',circleItem.formatName));
         }
         this.loadDynaFunctions=function () {
             $(".circleItemEdit").off("click").on("click",function (event) {
@@ -188,6 +188,7 @@
                 else
                     newCircleItem.outText=$("#reportCircleItemModify_normalTextBody").val();
                 newCircleItem.format=$("#reportCircleItemModify_format").val();
+                newCircleItem.formatName=$("#reportCircleItemModify_format").find("option:selected").text();
                 this.addControlCircleItem(newCircleItem,true);
             }else{
                 //如果是编辑操作
@@ -201,6 +202,7 @@
                     else
                         circleItem.outText=$("#reportCircleItemModify_normalTextBody").val();
                     circleItem.format=$("#reportCircleItemModify_format").val();
+                    circleItem.formatName=$("#reportCircleItemModify_format").find("option:selected").text();
                     this.updateControlCircleItem(circleItem,this.circleItemIndex);
                 }
             }
