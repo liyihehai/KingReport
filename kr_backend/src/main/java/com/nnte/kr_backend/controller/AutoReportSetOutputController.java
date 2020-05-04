@@ -1,4 +1,4 @@
-package com.nnte.kr_backend.controller.autoReport;
+package com.nnte.kr_backend.controller;
 
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.utils.JsonUtil;

@@ -114,6 +114,15 @@ var tabCount = 0;
 var menuMap = new ObjectMap();
 
 function jumpPage(jumpurl, title, menukey, nav) {
+    if (!jumpurl) {
+        return;
+    }
+    var storage = window.sessionStorage;
+    var token=storage.getItem("userToken");
+    if (jumpurl.indexOf("?")>=0)
+        jumpurl = jumpurl + "&token="+token;
+    else
+        jumpurl = jumpurl + "?token="+token;
     var value = menuMap.get(menukey);
     if (value && nav != 1) {
         $('#' + menukey).click();
@@ -121,10 +130,7 @@ function jumpPage(jumpurl, title, menukey, nav) {
         iframe.attr('src', jumpurl);
         return;
     }
-    if (!jumpurl) {
-        return;
-    }
-    if (tabCount > 7) {
+    if (tabCount > 8) {
         alert('当前打开菜单太多，请关闭闲置菜单');
         return;
     }
@@ -140,15 +146,11 @@ function jumpPage(jumpurl, title, menukey, nav) {
         parent.$("#menu_title").append(menu_title);
         parent.$("#menu_content").append(menu_content);
         parent.$('#' + menukey).click();
-
     } else {
-
         $("#menu_title").append(menu_title);
         $("#menu_content").append(menu_content);
         $('#' + menukey).click();
-
     }
-    //$("#nav_link").empty().html(nav);
 }
 
 function removeMe(obj) {
@@ -257,8 +259,30 @@ ObjectMap.prototype.remove = function (key) {
 }
 
 //全局JS Ajax闭包
-function AppJSGlobAjax(token) {
-    this.client_token = token;
+function AppJSGlobAjax() {
+    this.getSessionStorageItem=function(key){
+        var storage = window.sessionStorage;
+        var sitem = storage.getItem(key);
+        if (!sitem)
+            sitem = "";
+        return sitem;
+    }
+    this.setSessionStorageItem=function(key,value){
+        var storage = window.sessionStorage;
+        storage.setItem(key,value);
+    }
+    this.getLocalStorageItem=function(key){
+        var storage = window.localStorage;
+        var sitem = storage.getItem(key);
+        if (!sitem)
+            sitem = "";
+        return sitem;
+    }
+    this.setLocalStorageItem=function(key,value){
+        var storage = window.localStorage;
+        storage.setItem(key,value);
+    }
+    this.client_token = this.getSessionStorageItem("userToken");
     this.getAjaxSetting = function (url, data) {
         var settings = {
             "async": true,
@@ -286,7 +310,8 @@ function AppJSGlobAjax(token) {
             ajax.fail(onFailed);
     };
     this.AjaxApplicationJson = function (url, data, onSucceed) {
-        var settings = this.getAjaxSetting(url, data);
+        var realUrl = this.getSessionStorageItem("contextPath")+url;
+        var settings = this.getAjaxSetting(realUrl, data);
         this.normalAjax(settings, onSucceed, null);
     };
 }
@@ -445,7 +470,6 @@ function AppJSGlobUtil() {
 function messageBox() {
     var onComfire = function(agrs){};
     this.showMsgBox=function(text) {
-    //    $('.modal-dialog').hide();
         BootstrapDialog.show({
             message: text,
             title: "温馨提示",
@@ -462,7 +486,6 @@ function messageBox() {
         });
     }
     this.showComfireBox = function(text,param,onComfire) {
-    //    $('.modal-dialog').hide();
         BootstrapDialog.show({
             message : text,
             title : "询问窗",

@@ -1,0 +1,59 @@
+.st-well {
+	min-height: 5px;
+	padding: 5px;
+	margin-bottom: 5px;
+}
+
+.st-tr {
+	height: 40px;
+}
+
+.st3_td_label {
+	width: 10%;
+	text-align: right;
+}
+
+.st3_td_input {
+	width: 25%;
+	text-align: left;
+}
+.tmf-modal-dialog{
+	width: 800px;
+	height: 476px;
+}
+.tmf-modal-content{
+	width: 800px;
+	height: 476px;
+}
+.tmf-modal-header{
+	background:#d2d6de;
+}
+.tmf-modal-body{
+	width: 800px;
+	height: 370px;
+}
+.tmf-modal-fooder{
+	height: 50px;
+	width: 800px;
+	background:#d2d6de;
+}
+.tmf-table{
+	width: 100%;
+	border: 1px;
+	background-color:#d2d6de;
+	border-style: solid;
+	text-align: center;
+}
+.tmf-table-td-label{
+	width:10%;
+}
+.tmf-table-td-input-s{
+	width:20%;
+}
+.tmf-table-td-input-l{
+	width:30%;
+}
+.tmf-head{
+	position:inherit;
+	width:14px;
+}

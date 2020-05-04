@@ -1,6 +1,5 @@
-package com.nnte.kr_backend.controller.autoReport;
+package com.nnte.kr_backend.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.nnte.framework.base.BaseNnte;
 import com.nnte.framework.entity.KeyValue;
 import com.nnte.framework.utils.JsonUtil;

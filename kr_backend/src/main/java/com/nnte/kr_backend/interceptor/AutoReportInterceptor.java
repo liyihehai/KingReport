@@ -1,10 +1,9 @@
-package com.nnte.kr_backend.controller;
+package com.nnte.kr_backend.interceptor;
 
 import com.nnte.kr_business.annotation.ConfigLoad;
 import com.nnte.kr_business.base.KRConfigInterface;
 import com.nnte.kr_business.mapper.workdb.base.merchant.BaseMerchant;
 import com.nnte.kr_business.mapper.workdb.base.operator.BaseMerchantOperator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class NnteFrontInterceptor implements HandlerInterceptor {
+public class AutoReportInterceptor implements HandlerInterceptor {
     @ConfigLoad
     private KRConfigInterface appconfig;
     @Override
