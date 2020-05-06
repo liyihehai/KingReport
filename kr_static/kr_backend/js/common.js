@@ -139,8 +139,8 @@ function jumpPage(jumpurl, title, menukey, nav) {
     menuMap.put(menukey, tabId);
     var menu_title = '<li><a href="#' + tabId + '" data-toggle="tab" aria-expanded="false" id="' + menukey + '">' + title +
         '<button class="btn btn-box-tool" onclick="removeMe(this)" style="margin-top:-8px;"><i class="fa fa-remove"></i></button></a></li>';
-    var menu_content = '<div class="tab-pane" id="' + tabId + '">' +
-        '<iframe src="' + jumpurl + '" frameborder=0 width="100%" height="750px" scrolling=no></iframe>' +
+    var menu_content = '<div class="tab-pane" id="' + tabId + '" style="height: calc(100vh - 175px);">' +
+        '<iframe src="' + jumpurl + '" frameborder=0 style="width:100%;height: calc(100vh - 185px);" scrolling=no></iframe>' +
         '</div>';
     if (nav == 1) {
         parent.$("#menu_title").append(menu_title);
