@@ -57,3 +57,41 @@
 	position:inherit;
 	width:14px;
 }
+td{
+	vertical-align: middle!important;
+}
+.btn-in-row{
+	padding-top:3px;
+	padding-bottom:3px;
+	font-size:12px;
+	margin-right:4px;
+}
+.td-control{
+	padding: 2px!important;
+}
+.lmf-modal-dialog{
+	width: 400px;
+	height: 180px;
+}
+.lmf-modal-content{
+	width: 400px;
+	height: 208px;
+}
+.lmf-modal-header{
+	background: #8776e5;
+}
+.lmf-modal-body{
+	width: 400px;
+	height: 150px;
+	padding-top: 5px;
+	margin-top: 5px;
+}
+.lmf-modal-fooder{
+	width: 400px;
+	height: 50px;
+	background: #8776e5;
+}
+.lmf_td_label{
+	width: 100px;
+	text-align: right;
+}
