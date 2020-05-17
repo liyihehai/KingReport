@@ -4,64 +4,6 @@ String.prototype.trim = function () {
     return t.replace(/(^\u3000*)|(\u3000*$)/g, "");
 };
 
-//弹出窗口
-function openDialog(title, href) {
-    BootstrapDialog.show({
-        message: $('<div></div>').load(href),
-        closable: false,
-        title: title
-    });
-    setTimeout(function () {
-        $('.bootstrap-dialog-close-button').show();
-    }, 200);
-}
-
-//关闭弹出窗口
-function closeDialog() {
-    $('.close').click();
-}
-
-function msgBox(text) {
-    var dialog;
-    $('.modal-dialog').hide();
-    BootstrapDialog.show({
-        message: $('<div></div>').load(glob_JS_Static_Host + '/html/tipsPage.html'),
-        title: "温馨提示",
-        onshow: function (dialog_) {
-            dialog = dialog_;
-        }
-    });
-    setTimeout(function () {
-        $('.modal-content-span-tips').text(text);
-    }, 200);
-    setTimeout(function () {
-        dialog.close();
-        $('.modal-dialog').show();
-    }, 3500);
-}
-
-function confirmBox(text, successCallback, failCallback) {
-    BootstrapDialog.confirm({
-        title: '温馨提示',
-        message: $('<div></div>').load(glob_JS_Static_Host + '/html/tipsPage.html'),
-        callback: function (result) {
-            // result will be true if button was click, while it will be false if users close the dialog directly.
-            if (result) {
-                if (successCallback)
-                    successCallback();
-            } else {
-                if (failCallback)
-                    failCallback();
-                $('.close').click();
-            }
-        }
-    });
-    setTimeout(function () {
-        $('.modal-content-span-tips').text(text);
-    }, 200);
-}
-
-
 function showSystips() {
     $.post(
         '/w/orderTips.action',
@@ -85,162 +27,82 @@ function syswait(msg) {
     });
 }
 
-
-/**数据导出封装**/
-function dataExport(searchParams, exportUrl) {
-    syswait("正在导出...");
-    $.post(
-        exportUrl,
-        searchParams,
-        function (r, s) {
-            if (r != '10000') {
-                window.location.href = r;
-            }
-            setTimeout(function () {
-                closeDialog();
-            }, 200);
-
-            if (r == '10000') {
-                setTimeout(function () {
-                    msgBox('没有找到相应数据,请稍后再试');
-                }, 700);
+function GlobalTabFrame() {
+    this.menuMap = new ObjectMap();
+    this.tabArray = new Array();
+    this.jumpPage = function (jumpurl, title, menukey, nav) {
+        if (!jumpurl) {
+            return;
+        }
+        var storage = window.sessionStorage;
+        var token=storage.getItem("userToken");
+        if (jumpurl.indexOf("?")>=0)
+            jumpurl = jumpurl + "&token="+token;
+        else
+            jumpurl = jumpurl + "?token="+token;
+        var value = this.menuMap.get(menukey);
+        if (value && nav != 1) {
+            $('#' + menukey).click();
+            return;
+        }
+        if (this.tabArray.length > 8) {
+            msgbox.showMsgBox('当前打开菜单太多，请关闭闲置菜单');
+            return;
+        }
+        var tabId = menukey + this.tabArray.length;
+        this.menuMap.put(menukey, tabId);
+        this.tabArray.push(menukey);
+        var menu_title = '<li><a href="#' + tabId + '" data-toggle="tab" aria-expanded="false" id="' + menukey + '">' + title +
+            '<button class="btn btn-box-tool" onclick="globalTabFrame.removeMe(this)" style="margin-top:-8px;"><i class="fa fa-remove"></i></button></a></li>';
+        var menu_content = '<div class="tab-pane" id="' + tabId + '" style="height: calc(100vh - 175px);">' +
+            '<iframe src="' + jumpurl + '" frameborder=0 style="width:100%;height: calc(100vh - 185px);" scrolling=no></iframe>' +
+            '</div>';
+        if (nav == 1) {
+            parent.$("#menu_title").append(menu_title);
+            parent.$("#menu_content").append(menu_content);
+            parent.$('#' + menukey).click();
+        } else {
+            $("#menu_title").append(menu_title);
+            $("#menu_content").append(menu_content);
+            $('#' + menukey).click();
+        }
+        this.mountActive();
+    }
+    this.removeMe = function (obj) {
+        var id = $(obj).parent().attr('id');
+        this.menuMap.remove(id);
+        for(var i=this.tabArray.length-1;i>=0;i--){
+            if (this.tabArray[i]==id){
+                this.tabArray.splice(i,1);
+                break;
             }
         }
-    )
-}
-
-
-var tabCount = 0;
-var menuMap = new ObjectMap();
-
-function jumpPage(jumpurl, title, menukey, nav) {
-    if (!jumpurl) {
-        return;
+        $(obj).parent().parent().remove();
+        $($(obj).parent().attr('href')).remove();
+        var activeMenu = $("#menu_title .active");
+        if (!activeMenu.text()) {
+            var lastId = this.tabArray[this.tabArray.length - 1];
+            $('#'+ lastId).click();
+        }
     }
-    var storage = window.sessionStorage;
-    var token=storage.getItem("userToken");
-    if (jumpurl.indexOf("?")>=0)
-        jumpurl = jumpurl + "&token="+token;
-    else
-        jumpurl = jumpurl + "?token="+token;
-    var value = menuMap.get(menukey);
-    if (value && nav != 1) {
-        $('#' + menukey).click();
-        var iframe = $('#' + value).find('iframe');
-        iframe.attr('src', jumpurl);
-        return;
-    }
-    if (tabCount > 8) {
-        alert('当前打开菜单太多，请关闭闲置菜单');
-        return;
-    }
-    tabCount++;
-    var tabId = menukey + tabCount;
-    menuMap.put(menukey, tabId);
-    var menu_title = '<li><a href="#' + tabId + '" data-toggle="tab" aria-expanded="false" id="' + menukey + '">' + title +
-        '<button class="btn btn-box-tool" onclick="removeMe(this)" style="margin-top:-8px;"><i class="fa fa-remove"></i></button></a></li>';
-    var menu_content = '<div class="tab-pane" id="' + tabId + '" style="height: calc(100vh - 175px);">' +
-        '<iframe src="' + jumpurl + '" frameborder=0 style="width:100%;height: calc(100vh - 185px);" scrolling=no></iframe>' +
-        '</div>';
-    if (nav == 1) {
-        parent.$("#menu_title").append(menu_title);
-        parent.$("#menu_content").append(menu_content);
-        parent.$('#' + menukey).click();
-    } else {
-        $("#menu_title").append(menu_title);
-        $("#menu_content").append(menu_content);
-        $('#' + menukey).click();
-    }
-}
-
-function removeMe(obj) {
-    menuMap.remove($(obj).parent().attr('id'));
-    tabCount--;
-    $(obj).parent().parent().remove();
-    $($(obj).parent().attr('href')).remove();
-    var activeMenu = $("#menu_title .active");
-    if (!activeMenu.text()) {
-        $('#HOME').click();
-        return;
-    }
-}
-
-
-function showUrlDetail(url) {
-    syswait("正在打开菜单...");
-    var level1 = $('.level1');
-    if (!level1.attr('class')) {
-        var level1htm = '<div class="row level1" style="display:none;"></div>';
-        $('.level0').after(level1htm);
-    } else {
-        level1.empty();
-    }
-    if (!url) {
-        return;
-    }
-    $.ajax({
-        type: "post",
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        url: url,
-        cache: false,
-        dataType: "html",
-        success: function (html) {
-            $('.level1').append(html);
-
-            var removes = document.querySelectorAll('[data-widget="remove"]');
-            for (i = 0; i < removes.length; ++i) {
-                removes[i].onclick = function tst() {
-                    $('.level0').show();
-                    $('.level1').empty();
+    this.mountActive=function(){
+        if (this.tabArray.length<=0)
+            this.tabArray.push("HOME");
+        $("#menu_title li").off("click").on("click",function (event) {
+            var clickId=$(event.target).attr("id");
+            for(var i=globalTabFrame.tabArray.length-1;i>=0;i--){
+                if (globalTabFrame.tabArray[i]==clickId){
+                    globalTabFrame.tabArray.splice(i,1);
+                    globalTabFrame.tabArray.push(clickId);
+                    break;
                 }
             }
-            $('.level0').hide();
-            $('.level1').show();
-            setTimeout(function () {
-                closeDialog();
-            }, 200);
-        }
-    });
+        });
+    }
+    this.mountActive();
 }
 
-function showMeDetail(obj) {
-    syswait("正在打开菜单...");
-    var level1 = $('.level1');
-    if (!level1.attr('class')) {
-        var level1htm = '<div class="row level1" style="display:none;"></div>';
-        $('.level0').after(level1htm);
-    } else {
-        level1.empty();
-    }
-    var url = $(obj).attr('detail-url');
-    if (!url) {
-        return;
-    }
-
-    $.ajax({
-        type: "post",
-        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        url: url,
-        cache: false,
-        dataType: "html",
-        success: function (html) {
-            $('.level1').append(html);
-            var removes = document.querySelectorAll('[data-widget="remove"]');
-            for (i = 0; i < removes.length; ++i) {
-                removes[i].onclick = function tst() {
-                    $('.level0').show();
-                    $('.level1').empty();
-                }
-            }
-            $('.level0').hide();
-            $('.level1').show();
-            setTimeout(function () {
-                closeDialog();
-            }, 200);
-        }
-    });
-}
-
+var globalTabFrame = new GlobalTabFrame();
 
 function ObjectMap() {
     this.container = new Object();
