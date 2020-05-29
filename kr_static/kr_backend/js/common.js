@@ -176,6 +176,13 @@ function AppJSGlobAjax() {
         var settings = this.getAjaxSetting(realUrl, data);
         this.normalAjax(settings, onSucceed, null);
     };
+    this.UrlAppendToken=function(url){
+        if (url.indexOf('token')>=0)
+            return url;
+        if (url.indexOf('?')>=0)
+            return url+"&token="+this.client_token;
+        return url+"?token="+this.client_token;
+    }
 }
 
 function AppJSGlobDatePicker() {
@@ -250,7 +257,7 @@ function AppJSGlobDataTable(){
     this.tableAppendMenuFunction=function (buttonTxt,funcs){
         var hm='';
         hm+='<div class="btn-group">'+
-            '<button type="button" class="btn btn-warning btn-default" data-toggle="dropdown">'+buttonTxt+'<i class="fa fa-caret-down"></i></button>'+
+            '<button type="button" class="btn btn-warning btn-default btn-in-row" data-toggle="dropdown">'+buttonTxt+'<i class="fa fa-caret-down"></i></button>'+
             '<ul class="dropdown-menu" role="menu" style="width:100px;">';
         for(var i=0;i<funcs.length;i++){
             var paramFlag='';
@@ -268,6 +275,8 @@ function AppJSGlobDataTable(){
 function AppJSGlobUtil() {
     this.dateFtt=function(fmt,date)
     { //author: meizz
+        if (date==undefined || date==null)
+            return '';
         var o = {
             "M+" : date.getMonth()+1,                 //月份
             "d+" : date.getDate(),                    //日
