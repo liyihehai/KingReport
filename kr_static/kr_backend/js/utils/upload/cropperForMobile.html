@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="千积变图片剪裁上传">
+		<meta name="keywords" content="千积变，千积变图片上传">
+		<meta name="author" content="千积变">
+		<title>图片剪裁上传</title>
+		<link rel="apple-touch-icon" href="/upload/css/image/apple-touch-icon.png">
+		<link rel="shortcut icon" href="/upload/css/image/favicon.ico">
+		<link rel="icon" href="/upload/css/image/favicon.ico">
+		<link rel="stylesheet" href="/upload/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/upload/css/cropper.min.css">
+		<link rel="stylesheet" href="/upload/css/upload.css?v=1.0">
+		<!-- Scripts -->
+		<script src="/upload/js/jquery-2.2.2.min.js"></script>
+		<script src="/upload/js/bootstrap.min.js"></script>
+		<script src="/upload/js/cropper.min.js"></script>
+		<script src="/upload/js/messenger.js"></script>
+		<script src="/upload/js/global.js"></script>
+		<script src="/upload/js/mobileBUGFix.mini.js"></script>
+		<script src="/upload/js/exif.js"></script>
+	</head>
+
+	<body>
+		<!-- 头部 -->
+		<header class="toper">
+			<div class="title">
+				<a href="javascript:closeCropperDialog('')" class="arrow">
+					<i class="icon-24-back"></i>
+				</a>
+				<div class="title-h1">图片剪裁上传</div>
+			</div>
+		</header>
+		
+		<div class="container-fluid">
+			<input type="hidden" id="aspectRatio" name="aspectRatio" value="1.0"/>
+	  	<div class="upload-cont img-container" style="background: url(/upload/css/image/plus.png) no-repeat 50% 50%;background-size:40%;">
+				<input type="file" id="inputImage" name="inputImage" accept="image/*" style="display: none;">
+				<img src="" alt="" class="cropper-hidden">
+			</div>
+		</div>
+		
+		<footer class="clearfix">
+      <div class="footer-left docs-buttons">
+      	<a class="btn-state-toggle" data-method="rotate" data-option="-45"><i class="icon-upload icon-upload-left"></i><span>左转</span></a>
+  	    <a class="btn-state-toggle" data-method="rotate" data-option="45"><i class="icon-upload icon-upload-right"></i><span>右转</span></a>
+  	    <a class="btn-state-toggle" data-method="reset"><i class="icon-upload icon-upload-reset"></i><span>重置</span></a>
+      </div>
+      <div class="footer-right">
+      	<a class="btn-state-toggle upload-btn btn-crop-upload">上传</a>
+      </div>
+    </footer>
+    <script src="/upload/js/main-mobile.js"></script>
+		<script type="text/javascript">
+	    $(document).ready(function() {
+	      var screenHeight = $(window).height() || document.body.screenHeight
+	      $(".upload-cont").css('height', screenHeight-50);
+	    });
+		</script>
+	</body>
+</html>

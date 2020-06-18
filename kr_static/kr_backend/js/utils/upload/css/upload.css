@@ -1,0 +1,177 @@
+* {
+  margin: 0 ;
+  padding: 0 ;
+}
+html {
+  _background: url(about:blank);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #eeeeee ;
+  min-width: 320px;
+}
+a {
+  text-decoration: none;
+}
+.clearfix:after {
+  display: block;
+  clear: both;
+  content: "";
+  visibility: hidden;
+  height: 0;
+}
+.clearfix {
+  zoom: 1;
+}
+.toper {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  background: url(/upload/css/image/layer2.png) no-repeat;
+  background-size: 100% 44px;
+  height: 44px;
+  text-align: center;
+}
+.toper .title {
+  line-height: 44px;
+  text-align: center;
+  font-size: 18px;
+  color: #ffffff;
+}
+.toper .title .title-h1 {
+  font-size: 18px;
+  font-weight: bold;
+}
+.toper .title .arrow {
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.toper .title .arrow:active {
+  opacity: 0.6;
+}
+.toper .title .icon-24-back {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  background: url(/upload/css/image/icon-arrow.png) no-repeat;
+  background-size: 24px 24px;
+}
+.container-fluid {
+  display: block;
+  padding-bottom: 50px;
+}
+footer {
+  position: absolute;
+  z-index: 99;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  -moz-box-shadow: 0 0px 2px rgba(54, 51, 51, 0.3);
+  -webkit-box-shadow: 0 0px 2px rgba(54, 51, 51, 0.3);
+  box-shadow: 0 0px 2px rgba(54, 51, 51, 0.3);
+  background-color: #ffffff;
+  display: inline-block;
+}
+footer .footer-left {
+  float: left;
+  padding-left: 8px;
+}
+footer .footer-left a {
+  display: inline-block;
+  text-align: center;
+  font-size: 10px;
+  color: #f1505a;
+  margin: 8px 12px;
+}
+footer .footer-left a span {
+  display: block;
+}
+footer .footer-left a:active {
+  opacity: 0.6;
+}
+footer .footer-right {
+  float: right;
+}
+footer .footer-right .upload-btn {
+  display: inline-block;
+  width: 112px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  background-color: #f1505a;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  border-radius: 16px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 9px 8px;
+}
+footer .footer-right .upload-btn:active {
+  background-color: #ef3d48;
+}
+.icon-disabled{
+	color: #8C8C8C;
+}
+.icon-upload {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  background-image: url(/upload/css/image/icon-upload.png);
+  background-repeat: no-repeat;
+  background-size: 20px 60px;
+}
+.icon-upload-right {
+  background-position: 0 0;
+}
+.icon-upload-reset {
+  background-position: 0 -20px;
+}
+.icon-upload-left {
+  background-position: 0 -40px;
+}
+.u-loading {
+	/*
+	width:100%; 
+	height:100%; 
+	position:fixed; 
+	top:0; 
+	left:0; 
+	z-index:99999;
+	background:#cccccc;
+	filter:alpha(opacity=50); 
+	-moz-opacity:0.5; 
+	-khtml-opacity: 0.5; 
+	opacity:0.5;
+	*/
+}
+
+.u-loading-text {
+	background: url(image/loading.gif) no-repeat 8px 50%;
+  background-size: 20%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -20px 0 0 -60px;
+  line-height: 40px;
+  height: 40px;
+  width: 80px;
+  z-index: 99999;
+  background-color: white;
+  opacity: 0.5;
+  padding-left: 40px;
+  border-radius: 6px;
+  font-size: 12px;
+}

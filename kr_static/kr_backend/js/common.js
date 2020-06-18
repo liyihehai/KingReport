@@ -433,10 +433,20 @@ function GlobalCtrl(){
             "</button>";
         return html;
     }
+    /*装载数据字典选项*/
+    this.loadLibOption=function(lib){
+        var html = "";
+        if (lib==undefined || lib==null || lib.size<=0)
+            return html;
+        lib.forEach(function(value,key,arr){
+            var opt="<option value='"+key+"'>"+value+"</option>";
+            html+=opt;
+        });
+        return html;
+    }
 }
 
 var globalCtrl=new GlobalCtrl();
- 
 
 
 
