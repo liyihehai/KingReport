@@ -270,9 +270,28 @@ function AppJSGlobDataTable(){
             '</div>';
         return hm;
     }
+    this.tableAppendOpeButton=function(buttons){
+        var hm='';
+        for(var i=0;i<buttons.length;i++) {
+            var button = buttons[i];
+            var paramFlag='';
+            if (button.bgDataType!=undefined && button.bgDataType!=null && funcs[i].bgDataType=='text')
+                paramFlag="'";
+            var buttonHtml = "<button class='btn " + button.bgColor + " btn-in-row' data-toggle='button' onclick='"+button.bgFunc+"("+paramFlag+button.bgData+paramFlag+")'>" + button.bgTitle + "</button>";
+            hm += buttonHtml;
+        }
+        return hm;
+    }
 }
 
 function AppJSGlobUtil() {
+    this.long2Date=function(longDate){
+        if (!longDate)
+            return null;
+        var date = new Date();
+        date.setTime(longDate);
+        return date;
+    }
     this.dateFtt=function(fmt,date)
     { //author: meizz
         if (date==undefined || date==null)
@@ -335,6 +354,18 @@ function AppJSGlobUtil() {
         var index = fileName.lastIndexOf(".");
         var suffix = fileName.substr(index+1);
         return suffix;
+    }
+    this.generateUUID=function () {
+        var d = new Date().getTime();
+        if (window.performance && typeof window.performance.now === "function") {
+            d += performance.now(); //use high-precision timer if available
+        }
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
     }
 }
 
@@ -448,5 +479,11 @@ function GlobalCtrl(){
 
 var globalCtrl=new GlobalCtrl();
 
-
+var GlobalUtil= {
+    isEmpty:function (obj) {
+        if (obj==undefined || obj==null || obj=='')
+            return true;
+        return false;
+    }
+}
 
