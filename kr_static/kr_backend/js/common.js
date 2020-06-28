@@ -145,6 +145,29 @@ function AppJSGlobAjax() {
         storage.setItem(key,value);
     }
     this.client_token = this.getSessionStorageItem("userToken");
+    this.getGetSetting = function (url) {
+        return {
+            "async": true,
+            "crossDomain": true,
+            "url": url,
+            "method": "GET",
+            "headers": {
+                "Content-Type": "text/html",
+                "cache-control": "no-cache"
+            },
+            "processDate": false
+        };
+    };
+    this.getAjax=function(url,onSucceed,onFailed){
+        var ajax = $.ajax(this.getGetSetting(url));
+        ajax.done(onSucceed);
+        if (GlobalUtil.isNotEmpty(onFailed))
+            ajax.fail(function (msg) {
+                (new messageBox()).showMsgBox("网络错误......");
+            });
+        else
+            ajax.fail(onFailed);
+    };
     this.getAjaxSetting = function (url, data) {
         var settings = {
             "async": true,
